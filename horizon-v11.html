@@ -5,45 +5,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Horizon</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; padding: 0; min-height: 100vh; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0f1117;
+    color: #e2e4e9;
+    padding: 0;
+    min-height: 100vh;
+  }
 
   /* --- PIN GATE --- */
   #gate { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-  #gate h2 { font-size: 18px; color: #8b949e; margin-bottom: 20px; font-weight: 400; }
-  #pin-input { background: #161b22; border: 1px solid #30363d; border-radius: 8px; color: #e6edf3; font-size: 24px; letter-spacing: 12px; text-align: center; padding: 12px 20px; width: 180px; outline: none; -webkit-text-security: disc; }
-  #pin-input:focus { border-color: #58a6ff; }
-  #pin-input.shake { animation: shake 0.4s ease; border-color: #f85149; }
+  #gate h2 { font-size: 18px; color: #7a7f8e; margin-bottom: 20px; font-weight: 400; font-family: 'DM Sans', sans-serif; }
+  #pin-input { background: #1a1d27; border: 1px solid #2a2d38; border-radius: 8px; color: #e2e4e9; font-size: 24px; letter-spacing: 12px; text-align: center; padding: 12px 20px; width: 180px; outline: none; -webkit-text-security: disc; font-family: 'JetBrains Mono', monospace; }
+  #pin-input:focus { border-color: #3b82f6; }
+  #pin-input.shake { animation: shake 0.4s ease; border-color: #ef4444; }
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20%, 60% { transform: translateX(-8px); }
     40%, 80% { transform: translateX(8px); }
   }
-  #pin-hint { font-size: 12px; color: #484f58; margin-top: 12px; }
+  #pin-hint { font-size: 12px; color: #4a4e5a; margin-top: 12px; font-family: 'JetBrains Mono', monospace; }
 
   /* --- CONTENT --- */
-  #content { display: none; padding: 16px; }
-  h1 { font-size: 20px; margin-bottom: 4px; color: #f0f6fc; }
-  .subtitle { font-size: 13px; color: #8b949e; margin-bottom: 16px; }
-  .section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #8b949e; margin: 18px 0 8px 0; font-weight: 600; }
-  .card { border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border-left: 4px solid; }
-  .card-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-  .card-body { font-size: 13px; color: #c9d1d9; line-height: 1.45; }
-  .card-body .tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-right: 4px; font-weight: 600; }
-  .red { background: #1a0e0e; border-color: #f85149; }
-  .red .card-title { color: #f85149; }
-  .red .tag { background: #3d1214; color: #f85149; }
-  .yellow { background: #1a1700; border-color: #d29922; }
-  .yellow .card-title { color: #d29922; }
-  .yellow .tag { background: #3d2e00; color: #d29922; }
-  .blue { background: #0d1a2e; border-color: #58a6ff; }
-  .blue .card-title { color: #58a6ff; }
-  .blue .tag { background: #0c2d6b; color: #58a6ff; }
-  .green { background: #0d1a0d; border-color: #3fb950; }
-  .green .card-title { color: #3fb950; }
-  .green .tag { background: #1a3d1a; color: #3fb950; }
-  .gray { background: #161b22; border-color: #484f58; }
-  .gray .card-title { color: #8b949e; }
+  #content { display: none; padding: 24px; }
+
+  .header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #2a2d38;
+  }
+  .header h1 { font-size: 18px; font-weight: 700; color: #f8f9fa; }
+  .header .ts { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7080; }
+
+  .phase {
+    background: #1a1d27; border: 1px solid #2a2d38; border-radius: 12px;
+    padding: 16px; margin-bottom: 14px;
+  }
+  .phase-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .phase-icon { font-size: 22px; }
+  .phase-title { font-size: 15px; font-weight: 700; color: #f0f1f4; }
+  .phase-count {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: #6b7080; margin-left: auto;
+  }
+
+  .action-card {
+    background: #13151d; border-left: 3px solid; border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  .action-card:last-child { margin-bottom: 0; }
+  .action-card.red { border-color: #ef4444; }
+  .action-card.yellow { border-color: #eab308; }
+  .action-card.green { border-color: #22c55e; }
+  .action-card.blue { border-color: #3b82f6; }
+  .action-card.gray { border-color: #4a4e5a; }
+
+  .action-title { font-size: 13px; font-weight: 700; color: #f0f1f4; }
+  .action-detail { font-size: 12px; color: #7a7f8e; margin-top: 3px; line-height: 1.5; }
+
+  .tag {
+    display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
+    margin-right: 4px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+    background: #2a2d38; color: #7a7f8e;
+  }
+
+  .footer {
+    text-align: center; padding-top: 14px; margin-top: 8px;
+    border-top: 1px solid #2a2d38;
+    font-size: 10px; color: #4a4e5a; font-family: 'JetBrains Mono', monospace;
+  }
 </style>
 </head>
 <body>
@@ -58,128 +93,193 @@
 <!-- PROTECTED CONTENT -->
 <div id="content">
 
-<h1>🧭 Secretary v11 — Horizon Snapshot</h1>
-<p class="subtitle">Saturday March 28, 2026 · Post-Vegas Reentry</p>
-
-<div class="section-label">🔴 Blocked / Urgent — Today</div>
-
-<div class="card red">
-  <div class="card-title">CVS Call — Dad's Praluent Medication</div>
-  <div class="card-body">Out of medication. Call CVS today (Saturday) to order. <span class="tag">PHONE</span> <span class="tag">HOUSEHOLD</span></div>
+<div class="header">
+  <h1>🧭 Horizon — Secretary v11</h1>
+  <span class="ts">Sat Mar 28, 2026 · Post-Vegas Reentry</span>
 </div>
 
-<div class="card red">
-  <div class="card-title">Meg Legal Agreement Review</div>
-  <div class="card-body">Expected today. Once done → send to Anthony + schedule Boostly call (Tuesday 1 PM with Travisse). <span class="tag">ACTIVEMENUS</span> <span class="tag">BLOCKED BY MEG</span></div>
+<!-- BLOCKED / URGENT -->
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-icon">🔴</span>
+    <span class="phase-title">Blocked / Urgent — Today</span>
+    <span class="phase-count">3 items</span>
+  </div>
+
+  <div class="action-card red">
+    <div class="action-title">CVS Call — Dad's Praluent Medication</div>
+    <div class="action-detail">Out of medication. Call CVS today (Saturday) to order. <span class="tag">PHONE</span> <span class="tag">HOUSEHOLD</span></div>
+  </div>
+
+  <div class="action-card red">
+    <div class="action-title">Meg Legal Agreement Review</div>
+    <div class="action-detail">Expected today or tomorrow. Once done → send to Anthony + Boostly call already scheduled (Tue 1 PM). <span class="tag">ACTIVEMENUS</span></div>
+  </div>
+
+  <div class="action-card red">
+    <div class="action-title">Monday March 30 — Dentist + Sage Infusion</div>
+    <div class="action-detail">Both kids dentist at 9 AM. Sage Infusion at 1:30 PM. Dentist logistics TBD with Meg (Dad + Serge vs. Meg there too). Need tardy note for Hunter. <span class="tag">HOUSEHOLD</span> <span class="tag">PERSONAL</span></div>
+  </div>
 </div>
 
-<div class="card red">
-  <div class="card-title">Jim's MoH Planning Calendar Event — WRONG</div>
-  <div class="card-body">Currently set for April 1 at midnight ET. Needs reply proposing 3 PM ET or later. Draft not yet created. <span class="tag">ACTIVEMENUS</span></div>
+<!-- NEEDS YOUR INPUT -->
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-icon">🔵</span>
+    <span class="phase-title">Needs Your Input</span>
+    <span class="phase-count">3 items</span>
+  </div>
+
+  <div class="action-card blue">
+    <div class="action-title">ActiveMenus Strategic Posture — Open Question</div>
+    <div class="action-detail">How much time to invest in someone else's business vs. own ventures? Heavy hitter dilemma, operational gaps, capital problem. Dynamic — no lock-in needed yet. <span class="tag">STRATEGIC</span></div>
+  </div>
+
+  <div class="action-card blue">
+    <div class="action-title">Everlane Realty — Restructuring Idea</div>
+    <div class="action-detail">Restructure → low-overhead referral engine. Move ~5K leads from BoldTrail to own CRM. Drop broker status. 25% referral fee model. Connects to CRM module, CallDoc, phone number system, everything being built. <span class="tag">EVERLANE</span> <span class="tag">STRATEGIC</span></div>
+  </div>
+
+  <div class="action-card blue">
+    <div class="action-title">Friday Meg Recording (~10 AM)</div>
+    <div class="action-detail">Not yet fed in. Process when available. <span class="tag">PROCESSING</span></div>
+  </div>
 </div>
 
-<div class="section-label">🔵 Needs Your Input</div>
+<!-- NEXT UP / IN PROGRESS -->
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-icon">🟡</span>
+    <span class="phase-title">Next Up / In Progress</span>
+    <span class="phase-count">7 items</span>
+  </div>
 
-<div class="card blue">
-  <div class="card-title">ActiveMenus Strategic Posture — Open Question</div>
-  <div class="card-body">How much time to invest in someone else's business vs. own ventures? Heavy hitter dilemma, operational gaps, capital problem. Dynamic strategy — no lock-in needed yet, but awareness is critical. <span class="tag">STRATEGIC</span></div>
+  <div class="action-card yellow">
+    <div class="action-title">Boostly Call — Tue March 31, 1 PM ET</div>
+    <div class="action-detail">Shane Murphy (CEO) + Travisse (product dev). Calendar invite sent. Anthony Slack'd. Still need context email + reseller questions to Anthony. <span class="tag">ACTIVEMENUS</span></div>
+  </div>
+
+  <div class="action-card yellow">
+    <div class="action-title">Expo Debrief — Tue March 31, 4 PM ET</div>
+    <div class="action-detail">Jim + Mike Wick. Email sent confirming 4 PM. Excel file strategy: fully enable MoH team, Gamma collateral links, flag intro-email prospects. <span class="tag">ACTIVEMENUS</span></div>
+  </div>
+
+  <div class="action-card yellow">
+    <div class="action-title">Craig McClure Buyer's Agent Agreement</div>
+    <div class="action-detail">Needs to be sent. Carried from Friday. <span class="tag">RE TRANSACTIONS</span></div>
+  </div>
+
+  <div class="action-card yellow">
+    <div class="action-title">ABC Happy Hour — April 3</div>
+    <div class="action-detail">Copper Shaker Bar, downtown St. Pete. First Friday recurring. Schedule/send invite. <span class="tag">PERSONAL</span></div>
+  </div>
+
+  <div class="action-card yellow">
+    <div class="action-title">Artemis II Launch — Wed April 1, 6:24 PM ET</div>
+    <div class="action-detail">Manatee Hammock H143 (waterfront, Titusville). Serge + Dad. Reese babysits Meg — first audition as go-to sitter. <span class="tag">HOUSEHOLD</span></div>
+  </div>
+
+  <div class="action-card yellow">
+    <div class="action-title">Hunter Soccer — Getting Into the Routine</div>
+    <div class="action-detail">This Saturday: OFF. Monday practice + next Saturday game TBD — Meg and Serge figuring out weekly logistics together. <span class="tag">HOUSEHOLD</span></div>
+  </div>
+
+  <div class="action-card yellow">
+    <div class="action-title">Babysitters — Today + Sunday</div>
+    <div class="action-detail">Karina today 2:30–7 PM (Russian-speaking). Sunday sitter not yet arranged — game plan today. <span class="tag">HOUSEHOLD</span></div>
+  </div>
 </div>
 
-<div class="card blue">
-  <div class="card-title">Everlane Realty Restructuring Idea</div>
-  <div class="card-body">Restructure from active brokerage → low-overhead referral engine. Move ~5K leads from BoldTrail to own CRM. Drop broker status. 25% referral fee model. Connects to CRM module, CallDoc, phone number system, everything being built. $100K SBA loan context. <span class="tag">EVERLANE</span> <span class="tag">STRATEGIC</span></div>
+<!-- DONE / CONFIRMED -->
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-icon">🟢</span>
+    <span class="phase-title">Done / Confirmed</span>
+    <span class="phase-count">8 items</span>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">Pizza Expo — Complete ✅</div>
+    <div class="action-detail">Returned March 27. Trade Show Sales System validated across ~40 conversations.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">Negotiation Coach — Confirmed as P1 Product ✅</div>
+    <div class="action-detail">Decision Record #1 created. Blue ocean positioning confirmed. CRM components evaluated and ruled out as first product.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">GitHub Pages Horizon Repo — Live ✅</div>
+    <div class="action-detail">sergeselenko.github.io/horizon/ · PIN-gated · CoWork auto-push configured · hpush alias as backup.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">System Operating Guide — Created ✅</div>
+    <div class="action-detail">Comprehensive cheat sheet in Notion. All projects, slash commands, daily workflow, where things live.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">Jim Calendar Fix — Email Sent ✅</div>
+    <div class="action-detail">Confirmed Tuesday March 31 at 4 PM ET on the Pizza Expo leads thread.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">Alex Repositioning — Closed ✅</div>
+    <div class="action-detail">Email sent March 23. Alex responded positively.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">Mike Ossola Email — Sent ✅</div>
+    <div class="action-detail">Clean close, zero open loops.</div>
+  </div>
+
+  <div class="action-card green">
+    <div class="action-title">Secretary Pad — Refreshed ✅</div>
+    <div class="action-detail">Current Focus cleaned. All pre-Vegas logistics removed. All new items written.</div>
+  </div>
 </div>
 
-<div class="card blue">
-  <div class="card-title">Morning Meg Recording (~10 AM Friday)</div>
-  <div class="card-body">Not yet fed in. Remind operator to process. <span class="tag">PROCESSING</span></div>
+<!-- PARKED / BACKGROUND -->
+<div class="phase">
+  <div class="phase-head">
+    <span class="phase-icon">⬜</span>
+    <span class="phase-title">Parked / Background</span>
+    <span class="phase-count">5 items</span>
+  </div>
+
+  <div class="action-card gray">
+    <div class="action-title">Title Company Venture</div>
+    <div class="action-detail">Notion infrastructure built. RESPA/AfBA needs legal verification. Waiting on $20K/mo threshold for Meg transition.</div>
+  </div>
+
+  <div class="action-card gray">
+    <div class="action-title">Command Center Dashboard</div>
+    <div class="action-detail">Architecture vision flushed out in Architect project. Parked for future build.</div>
+  </div>
+
+  <div class="action-card gray">
+    <div class="action-title">BoldTrail (Mark) Follow-Up</div>
+    <div class="action-detail">May renewal approaching. Connects to Everlane restructuring decision.</div>
+  </div>
+
+  <div class="action-card gray">
+    <div class="action-title">System Architecture Items</div>
+    <div class="action-detail">Cross-project state propagation, system-wide Contacts layer, dual phone number system — all parked for Architect.</div>
+  </div>
+
+  <div class="action-card gray">
+    <div class="action-title">Pending /capture</div>
+    <div class="action-detail">7 behavioral /flags from v9 + 1 from v10 + 1 from v11 (date confusion). Pre-Execution Checkpoint log entry needs updating.</div>
+  </div>
 </div>
 
-<div class="section-label">🟡 Next Up / In Progress</div>
-
-<div class="card yellow">
-  <div class="card-title">Sage Infusion Appointment</div>
-  <div class="card-body">Monday March 30 at 1:30 PM. Drink plenty of water tomorrow. If on antibiotics, call ahead. <span class="tag">MONDAY</span> <span class="tag">PERSONAL</span></div>
-</div>
-
-<div class="card yellow">
-  <div class="card-title">Expo Debrief Call</div>
-  <div class="card-body">Tuesday March 31 at 2 PM with Mike Wick and Jim. Text them to confirm (may already be done). <span class="tag">ACTIVEMENUS</span></div>
-</div>
-
-<div class="card yellow">
-  <div class="card-title">Craig McClure Buyer's Agent Agreement</div>
-  <div class="card-body">Needs to be sent. Carried from Friday's action items. <span class="tag">RE TRANSACTIONS</span></div>
-</div>
-
-<div class="card yellow">
-  <div class="card-title">ABC Happy Hour — Schedule</div>
-  <div class="card-body">April 3 at Copper Shaker Bar, downtown St. Pete. First Friday recurring. Need to schedule/send invite. <span class="tag">PERSONAL</span></div>
-</div>
-
-<div class="card yellow">
-  <div class="card-title">Secretary Pad — Current Focus STALE</div>
-  <div class="card-body">Still has pre-Vegas logistics, outfit lists, camp registration. Full post-Vegas refresh needed this session. <span class="tag">SYSTEM</span></div>
-</div>
-
-<div class="card yellow">
-  <div class="card-title">Architect + AI Digital Products Handoffs</div>
-  <div class="card-body">Both handoff files in downloads, ready to paste into their respective projects. Not yet delivered. <span class="tag">SYSTEM</span></div>
-</div>
-
-<div class="section-label">🟢 Done / Confirmed</div>
-
-<div class="card green">
-  <div class="card-title">Pizza Expo — Complete</div>
-  <div class="card-body">Returned March 27. Trade Show Sales System validated across ~40 conversations. All expo deliverables produced. <span class="tag">ACTIVEMENUS</span></div>
-</div>
-
-<div class="card green">
-  <div class="card-title">v10 Deliverables — Produced</div>
-  <div class="card-body">ai-digital-products-handoff-complete.md + architect-handoff-crm-sales-system-architecture.md. Both in downloads. <span class="tag">SYSTEM</span></div>
-</div>
-
-<div class="card green">
-  <div class="card-title">Alex Repositioning — Closed</div>
-  <div class="card-body">Email sent March 23, Alex responded positively. Thread closed. <span class="tag">SELENKO</span></div>
-</div>
-
-<div class="card green">
-  <div class="card-title">Mike Ossola Email — Sent</div>
-  <div class="card-body">Clean close, zero open loops. Done. <span class="tag">RE TRANSACTIONS</span></div>
-</div>
-
-<div class="section-label">⬜ Parked / Background</div>
-
-<div class="card gray">
-  <div class="card-title">Title Company Venture</div>
-  <div class="card-body">Notion infrastructure built, deep research prompt produced, RESPA/AfBA promising but needs legal verification. Waiting on Serge hitting $20K/mo threshold for Meg transition.</div>
-</div>
-
-<div class="card gray">
-  <div class="card-title">BoldTrail (Mark) Follow-Up</div>
-  <div class="card-body">Text received March 25 about automations + May renewal. Respond after Vegas (now). Connects to Everlane restructuring decision.</div>
-</div>
-
-<div class="card gray">
-  <div class="card-title">System Architecture Items (Architect)</div>
-  <div class="card-body">Cross-project state propagation, system-wide Contacts layer, dual phone number system — all parked for Architect sessions.</div>
-</div>
-
-<div class="card gray">
-  <div class="card-title">7 Behavioral /flags from v9 + 1 from v10</div>
-  <div class="card-body">Still pending /capture. Math error, horizon artifact skip, draft commitment failures, recipient calibration misses.</div>
-</div>
-
-<div class="card gray">
-  <div class="card-title">Pre-Execution Checkpoint Improvement Log</div>
-  <div class="card-body">Find ~March 12 entry, update to "Recurred — Needs Redesign." Not yet done.</div>
+<div class="footer">
+  Horizon Snapshot · Secretary v11 · Sat Mar 28, 2026 · sergeselenko.github.io/horizon/
 </div>
 
 </div><!-- end content -->
 
 <script>
-// SHA-256 hash of the correct PIN
 const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
 
 async function sha256(str) {
