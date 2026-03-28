@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; padding: 0; min-height: 100vh; }
+
+  /* --- PIN GATE --- */
+  #gate { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  #gate h2 { font-size: 18px; color: #8b949e; margin-bottom: 20px; font-weight: 400; }
+  #pin-input { background: #161b22; border: 1px solid #30363d; border-radius: 8px; color: #e6edf3; font-size: 24px; letter-spacing: 12px; text-align: center; padding: 12px 20px; width: 180px; outline: none; -webkit-text-security: disc; }
+  #pin-input:focus { border-color: #58a6ff; }
+  #pin-input.shake { animation: shake 0.4s ease; border-color: #f85149; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+  #pin-hint { font-size: 12px; color: #484f58; margin-top: 12px; }
+
+  /* --- CONTENT --- */
+  #content { display: none; padding: 16px; }
+  h1 { font-size: 20px; margin-bottom: 4px; color: #f0f6fc; }
+  .subtitle { font-size: 13px; color: #8b949e; margin-bottom: 16px; }
+  .section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #8b949e; margin: 18px 0 8px 0; font-weight: 600; }
+  .card { border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border-left: 4px solid; }
+  .card-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .card-body { font-size: 13px; color: #c9d1d9; line-height: 1.45; }
+  .card-body .tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; margin-right: 4px; font-weight: 600; }
+  .red { background: #1a0e0e; border-color: #f85149; }
+  .red .card-title { color: #f85149; }
+  .red .tag { background: #3d1214; color: #f85149; }
+  .yellow { background: #1a1700; border-color: #d29922; }
+  .yellow .card-title { color: #d29922; }
+  .yellow .tag { background: #3d2e00; color: #d29922; }
+  .blue { background: #0d1a2e; border-color: #58a6ff; }
+  .blue .card-title { color: #58a6ff; }
+  .blue .tag { background: #0c2d6b; color: #58a6ff; }
+  .green { background: #0d1a0d; border-color: #3fb950; }
+  .green .card-title { color: #3fb950; }
+  .green .tag { background: #1a3d1a; color: #3fb950; }
+  .gray { background: #161b22; border-color: #484f58; }
+  .gray .card-title { color: #8b949e; }
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="gate">
+  <h2>Enter PIN</h2>
+  <input type="tel" id="pin-input" maxlength="4" autofocus autocomplete="off">
+  <div id="pin-hint">4 digits</div>
+</div>
+
+<!-- PROTECTED CONTENT -->
+<div id="content">
+
+<h1>🧭 Secretary v11 — Horizon Snapshot</h1>
+<p class="subtitle">Saturday March 28, 2026 · Post-Vegas Reentry</p>
+
+<div class="section-label">🔴 Blocked / Urgent — Today</div>
+
+<div class="card red">
+  <div class="card-title">CVS Call — Dad's Praluent Medication</div>
+  <div class="card-body">Out of medication. Call CVS today (Saturday) to order. <span class="tag">PHONE</span> <span class="tag">HOUSEHOLD</span></div>
+</div>
+
+<div class="card red">
+  <div class="card-title">Meg Legal Agreement Review</div>
+  <div class="card-body">Expected today. Once done → send to Anthony + schedule Boostly call (Tuesday 1 PM with Travisse). <span class="tag">ACTIVEMENUS</span> <span class="tag">BLOCKED BY MEG</span></div>
+</div>
+
+<div class="card red">
+  <div class="card-title">Jim's MoH Planning Calendar Event — WRONG</div>
+  <div class="card-body">Currently set for April 1 at midnight ET. Needs reply proposing 3 PM ET or later. Draft not yet created. <span class="tag">ACTIVEMENUS</span></div>
+</div>
+
+<div class="section-label">🔵 Needs Your Input</div>
+
+<div class="card blue">
+  <div class="card-title">ActiveMenus Strategic Posture — Open Question</div>
+  <div class="card-body">How much time to invest in someone else's business vs. own ventures? Heavy hitter dilemma, operational gaps, capital problem. Dynamic strategy — no lock-in needed yet, but awareness is critical. <span class="tag">STRATEGIC</span></div>
+</div>
+
+<div class="card blue">
+  <div class="card-title">Everlane Realty Restructuring Idea</div>
+  <div class="card-body">Restructure from active brokerage → low-overhead referral engine. Move ~5K leads from BoldTrail to own CRM. Drop broker status. 25% referral fee model. Connects to CRM module, CallDoc, phone number system, everything being built. $100K SBA loan context. <span class="tag">EVERLANE</span> <span class="tag">STRATEGIC</span></div>
+</div>
+
+<div class="card blue">
+  <div class="card-title">Morning Meg Recording (~10 AM Friday)</div>
+  <div class="card-body">Not yet fed in. Remind operator to process. <span class="tag">PROCESSING</span></div>
+</div>
+
+<div class="section-label">🟡 Next Up / In Progress</div>
+
+<div class="card yellow">
+  <div class="card-title">Sage Infusion Appointment</div>
+  <div class="card-body">Monday March 30 at 1:30 PM. Drink plenty of water tomorrow. If on antibiotics, call ahead. <span class="tag">MONDAY</span> <span class="tag">PERSONAL</span></div>
+</div>
+
+<div class="card yellow">
+  <div class="card-title">Expo Debrief Call</div>
+  <div class="card-body">Tuesday March 31 at 2 PM with Mike Wick and Jim. Text them to confirm (may already be done). <span class="tag">ACTIVEMENUS</span></div>
+</div>
+
+<div class="card yellow">
+  <div class="card-title">Craig McClure Buyer's Agent Agreement</div>
+  <div class="card-body">Needs to be sent. Carried from Friday's action items. <span class="tag">RE TRANSACTIONS</span></div>
+</div>
+
+<div class="card yellow">
+  <div class="card-title">ABC Happy Hour — Schedule</div>
+  <div class="card-body">April 3 at Copper Shaker Bar, downtown St. Pete. First Friday recurring. Need to schedule/send invite. <span class="tag">PERSONAL</span></div>
+</div>
+
+<div class="card yellow">
+  <div class="card-title">Secretary Pad — Current Focus STALE</div>
+  <div class="card-body">Still has pre-Vegas logistics, outfit lists, camp registration. Full post-Vegas refresh needed this session. <span class="tag">SYSTEM</span></div>
+</div>
+
+<div class="card yellow">
+  <div class="card-title">Architect + AI Digital Products Handoffs</div>
+  <div class="card-body">Both handoff files in downloads, ready to paste into their respective projects. Not yet delivered. <span class="tag">SYSTEM</span></div>
+</div>
+
+<div class="section-label">🟢 Done / Confirmed</div>
+
+<div class="card green">
+  <div class="card-title">Pizza Expo — Complete</div>
+  <div class="card-body">Returned March 27. Trade Show Sales System validated across ~40 conversations. All expo deliverables produced. <span class="tag">ACTIVEMENUS</span></div>
+</div>
+
+<div class="card green">
+  <div class="card-title">v10 Deliverables — Produced</div>
+  <div class="card-body">ai-digital-products-handoff-complete.md + architect-handoff-crm-sales-system-architecture.md. Both in downloads. <span class="tag">SYSTEM</span></div>
+</div>
+
+<div class="card green">
+  <div class="card-title">Alex Repositioning — Closed</div>
+  <div class="card-body">Email sent March 23, Alex responded positively. Thread closed. <span class="tag">SELENKO</span></div>
+</div>
+
+<div class="card green">
+  <div class="card-title">Mike Ossola Email — Sent</div>
+  <div class="card-body">Clean close, zero open loops. Done. <span class="tag">RE TRANSACTIONS</span></div>
+</div>
+
+<div class="section-label">⬜ Parked / Background</div>
+
+<div class="card gray">
+  <div class="card-title">Title Company Venture</div>
+  <div class="card-body">Notion infrastructure built, deep research prompt produced, RESPA/AfBA promising but needs legal verification. Waiting on Serge hitting $20K/mo threshold for Meg transition.</div>
+</div>
+
+<div class="card gray">
+  <div class="card-title">BoldTrail (Mark) Follow-Up</div>
+  <div class="card-body">Text received March 25 about automations + May renewal. Respond after Vegas (now). Connects to Everlane restructuring decision.</div>
+</div>
+
+<div class="card gray">
+  <div class="card-title">System Architecture Items (Architect)</div>
+  <div class="card-body">Cross-project state propagation, system-wide Contacts layer, dual phone number system — all parked for Architect sessions.</div>
+</div>
+
+<div class="card gray">
+  <div class="card-title">7 Behavioral /flags from v9 + 1 from v10</div>
+  <div class="card-body">Still pending /capture. Math error, horizon artifact skip, draft commitment failures, recipient calibration misses.</div>
+</div>
+
+<div class="card gray">
+  <div class="card-title">Pre-Execution Checkpoint Improvement Log</div>
+  <div class="card-body">Find ~March 12 entry, update to "Recurred — Needs Redesign." Not yet done.</div>
+</div>
+
+</div><!-- end content -->
+
+<script>
+// SHA-256 hash of the correct PIN
+const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const input = document.getElementById('pin-input');
+
+input.addEventListener('input', async function() {
+  if (this.value.length === 4) {
+    const hash = await sha256(this.value);
+    if (hash === PIN_HASH) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+    } else {
+      this.classList.add('shake');
+      setTimeout(() => { this.classList.remove('shake'); this.value = ''; }, 400);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
