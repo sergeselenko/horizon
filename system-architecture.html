@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Architecture — Selenko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafafa;--card:#ffffff;--card-border:#e5e7eb;
+  --section-alt:#f8f9fb;--text:#1a1a2e;--text-sec:#6b7280;--text-muted:#9ca3af;
+  --line:#d1d5db;--ghost-border:#d1d5db;--ghost-fill:#f9fafb;
+  --hover-bg:rgba(0,0,0,0.03);
+  --architect:#3b82f6;--operator:#8b5cf6;--activemenus:#e6940a;
+  --ai-digital:#e63946;--selenko:#6d28d9;--everlane:#7c3aed;
+  --title-co:#0d9488;--lead-gen:#16a34a;--couples:#ec4899;
+  --personal:#0891b2;--household:#2563eb;
+  --green:#10b981;--amber:#f59e0b;--gray-light:#e5e7eb;
+  --radius:12px;--radius-sm:8px;
+  --font:'Outfit',system-ui,sans-serif;
+  --mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,0.1);
+  --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* PIN GATE */
+#pin-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.6s ease,visibility 0.6s ease}
+#pin-gate.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.pin-brand{font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:40px}
+.pin-container{display:flex;flex-direction:column;align-items:center;gap:16px}
+.pin-label{font-size:14px;font-weight:500;color:var(--text-sec)}
+#pin-input{width:180px;height:52px;border:2px solid var(--card-border);border-radius:var(--radius);text-align:center;font-family:var(--font);font-size:24px;font-weight:600;letter-spacing:0.3em;color:var(--text);background:var(--card);outline:none;transition:border-color var(--transition)}
+#pin-input:focus{border-color:var(--selenko)}
+#pin-input.shake{animation:shake 0.5s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-6px)}20%,40%,60%,80%{transform:translateX(6px)}}
+.pin-hint{font-size:12px;color:var(--text-muted);margin-top:4px;height:18px}
+
+/* MAIN CONTENT */
+#main-content{display:none;opacity:0;transition:opacity 0.8s ease 0.2s}
+#main-content.visible{display:block;opacity:1}
+
+/* STICKY NAV */
+.sticky-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,250,250,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--card-border);transform:translateY(-100%);transition:transform var(--transition);padding:0 24px}
+.sticky-nav.visible{transform:translateY(0)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:8px;height:52px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{font-size:13px;font-weight:500;color:var(--text-sec);text-decoration:none;padding:6px 14px;border-radius:20px;white-space:nowrap;transition:all var(--transition)}
+.nav-link:hover,.nav-link.active{color:var(--text);background:rgba(0,0,0,0.05)}
+.nav-title{font-size:14px;font-weight:700;color:var(--text);margin-right:16px;white-space:nowrap}
+
+/* HERO */
+.hero-wrap{position:relative;overflow:hidden;background:linear-gradient(160deg,#f0f0ff 0%,#fafafa 40%,#f5f0ff 100%)}
+.hero-wrap::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(109,40,217,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-wrap::after{content:'';position:absolute;bottom:-100px;left:-150px;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.05) 0%,transparent 70%);pointer-events:none}
+.hero{padding:120px 24px 100px;text-align:center;max-width:800px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{font-size:12px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--selenko);margin-bottom:24px;display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(109,40,217,0.06);border-radius:20px}
+.hero h1{font-size:clamp(36px,6vw,56px);font-weight:800;line-height:1.08;margin-bottom:20px;background:linear-gradient(135deg,var(--text) 0%,var(--selenko) 50%,var(--architect) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:var(--text-sec);max-width:560px;margin:0 auto;font-weight:400;line-height:1.7}
+.hero-stats{display:flex;justify-content:center;gap:48px;margin-top:44px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:36px;font-weight:800;color:var(--text)}
+.hero-stat-label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* SECTIONS */
+section{padding:80px 24px}
+section:nth-child(even){background:var(--section-alt)}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-header{margin-bottom:48px}
+.section-num{font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.section-title{font-size:clamp(24px,3.5vw,36px);font-weight:700;line-height:1.2;margin-bottom:12px}
+.section-desc{font-size:16px;color:var(--text-sec);max-width:600px}
+
+/* FADE IN */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.7s ease,transform 0.7s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* PROJECT CARDS — ECOSYSTEM */
+.ecosystem-grid{display:grid;gap:20px}
+.core-projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-bottom:32px}
+.area-projects{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px}
+.notion-refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.group-label{font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--card-border)}
+
+.project-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all var(--transition);position:relative;overflow:hidden}
+.project-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.project-card.core{padding:24px}
+.project-card.core .card-name{font-size:20px}
+.project-card.ghost{border-style:dashed;background:var(--ghost-fill);opacity:0.7}
+.project-card.ghost:hover{opacity:1}
+.project-card.retired{opacity:0.5;border-style:dotted}
+.card-color-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;flex-shrink:0}
+.card-header{display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.card-name{font-size:16px;font-weight:600}
+.card-status{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,0.1);color:var(--green);margin-left:auto;white-space:nowrap}
+.card-status.pending{background:rgba(245,158,11,0.1);color:var(--amber)}
+.card-status.retired{background:rgba(107,114,128,0.1);color:var(--text-sec)}
+.card-purpose{font-size:13px;color:var(--text-sec);margin-bottom:8px;line-height:1.5}
+.card-expand{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.card-expand.open{max-height:600px}
+.card-detail{padding-top:12px;border-top:1px solid var(--card-border);margin-top:12px;font-size:13px;color:var(--text-sec);line-height:1.6}
+.card-detail strong{color:var(--text);font-weight:600}
+.modes-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mode-tag{font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;background:rgba(139,92,246,0.08);color:var(--operator)}
+.expand-indicator{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px}
+
+/* NOTION REF CARDS */
+.ref-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px}
+.ref-card .ref-name{font-weight:600;color:var(--text);margin-bottom:2px}
+.ref-card .ref-desc{color:var(--text-muted);font-size:12px}
+
+/* SESSION LIFECYCLE */
+.lifecycle-flow{display:flex;gap:4px;align-items:stretch;overflow-x:auto;padding-bottom:16px;scrollbar-width:thin}
+.lifecycle-step{flex:0 0 auto;min-width:160px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px 16px;text-align:center;position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
+.lifecycle-step::after{content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:18px;font-weight:300}
+.lifecycle-step:last-child::after{display:none}
+.step-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.step-name{font-size:14px;font-weight:600}
+.step-desc{font-size:12px;color:var(--text-sec);line-height:1.4}
+
+/* COMMAND GRID */
+.command-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:40px}
+.command-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all var(--transition)}
+.command-card:hover{box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.cmd-name{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--selenko);margin-bottom:4px}
+.cmd-purpose{font-size:13px;color:var(--text-sec);line-height:1.4}
+.cmd-expand{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.cmd-expand.open{max-height:400px}
+.cmd-detail{padding-top:10px;margin-top:10px;border-top:1px solid var(--card-border);font-size:12px;color:var(--text-sec);line-height:1.6}
+.cmd-detail strong{color:var(--text);font-weight:600}
+
+/* EMIT FLOW */
+.emit-flow{margin-top:40px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
+.emit-node{text-align:center;padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500}
+.emit-node.source{background:rgba(109,40,217,0.08);color:var(--selenko)}
+.emit-node.target{background:rgba(59,130,246,0.08);color:var(--architect)}
+.emit-arrow{color:var(--text-muted);font-size:20px;font-weight:300}
+
+/* INFRASTRUCTURE */
+.infra-section{margin-bottom:40px}
+.infra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.infra-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:14px 16px;cursor:pointer;transition:all var(--transition)}
+.infra-card:hover{box-shadow:var(--shadow-sm)}
+.infra-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.infra-name{font-size:14px;font-weight:600}
+.infra-type{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;padding:2px 8px;border-radius:8px;flex-shrink:0}
+.infra-type.page{background:rgba(59,130,246,0.1);color:var(--architect)}
+.infra-type.db{background:rgba(16,185,129,0.1);color:var(--green)}
+.infra-type.template{background:rgba(245,158,11,0.1);color:var(--amber)}
+.infra-type.index{background:rgba(139,92,246,0.1);color:var(--operator)}
+.infra-desc{font-size:12px;color:var(--text-muted);line-height:1.4}
+.infra-expand{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.infra-expand.open{max-height:300px}
+.infra-detail{padding-top:10px;margin-top:10px;border-top:1px solid var(--card-border);font-size:12px;color:var(--text-sec);line-height:1.6}
+.infra-id{font-family:var(--mono);font-size:11px;color:var(--text-muted);word-break:break-all}
+
+/* THREE TIER */
+.three-tier{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:40px;display:flex;gap:0;align-items:stretch}
+.tier-item{flex:1;padding:16px 20px;text-align:center;position:relative}
+.tier-item:not(:last-child){border-right:1px solid var(--card-border)}
+.tier-num{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.tier-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.tier-desc{font-size:12px;color:var(--text-sec);line-height:1.4}
+.tier-arrow{position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px;z-index:1}
+
+/* INVENTORY */
+.inventory-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.inventory-columns{grid-template-columns:1fr}}
+.inventory-col{min-width:0}
+.inv-col-header{font-size:14px;font-weight:700;margin-bottom:16px;padding-bottom:10px;display:flex;align-items:center;gap:8px}
+.inv-col-header .dot{width:12px;height:12px;border-radius:50%}
+.inv-col-header .count{font-size:12px;font-weight:500;color:var(--text-muted);margin-left:auto}
+.inv-item{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all var(--transition);border-left:3px solid transparent}
+.inv-item:hover{box-shadow:var(--shadow-sm)}
+.inv-item.built{border-left-color:var(--green)}
+.inv-item.designed{border-left-color:var(--amber)}
+.inv-item.discussed{border-left-color:var(--line)}
+.inv-item-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.inv-item-desc{font-size:12px;color:var(--text-muted);line-height:1.4;display:none}
+.inv-item.open .inv-item-desc{display:block;margin-top:6px}
+
+/* ARTIFACTS */
+.artifact-flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;padding:20px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius)}
+.artifact-flow-step{font-size:13px;font-weight:500;padding:10px 18px;border-radius:var(--radius-sm);background:var(--section-alt);border:1px solid var(--card-border);text-align:center}
+.artifact-flow-arrow{color:var(--text-muted);font-size:18px}
+.artifact-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.artifact-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;transition:all var(--transition)}
+.artifact-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.artifact-name{font-size:16px;font-weight:600;margin-bottom:4px}
+.artifact-desc{font-size:13px;color:var(--text-sec);margin-bottom:10px;line-height:1.4}
+.artifact-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:11px}
+.artifact-tag{padding:3px 10px;border-radius:10px;font-weight:500}
+.artifact-tag.pin{background:rgba(109,40,217,0.08);color:var(--selenko)}
+.artifact-tag.source{background:rgba(59,130,246,0.08);color:var(--architect)}
+.artifact-tag.date{background:rgba(107,114,128,0.08);color:var(--text-sec)}
+.artifact-link{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;color:var(--selenko);text-decoration:none}
+.artifact-link:hover{text-decoration:underline}
+
+/* FOOTER */
+.page-footer{padding:40px 24px;text-align:center;font-size:12px;color:var(--text-muted);border-top:1px solid var(--card-border)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  section{padding:60px 16px}
+  .hero{padding:80px 16px 60px}
+  .lifecycle-flow{flex-direction:column;align-items:stretch}
+  .lifecycle-step{min-width:auto}
+  .lifecycle-step::after{content:'↓';right:auto;left:50%;top:auto;bottom:-14px;transform:translateX(-50%)}
+  .three-tier{flex-direction:column}
+  .tier-item:not(:last-child){border-right:none;border-bottom:1px solid var(--card-border)}
+  .tier-arrow{display:none}
+  .core-projects{grid-template-columns:1fr}
+  .emit-flow{flex-direction:column}
+  .emit-arrow{transform:rotate(90deg)}
+  .nav-title{display:none}
+}
+
+/* STAGGERED GRID ANIMATIONS */
+.stagger-children > *{opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease}
+.stagger-children.visible > *{opacity:1;transform:translateY(0)}
+.stagger-children.visible > *:nth-child(1){transition-delay:0.05s}
+.stagger-children.visible > *:nth-child(2){transition-delay:0.1s}
+.stagger-children.visible > *:nth-child(3){transition-delay:0.15s}
+.stagger-children.visible > *:nth-child(4){transition-delay:0.2s}
+.stagger-children.visible > *:nth-child(5){transition-delay:0.25s}
+.stagger-children.visible > *:nth-child(6){transition-delay:0.3s}
+.stagger-children.visible > *:nth-child(7){transition-delay:0.35s}
+.stagger-children.visible > *:nth-child(8){transition-delay:0.4s}
+.stagger-children.visible > *:nth-child(9){transition-delay:0.45s}
+.stagger-children.visible > *:nth-child(10){transition-delay:0.5s}
+
+/* INLINE CODE */
+code{font-family:var(--mono);font-size:12px;background:rgba(109,40,217,0.06);color:var(--selenko);padding:2px 6px;border-radius:4px}
+
+/* PIN GATE POLISH */
+#pin-gate{background:linear-gradient(160deg,#f0f0ff 0%,#fafafa 40%,#f5f0ff 100%)}
+.pin-brand{position:relative}
+.pin-brand::after{content:'';display:block;width:32px;height:2px;background:var(--selenko);margin:12px auto 0;border-radius:1px}
+
+/* SELECTION COLOR */
+::selection{background:rgba(109,40,217,0.15);color:var(--text)}
+
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate">
+  <div class="pin-brand">Selenko Systems</div>
+  <div class="pin-container">
+    <div class="pin-label">Enter PIN to continue</div>
+    <input type="password" id="pin-input" maxlength="8" inputmode="numeric" autocomplete="off" autofocus>
+    <div class="pin-hint" id="pin-hint"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav" id="sticky-nav">
+  <div class="nav-inner">
+    <span class="nav-title">System Architecture</span>
+    <a href="#ecosystem" class="nav-link" data-section="ecosystem">Ecosystem</a>
+    <a href="#lifecycle" class="nav-link" data-section="lifecycle">Session Lifecycle</a>
+    <a href="#infrastructure" class="nav-link" data-section="infrastructure">Infrastructure</a>
+    <a href="#inventory" class="nav-link" data-section="inventory">System Inventory</a>
+    <a href="#artifacts" class="nav-link" data-section="artifacts">Artifacts</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-wrap">
+<div class="hero fade-in">
+  <div class="hero-badge">Claude Projects + Notion</div>
+  <h1>System Architecture</h1>
+  <p>A visual map of the entire operating ecosystem — every project, every connection, every workflow.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num">6</div><div class="hero-stat-label">Active Projects</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">8</div><div class="hero-stat-label">Slash Commands</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">25</div><div class="hero-stat-label">Built Systems</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">10</div><div class="hero-stat-label">Notion Pages</div></div>
+  </div>
+</div>
+</div>
+
+<!-- SECTION 1: ECOSYSTEM MAP -->
+<section id="ecosystem">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-num">Section 01</div>
+      <div class="section-title">The Ecosystem Map</div>
+      <div class="section-desc">Two core projects run everything. Area-specific projects handle deep venture work. Click any card to explore.</div>
+    </div>
+
+    <div class="ecosystem-grid">
+      <!-- Core Projects -->
+      <div class="fade-in">
+        <div class="group-label">Core Projects</div>
+        <div class="core-projects stagger-children">
+          <!-- Architect -->
+          <div class="project-card core" style="--accent:var(--architect)" onclick="toggleExpand(this)">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--architect)"></div>
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--architect)"></span>
+              <span class="card-name">Architect</span>
+              <span class="card-status">Active</span>
+            </div>
+            <div class="card-purpose">System design layer. Builds, refines, and evolves the entire Claude Projects ecosystem.</div>
+            <div class="expand-indicator">click to expand ↓</div>
+            <div class="card-expand">
+              <div class="card-detail">
+                <strong>What happens here:</strong> Writing instructions, designing project structures, evolving Notion architecture, automation planning, onboarding new ventures.<br><br>
+                <strong>Startup reads:</strong> Global Instructions → Architect Instructions → Project Registry<br><br>
+                <strong>Key rule:</strong> Default deliverable is instructions/prompts, not direct execution. Uses DDV pattern for significant Notion changes.
+              </div>
+            </div>
+          </div>
+          <!-- Operator -->
+          <div class="project-card core" onclick="toggleExpand(this)">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--operator)"></div>
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--operator)"></span>
+              <span class="card-name">Operator</span>
+              <span class="card-status">Active</span>
+            </div>
+            <div class="card-purpose">Always-available operations partner. Five modes via auto-detection or slash commands.</div>
+            <div class="modes-list">
+              <span class="mode-tag">Note Processing</span>
+              <span class="mode-tag">Daily Orchestration</span>
+              <span class="mode-tag">Real-time Assistant</span>
+              <span class="mode-tag">Business Advisory</span>
+              <span class="mode-tag">Venture Mode</span>
+            </div>
+            <div class="expand-indicator">click to expand ↓</div>
+            <div class="card-expand">
+              <div class="card-detail">
+                <strong>Mode triggers:</strong><br>
+                <code>/process</code> or paste raw inputs → Note Processing<br>
+                <code>/daily</code> or ask about schedule → Daily Orchestration<br>
+                <code>/secretary</code> → Real-time Assistant (Secretary Pad)<br>
+                <code>/advisory</code> → Business Advisory & intake<br>
+                <code>/activemenus</code>, <code>/selenko</code>, etc. → Venture Mode<br><br>
+                <strong>Startup reads:</strong> Global Instructions → Operator Instructions (router page) → mode-specific sub-page → Global Operator Profile<br><br>
+                <strong>Replaced:</strong> Former Advisor + Chief of Staff projects (merged March 2026).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area-Specific Projects (Active) -->
+      <div class="fade-in">
+        <div class="group-label">Area-Specific Projects — Active</div>
+        <div class="area-projects stagger-children">
+          <div class="project-card" onclick="toggleExpand(this)">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--activemenus)"></div>
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--activemenus)"></span>
+              <span class="card-name">ActiveMenus</span>
+              <span class="card-status">Active</span>
+            </div>
+            <div class="card-purpose">AI voice ordering for restaurants. Negotiation docs, sales strategy, expo prep.</div>
+            <div class="card-expand">
+              <div class="card-detail">
+                <strong>Area:</strong> ActiveMenus<br>
+                <strong>Special features:</strong> Circuit breakers N1-N4, Sales Contacts DB (44 entries), Knowledge Digest, Convention Sales Log<br>
+                <strong>Startup reads:</strong> Global Instructions → Global Operator Profile → AM Instructions → AM Snapshot → AM Knowledge Digest
+              </div>
+            </div>
+          </div>
+          <div class="project-card" onclick="toggleExpand(this)">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--ai-digital)"></div>
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--ai-digital)"></span>
+              <span class="card-name">AI Digital Products</span>
+              <span class="card-status">Active</span>
+            </div>
+            <div class="card-purpose">Product portfolio under the Selenko brand. Strategy, build planning, market research.</div>
+            <div class="card-expand">
+              <div class="card-detail">
+                <strong>Area:</strong> Selenko<br>
+                <strong>Note:</strong> 10 research documents migrated to Notion as child pages. Knowledge Registry rows added.
+              </div>
+            </div>
+          </div>
+          <div class="project-card" onclick="toggleExpand(this)">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--title-co)"></div>
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--title-co)"></span>
+              <span class="card-name">Title Company</span>
+              <span class="card-status">Active</span>
+            </div>
+            <div class="card-purpose">Startup formation, licensing, operations planning.</div>
+            <div class="card-expand">
+              <div class="card-detail">
+                <strong>Area:</strong> Title Company<br>
+                <strong>Intake:</strong> Agent equity model defined, 15-domain knowledge base prompts prepared.
+              </div>
+            </div>
+          </div>
+          <div class="project-card" onclick="toggleExpand(this)">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--selenko)"></div>
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--selenko)"></span>
+              <span class="card-name">Selenko — Brand & Strategy</span>
+              <span class="card-status">Active</span>
+            </div>
+            <div class="card-purpose">Overarching brand strategy and positioning for the Selenko portfolio.</div>
+            <div class="card-expand">
+              <div class="card-detail">
+                <strong>Area:</strong> Selenko<br>
+                <strong>Snapshot:</strong> Saved.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Not Yet Created -->
+      <div class="fade-in">
+        <div class="group-label">Not Yet Created</div>
+        <div class="area-projects stagger-children">
+          <div class="project-card ghost" onclick="toggleExpand(this)">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--lead-gen)"></span>
+              <span class="card-name">Lead Gen System</span>
+              <span class="card-status pending">Ready to create</span>
+            </div>
+            <div class="card-purpose">Intake complete. With Alex.</div>
+          </div>
+          <div class="project-card ghost">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--selenko)"></span>
+              <span class="card-name">AI Voice Module</span>
+              <span class="card-status pending">Intake pending</span>
+            </div>
+          </div>
+          <div class="project-card ghost">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--everlane)"></span>
+              <span class="card-name">Everlane Realty</span>
+              <span class="card-status pending">Disposition review</span>
+            </div>
+          </div>
+          <div class="project-card ghost">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--couples)"></span>
+              <span class="card-name">Couple's Center</span>
+              <span class="card-status pending">Full intake pending</span>
+            </div>
+          </div>
+          <div class="project-card ghost">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--household)"></span>
+              <span class="card-name">Household</span>
+              <span class="card-status pending">Pending</span>
+            </div>
+          </div>
+          <div class="project-card ghost">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--personal)"></span>
+              <span class="card-name">Personal</span>
+              <span class="card-status pending">Context captured</span>
+            </div>
+          </div>
+          <div class="project-card ghost">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--text-muted)"></span>
+              <span class="card-name">RE Transactions</span>
+              <span class="card-status pending">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retired -->
+      <div class="fade-in">
+        <div class="group-label">Retired</div>
+        <div class="area-projects stagger-children">
+          <div class="project-card retired">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--text-muted)"></span>
+              <span class="card-name">Advisor</span>
+              <span class="card-status retired">Merged → Operator</span>
+            </div>
+            <div class="card-purpose">Merged into Operator (Business Advisory mode). Historical chats remain.</div>
+          </div>
+          <div class="project-card retired">
+            <div class="card-header">
+              <span class="card-color-dot" style="background:var(--text-muted)"></span>
+              <span class="card-name">Chief of Staff</span>
+              <span class="card-status retired">Merged → Operator</span>
+            </div>
+            <div class="card-purpose">Merged into Operator (Real-time Assistant + Note Processing + Daily Orchestration).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- What Gets Read at Startup -->
+      <div class="fade-in">
+        <div class="group-label">Startup Reading Chain (Area-Specific Projects)</div>
+        <div class="notion-refs stagger-children">
+          <div class="ref-card"><div class="ref-name">① Global Instructions</div><div class="ref-desc">Behavioral rules for all projects</div></div>
+          <div class="ref-card"><div class="ref-name">② Global Operator Profile</div><div class="ref-desc">Decision patterns, venture overview</div></div>
+          <div class="ref-card"><div class="ref-name">③ Project Instructions</div><div class="ref-desc">Venture-specific rules</div></div>
+          <div class="ref-card"><div class="ref-name">④ Project Snapshot</div><div class="ref-desc">Current state of the venture</div></div>
+          <div class="ref-card"><div class="ref-name">⑤ Knowledge Digest</div><div class="ref-desc">Domain knowledge (if exists)</div></div>
+          <div class="ref-card"><div class="ref-name">⑥ Optional Page</div><div class="ref-desc">User-specified in opening message</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SESSION LIFECYCLE -->
+<section id="lifecycle">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-num">Section 02</div>
+      <div class="section-title">The Session Lifecycle</div>
+      <div class="section-desc">How every session flows from startup to closeout, and the slash commands that power it.</div>
+    </div>
+
+    <div class="fade-in">
+      <div class="lifecycle-flow">
+        <div class="lifecycle-step">
+          <div class="step-icon" style="background:rgba(59,130,246,0.1);color:var(--architect)">📖</div>
+          <div class="step-name">Startup Reads</div>
+          <div class="step-desc">Claude reads 5-6 Notion pages via MCP before first response. ~20-40K tokens.</div>
+        </div>
+        <div class="lifecycle-step">
+          <div class="step-icon" style="background:rgba(16,185,129,0.1);color:var(--green)">📋</div>
+          <div class="step-name">Auto-Registration</div>
+          <div class="step-desc">Creates Session Log entry with status "In Progress" so tracker shows open sessions.</div>
+        </div>
+        <div class="lifecycle-step">
+          <div class="step-icon" style="background:rgba(139,92,246,0.1);color:var(--operator)">⚡</div>
+          <div class="step-name">Work</div>
+          <div class="step-desc">Substantive work with Plan → Approve → Execute → Confirm gates. Mid-session: /flag, /scope, /emit, /snapshot, /digest.</div>
+        </div>
+        <div class="lifecycle-step">
+          <div class="step-icon" style="background:rgba(245,158,11,0.1);color:var(--amber)">📦</div>
+          <div class="step-name">/closeout</div>
+          <div class="step-desc">Recommend keep/delete. Update Session Log. Continuity Check (snapshot, digest, engagement docs).</div>
+        </div>
+        <div class="lifecycle-step">
+          <div class="step-icon" style="background:rgba(230,57,70,0.1);color:var(--ai-digital)">✅</div>
+          <div class="step-name">/tasks → /capture</div>
+          <div class="step-desc">Capture tasks to Notion, then harvest instruction improvements and decision records.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slash Commands -->
+    <div class="fade-in">
+      <div class="group-label" style="margin-top:48px">Slash Commands</div>
+      <div class="command-grid stagger-children">
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/closeout</div>
+          <div class="cmd-purpose">Close out a session. Recommend keep/delete, Session Log entry, Continuity Check.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> End of any substantive session<br><strong>Reads:</strong> Prompt page in Notion<br><strong>Produces:</strong> Session Log entry, Chat Map registration, snapshot/digest currency check</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/tasks</div>
+          <div class="cmd-purpose">Scan conversation for tasks to capture to Notion.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> After /closeout<br><strong>Rule:</strong> Each command runs independently — never auto-chains</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/capture</div>
+          <div class="cmd-purpose">Harvest instruction improvements, decision records, workflow docs.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> After /tasks — the learning loop<br><strong>Produces:</strong> Improvement Log entries, decision records, workflow documentation<br><strong>Searches for:</strong> /flag markers from mid-session corrections</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/emit</div>
+          <div class="cmd-purpose">Cross-project state propagation. Extracts what matters, writes to shared surfaces.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> Mid-session when important things happen that other projects should know<br><strong>Writes to:</strong> Global Operator Profile → Recent Cross-Venture Activity + Secretary Pad → Activity Log<br><strong>Optional:</strong> Venture Posture Table updates if posture changed</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/digest</div>
+          <div class="cmd-purpose">Update a venture's Knowledge Digest with new domain intelligence.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> Session surfaces competitive data, pricing, people observations, strategic patterns<br><strong>Pattern:</strong> MCP-native, same lightweight pattern as /snapshot</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/snapshot</div>
+          <div class="cmd-purpose">Lightweight mid-session Project Snapshot update.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> Want to save state without full closeout<br><strong>Scoped to:</strong> Project Snapshot page only</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/flag — [desc]</div>
+          <div class="cmd-purpose">Mid-session course correction bookmark. Don't stop, just bookmark.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> Claude goes off-track<br><strong>Harvested by:</strong> /capture (Category 1)<br><strong>Example:</strong> /flag — ran 5 searches before reading the obvious page</div></div>
+        </div>
+        <div class="command-card" onclick="toggleCmd(this)">
+          <div class="cmd-name">/scope — [desc]</div>
+          <div class="cmd-purpose">Lock session scope. Claude flags drift outside declared boundaries.</div>
+          <div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> Want to stay focused<br><strong>Expand scope:</strong> "Add [X] to scope" at any time<br><strong>Scope is optional:</strong> Sessions without it work normally</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emit Flow -->
+    <div class="fade-in">
+      <div class="group-label" style="margin-top:48px">How /emit Propagates State</div>
+      <div class="emit-flow">
+        <div class="emit-node source">Conversation<br><small>decisions, actions, new info</small></div>
+        <div class="emit-arrow">→</div>
+        <div class="emit-node target">Global Operator Profile<br><small>Recent Cross-Venture Activity</small></div>
+        <div class="emit-arrow">→</div>
+        <div class="emit-node target">Secretary Pad<br><small>Activity Log</small></div>
+        <div class="emit-arrow">→</div>
+        <div class="emit-node source">All Future Sessions<br><small>read at startup</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: SYSTEM INFRASTRUCTURE -->
+<section id="infrastructure">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-num">Section 03</div>
+      <div class="section-title">System Infrastructure</div>
+      <div class="section-desc">Every Notion page, database, and template that powers the system. All children of the Claude System Hub.</div>
+    </div>
+
+    <!-- Three-Tier Architecture -->
+    <div class="fade-in">
+      <div class="group-label">Three-Tier Architecture</div>
+      <div class="three-tier">
+        <div class="tier-item">
+          <div class="tier-num">Tier 1</div>
+          <div class="tier-name">Custom Instructions</div>
+          <div class="tier-desc">Thin pointers in Claude Project settings. Circuit breakers + Notion URLs. Rarely changes.</div>
+          <div class="tier-arrow">→</div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-num">Tier 2</div>
+          <div class="tier-name">Notion Living Layer</div>
+          <div class="tier-desc">Instruction pages, snapshots, digests, profiles. Updated frequently. Read via MCP at startup.</div>
+          <div class="tier-arrow">→</div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-num">Tier 3</div>
+          <div class="tier-name">Project Files</div>
+          <div class="tier-desc">Static reference library. PDFs, research docs. Loaded into context window. Supplementary only.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Pages -->
+    <div class="infra-section fade-in">
+      <div class="group-label">System Infrastructure Pages</div>
+      <div class="infra-grid">
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Global Instructions</span></div>
+          <div class="infra-desc">Behavioral rules for ALL Claude Projects. ~55 rules.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">314b40429ab681259e89faec7f4609a9</div><br>Loaded into every session. Covers communication, action guardrails, quality standards, negotiation ops. Living document, updated frequently.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Global Operator Profile</span></div>
+          <div class="infra-desc">Decision patterns, venture overview, strategic priorities.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">32bb40429ab6810885aecb1618387422</div><br>v3.0. Includes Venture Posture Table (9 ventures). Read during area-specific startup. /emit writes to Recent Cross-Venture Activity section.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Project Registry</span></div>
+          <div class="infra-desc">Master list of all Claude Projects and statuses.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">314b40429ab681278d07fee24c4f2487</div><br>Read at startup by core projects. Contains project template for new area-specific projects.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Secretary Pad</span></div>
+          <div class="infra-desc">Persistent working state for Real-time Assistant mode.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">329b40429ab68199b0fdc4252af76b4e</div><br>Cross-session memory layer. Claude reads at startup, writes throughout session. Activity Log receives /emit updates.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Knowledge Registry</span></div>
+          <div class="infra-desc">Cross-venture knowledge map. Catalog of all knowledge pages.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">331b40429ab681308d3dc05f7c24fa6e</div><br>Two-tier: Cross-Venture Business Knowledge (foundational domains A-K) and Venture-Specific Knowledge. Checked on-demand when session touches a business domain.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Artifact Registry</span></div>
+          <div class="infra-desc">Catalog of all GitHub Pages HTML artifacts.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">332b40429ab681dc88a1fea8411b028c</div><br>Tracks: name, filename, URL, source project, PIN status, dates. Manually maintained (Phase 1).</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Key Person Profiles</span></div>
+          <div class="infra-desc">System-wide profiles. Communication styles, behavioral patterns.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">3cd677df-ecb4-4591-849b-faefe2a966fb</div><br>6 entries (1 Full, 1 Partial, 4 Stubs). On-demand lookup from all projects via scoped MCP search.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Tech Stack & Integrations</span></div>
+          <div class="infra-desc">Authoritative list of all tools, devices, integrations.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">31ab40429ab681a0950dff132b580193</div><br>Read before any proposal involving tools. Full Stack Thinking protocol requires checking this page.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">System Operating Guide</span></div>
+          <div class="infra-desc">Comprehensive operator cheat sheet. This visual's source of truth.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">331b40429ab6811588d7f723b5895723</div><br>10 sections: System Map, Decision Tree, Daily Workflow, Slash Commands, Startup, Infrastructure, Inventory, GitHub Pages, Principles, Cleanup.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">GTD Reference</span></div>
+          <div class="infra-desc">Getting Things Done methodology. Decision trees, calendar rules.</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">331b40429ab681af9a8dd710a8b0e23d</div><br>System-wide GTD methodology reference. Read by all projects as needed.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Instructions -->
+    <div class="infra-section fade-in">
+      <div class="group-label">Project Instruction Pages</div>
+      <div class="infra-grid">
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Architect Instructions</span></div><div class="infra-desc">System design layer rules + chat map</div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Router</span><span class="infra-name">Operator Instructions</span></div><div class="infra-desc">Router page → 5 sub-pages</div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Sub</span><span class="infra-name">Note Processing Rules</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Sub</span><span class="infra-name">Daily Orchestration Rules</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Sub</span><span class="infra-name">Real-time Assistant Rules</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Sub</span><span class="infra-name">Business Advisory Rules</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Sub</span><span class="infra-name">Venture Mode Specs</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">ActiveMenus Instructions</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">AI Digital Products Instructions</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type page">Page</span><span class="infra-name">Title Company Instructions</span></div></div>
+      </div>
+    </div>
+
+    <!-- Databases -->
+    <div class="infra-section fade-in">
+      <div class="group-label">Databases</div>
+      <div class="infra-grid">
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Session Log</span></div>
+          <div class="infra-desc">Every closed-out chat session</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">76be6a90-f890-40ec-b8ca-68448c042a37</div><br>Auto-registration creates "In Progress" entries at startup. /closeout updates to final status.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Instruction Improvement Log</span></div>
+          <div class="infra-desc">Behavioral improvement candidates</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">696cbf60-e295-40d7-b3fd-78c72295e2f4</div><br>Fields: Success Criterion, Effectiveness tracking. Populated by /capture.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Tasks</span></div>
+          <div class="infra-desc">All tasks across all ventures</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">30bb4042-9ab6-8078-8b54-000b310dbffe</div><br>Every task must link to a project. Populated by /tasks command.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Sales Contacts</span></div>
+          <div class="infra-desc">ActiveMenus expo contacts + pipeline</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">fa62945d-0b88-4666-a983-6672e4b4c906</div><br>44 contacts from Pizza Expo. IP boundary: restaurant = shared, partner/competitor = Serge only.</div></div>
+        </div>
+        <div class="infra-card" onclick="toggleInfra(this)">
+          <div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Convention Sales Log</span></div>
+          <div class="infra-desc">Cross-session persistence for expo activity</div>
+          <div class="infra-expand"><div class="infra-detail"><div class="infra-id">32db40429ab681a49d2feea057f7870e</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Index Pages -->
+    <div class="infra-section fade-in">
+      <div class="group-label">N8N Index Pages (bypass 10-result MCP cap)</div>
+      <div class="infra-grid">
+        <div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Session Log Index</span></div><div class="infra-desc">Recent sessions with full pagination</div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Tasks Index</span></div><div class="infra-desc">All active tasks</div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Projects Index</span></div><div class="infra-desc">All active projects</div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Improvement Log Index</span></div><div class="infra-desc">Open improvement items</div></div>
+      </div>
+    </div>
+
+    <!-- Templates -->
+    <div class="infra-section fade-in">
+      <div class="group-label">Templates & Prompts</div>
+      <div class="infra-grid">
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Decision Record</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Project Instructions</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Close-Out Summary</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Workflow Doc</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Ref</span><span class="infra-name">Completeness-First Advisory</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Ref</span><span class="infra-name">Expert Analysis Review Protocol</span></div></div>
+        <div class="infra-card"><div class="infra-header"><span class="infra-type template">Ref</span><span class="infra-name">Known MCP Limitations</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: SYSTEM INVENTORY -->
+<section id="inventory">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-num">Section 04</div>
+      <div class="section-title">System Inventory</div>
+      <div class="section-desc">What's operational, what's designed but unbuilt, and what's just been discussed. Click any item for details.</div>
+    </div>
+
+    <div class="inventory-columns fade-in">
+      <!-- Built & Working -->
+      <div class="inventory-col">
+        <div class="inv-col-header">
+          <span class="dot" style="background:var(--green)"></span>
+          <span>Built & Working</span>
+          <span class="count">25 items</span>
+        </div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Operator Project (5-mode router)</div><div class="inv-item-desc">Replaced Advisor + Chief of Staff. Modes: Note Processing, Daily Orchestration, Real-time Assistant, Business Advisory, Venture Mode. All auto-detect or activate via slash command.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Secretary Pad</div><div class="inv-item-desc">Persistent working state for Real-time Assistant. Cross-session memory layer. Claude reads at startup, writes throughout.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Global Instructions</div><div class="inv-item-desc">~55 behavioral rules loaded into every session. Communication, action guardrails, quality standards, negotiation ops.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Global Operator Profile</div><div class="inv-item-desc">v3.0. Decision-making patterns, venture portfolio, strategic priorities. Read during startup.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Venture Posture Table</div><div class="inv-item-desc">Structured table at top of Profile. 9 ventures with Posture, Time Allocation, Constraints, Last Updated. Commitment Gate rule references it.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Session Management Commands</div><div class="inv-item-desc">/closeout, /tasks, /capture, /flag, /scope, /snapshot, /digest, /emit — all operational with Notion prompt pages.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">DDV Workflow Pattern</div><div class="inv-item-desc">Design → Delegate → Verify for significant Notion operations. Thresholds: >3 pages, instruction pages, >2K words.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Three-Tier Architecture</div><div class="inv-item-desc">Tier 1 (Custom Instructions) → Tier 2 (Notion living layer) → Tier 3 (project files reference library).</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Instruction Improvement Loop</div><div class="inv-item-desc">/flag → /capture → Improvement Log → Global Instructions updates → effectiveness tracking. System gets smarter each session.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Completeness-First Advisory</div><div class="inv-item-desc">Two-tier: compact trigger in Global Instructions + full reference page in Notion.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Expert Analysis Review</div><div class="inv-item-desc">Mandatory quality gate for complex deliverables. Claude produces handoff prompt for dedicated review chat.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Standardized Snapshot Format</div><div class="inv-item-desc">Two-part: Latest Session + Comprehensive State. Archive-before-replace workflow.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Thinking Mode Declarations</div><div class="inv-item-desc">Claude declares cognitive mode (Evaluation, Solution Design, Synthesis, etc.) at start of responses + footer label.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Cognitive Phase Labeling</div><div class="inv-item-desc">Analyze → Design → Build → Verify phases for complex deliverables. Approval gate between Design and Build.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Context Window Status Footer</div><div class="inv-item-desc">One-line token estimate + compaction risk on every response.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Cross-project State (/emit)</div><div class="inv-item-desc">Global Operator Profile → Recent Cross-Venture Activity section serves as cross-project broadcast channel.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Key Person Profiles</div><div class="inv-item-desc">System-wide database. 6 entries (1 Full, 1 Partial, 4 Stubs). On-demand lookup from all projects.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Knowledge Registry</div><div class="inv-item-desc">Cross-venture knowledge map. Two-tier: Cross-Venture Business Knowledge (A-K domains) and Venture-Specific Knowledge.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">ActiveMenus Sales Secretary</div><div class="inv-item-desc">Operating instructions, Knowledge Digest (competitive landscape, sales frameworks, booth ops), Convention Sales Log.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">ActiveMenus Sales Contacts DB</div><div class="inv-item-desc">44 contacts from Pizza Expo. IP boundary enforced.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">N8N Index Pages</div><div class="inv-item-desc">Tasks, Projects, Session Log, Improvement Log. Full database coverage (bypasses 10-result MCP cap).</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">GitHub Pages Hosting</div><div class="inv-item-desc">Repo: sergeselenko/apps. PIN gate pattern. Two push methods: CoWork + dailypush alias.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Artifact Registry</div><div class="inv-item-desc">Notion page under Claude System Hub. Tracks all hosted HTML artifacts. Manually maintained (Phase 1).</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">System Operating Guide</div><div class="inv-item-desc">Comprehensive 10-section operator cheat sheet. The source of truth for system architecture.</div></div>
+        <div class="inv-item built" onclick="this.classList.toggle('open')"><div class="inv-item-name">Snapshot & Digest Maintenance</div><div class="inv-item-desc">/closeout Continuity Check ensures snapshots and digests stay current. Archive-before-replace workflow.</div></div>
+      </div>
+
+      <!-- Designed but Not Yet Built -->
+      <div class="inventory-col">
+        <div class="inv-col-header">
+          <span class="dot" style="background:var(--amber)"></span>
+          <span>Designed, Not Built</span>
+          <span class="count">4 items</span>
+        </div>
+        <div class="inv-item designed" onclick="this.classList.toggle('open')"><div class="inv-item-name">CRM + AI Automation Architecture</div><div class="inv-item-desc">High-level architecture for AI-powered CRM with lead profiling. Captured in Notion but not designed in detail.</div></div>
+        <div class="inv-item designed" onclick="this.classList.toggle('open')"><div class="inv-item-name">AI Sales System Architecture</div><div class="inv-item-desc">10-question assessment captured. 7 of 10 answered, 3 parked for hands-on verification.</div></div>
+        <div class="inv-item designed" onclick="this.classList.toggle('open')"><div class="inv-item-name">Knowledge File Migration</div><div class="inv-item-desc">In progress. Knowledge Registry scaffolding built. Static project files being migrated to Notion as individual pages.</div></div>
+        <div class="inv-item designed" onclick="this.classList.toggle('open')"><div class="inv-item-name">Command Center Dashboard</div><div class="inv-item-desc">4-layer architecture designed. GitHub Pages dashboard app reading Session Log via Notion API. Includes /open command + API processing. High priority.</div></div>
+      </div>
+
+      <!-- Discussed Only -->
+      <div class="inventory-col">
+        <div class="inv-col-header">
+          <span class="dot" style="background:var(--line)"></span>
+          <span>Discussed Only</span>
+          <span class="count">5 items</span>
+        </div>
+        <div class="inv-item discussed" onclick="this.classList.toggle('open')"><div class="inv-item-name">Dual Phone Number System</div><div class="inv-item-desc">Work number for prospects, personal stays personal. OpenPhone as immediate solution. Custom gateway app as future roadmap.</div></div>
+        <div class="inv-item discussed" onclick="this.classList.toggle('open')"><div class="inv-item-name">System Visualization Tool</div><div class="inv-item-desc">Visual map of all projects, pages, workflows. No design work done. (This page is a step toward solving it.)</div></div>
+        <div class="inv-item discussed" onclick="this.classList.toggle('open')"><div class="inv-item-name">Monthly Knowledge Refresh (N8N)</div><div class="inv-item-desc">Automation to keep Knowledge Digests current with new competitors, market shifts, landscape changes.</div></div>
+        <div class="inv-item discussed" onclick="this.classList.toggle('open')"><div class="inv-item-name">Morning Brief (N8N)</div><div class="inv-item-desc">Full v3 architecture spec produced. Pre-compiles Tasks + Calendar + Gmail (4 accounts) + system health at 6am daily. Not built.</div></div>
+        <div class="inv-item discussed" onclick="this.classList.toggle('open')"><div class="inv-item-name">Multi-Inbox Email Strategy</div><div class="inv-item-desc">4-account Gmail integration via N8N. Dependency for Morning Brief. Architecture designed, not built.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: GITHUB PAGES ARTIFACTS -->
+<section id="artifacts">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-num">Section 05</div>
+      <div class="section-title">Published Artifacts</div>
+      <div class="section-desc">HTML artifacts hosted on GitHub Pages with PIN gate security. Built in claude.ai, pushed via terminal.</div>
+    </div>
+
+    <div class="fade-in">
+      <div class="group-label">Push Workflow</div>
+      <div class="artifact-flow">
+        <div class="artifact-flow-step">Claude produces<br><small>HTML artifact in any project</small></div>
+        <div class="artifact-flow-arrow">→</div>
+        <div class="artifact-flow-step">User downloads<br><small>to ~/Downloads/</small></div>
+        <div class="artifact-flow-arrow">→</div>
+        <div class="artifact-flow-step"><code>dailypush</code> or CoWork<br><small>git add/commit/push</small></div>
+        <div class="artifact-flow-arrow">→</div>
+        <div class="artifact-flow-step">Live on GitHub Pages<br><small>sergeselenko.github.io/apps/</small></div>
+      </div>
+    </div>
+
+    <div class="fade-in">
+      <div class="group-label" style="margin-top:32px">Hosted Artifacts</div>
+      <div class="artifact-cards">
+        <div class="artifact-card">
+          <div class="artifact-name">Daily Dashboard</div>
+          <div class="artifact-desc">Combined Daily Outlook + Horizon Snapshot with venture-colored tags and tab navigation.</div>
+          <div class="artifact-meta">
+            <span class="artifact-tag source">Operator</span>
+            <span class="artifact-tag pin">PIN Gated</span>
+            <span class="artifact-tag date">March 28, 2026</span>
+          </div>
+          <a href="https://sergeselenko.github.io/apps/daily-dashboard.html" target="_blank" class="artifact-link">Open artifact →</a>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-name">Portfolio Map</div>
+          <div class="artifact-desc">29-product portfolio map with 3 views: Evolution Ladder, Phase Roadmap, P1 Product Overview.</div>
+          <div class="artifact-meta">
+            <span class="artifact-tag source">AI Digital Products</span>
+            <span class="artifact-tag pin">PIN Gated</span>
+            <span class="artifact-tag date">March 28, 2026</span>
+          </div>
+          <a href="https://sergeselenko.github.io/apps/portfolio-map.html" target="_blank" class="artifact-link">Open artifact →</a>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-name">System Architecture Visual</div>
+          <div class="artifact-desc">This page. Interactive map of the Claude Projects + Notion ecosystem.</div>
+          <div class="artifact-meta">
+            <span class="artifact-tag source">Architect</span>
+            <span class="artifact-tag pin">PIN Gated</span>
+            <span class="artifact-tag date">March 29, 2026</span>
+          </div>
+          <a href="https://sergeselenko.github.io/apps/system-architecture.html" target="_blank" class="artifact-link">Open artifact →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>System Architecture Visual — Selenko · Built March 29, 2026 · Source: System Operating Guide + Project Registry + Global Instructions</p>
+</div>
+
+</div><!-- /main-content -->
+
+<script>
+// ========== PIN GATE ==========
+const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+const pinInput = document.getElementById('pin-input');
+const pinGate = document.getElementById('pin-gate');
+const mainContent = document.getElementById('main-content');
+const pinHint = document.getElementById('pin-hint');
+
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+pinInput.addEventListener('input', async function() {
+  const val = this.value;
+  if (val.length >= 4) {
+    const hash = await sha256(val);
+    if (hash === PIN_HASH) {
+      pinGate.classList.add('hidden');
+      mainContent.classList.add('visible');
+      setTimeout(initPage, 300);
+    } else {
+      this.classList.add('shake');
+      pinHint.textContent = 'Incorrect PIN';
+      pinHint.style.color = '#ef4444';
+      setTimeout(() => {
+        this.classList.remove('shake');
+        this.value = '';
+        pinHint.textContent = '';
+      }, 600);
+    }
+  }
+});
+
+// ========== EXPAND/COLLAPSE ==========
+function toggleExpand(card) {
+  const expand = card.querySelector('.card-expand');
+  if (!expand) return;
+  const isOpen = expand.classList.contains('open');
+  // Close others in same group
+  card.parentElement.querySelectorAll('.card-expand.open').forEach(e => e.classList.remove('open'));
+  if (!isOpen) expand.classList.add('open');
+}
+
+function toggleCmd(card) {
+  const expand = card.querySelector('.cmd-expand');
+  if (!expand) return;
+  expand.classList.toggle('open');
+}
+
+function toggleInfra(card) {
+  const expand = card.querySelector('.infra-expand');
+  if (!expand) return;
+  expand.classList.toggle('open');
+}
+
+// ========== SCROLL ANIMATIONS ==========
+function initPage() {
+  // Fade-in observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Stagger children observer
+  document.querySelectorAll('.stagger-children').forEach(el => observer.observe(el));
+
+  // Sticky nav
+  const nav = document.getElementById('sticky-nav');
+  const hero = document.querySelector('.hero');
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const navObserver = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) {
+      nav.classList.add('visible');
+    } else {
+      nav.classList.remove('visible');
+    }
+  }, { threshold: 0 });
+  navObserver.observe(hero);
+
+  // Active section tracking
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.nav-link[data-section="${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '-80px 0px -60% 0px' });
+
+  sections.forEach(s => sectionObserver.observe(s));
+}
+
+// Focus PIN input on load
+window.addEventListener('load', () => pinInput.focus());
+</script>
+</body>
+</html>
