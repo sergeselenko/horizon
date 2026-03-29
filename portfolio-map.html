@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Digital Products — Portfolio Map</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #f8f8f4; --bg-1: #f0f0ea; --bg-2: #e6e6df; --bg-card: #ffffff;
+    --tx-0: #141413; --tx-1: #5c5c56; --tx-2: #9a9a92;
+    --border: rgba(0,0,0,0.07); --border-h: rgba(0,0,0,0.16);
+    --cat-a: #0F6E56; --cat-a-bg: #dff5ec; --cat-a-bgS: #c5eddd;
+    --cat-b: #185FA5; --cat-b-bg: #ddeafa; --cat-b-bgS: #c2d9f5;
+    --cat-c: #534AB7; --cat-c-bg: #ece9fb; --cat-c-bgS: #d8d3f5;
+    --cat-d: #78776E; --cat-d-bg: #ebebdf;
+    --accent: #BA7517;
+    --p1: #B33030; --p1-bg: #fce8e8;
+    --p15: #BA7517; --p15-bg: #fef3e2;
+    --p2a: #0F6E56; --p2a-bg: #dff5ec;
+    --p2: #185FA5; --p2-bg: #ddeafa;
+    --p3: #534AB7; --p3-bg: #ece9fb;
+    --done: #0F6E56; --inprog: #BA7517; --notstart: #aaa9a2; --blocked: #B33030;
+    --retired-tx: #c0bfb8;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --sh1: 0 1px 2px rgba(0,0,0,0.04); --sh2: 0 3px 10px rgba(0,0,0,0.07);
+    --r: 10px; --r-sm: 6px;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --bg-0: #141413; --bg-1: #1c1c1a; --bg-2: #252523; --bg-card: #1c1c1a;
+      --tx-0: #e6e6de; --tx-1: #8e8e86; --tx-2: #5e5e58;
+      --border: rgba(255,255,255,0.08); --border-h: rgba(255,255,255,0.18);
+      --cat-a-bg: #0b3325; --cat-a-bgS: #125a42;
+      --cat-b-bg: #0d2640; --cat-b-bgS: #153d6a;
+      --cat-c-bg: #1c183a; --cat-c-bgS: #312a62;
+      --cat-d-bg: #26261f;
+      --p1-bg: #351616; --p15-bg: #352a0c; --p2a-bg: #0b3325; --p2-bg: #0d2640; --p3-bg: #1c183a;
+      --sh1: 0 1px 2px rgba(0,0,0,0.2); --sh2: 0 3px 10px rgba(0,0,0,0.3);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--font);background:var(--bg-0);color:var(--tx-0);padding:20px;max-width:960px;margin:0 auto}
+
+  /* Header */
+  .hdr{margin-bottom:20px}
+  .hdr h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
+  .hdr .sub{font-size:12px;color:var(--tx-1);margin-top:2px}
+  .vtag{font-family:var(--mono);font-size:9px;color:var(--cat-a);background:var(--cat-a-bg);padding:2px 7px;border-radius:4px;font-weight:500;margin-left:6px}
+
+  /* Toggle */
+  .tog{display:flex;background:var(--bg-1);border-radius:8px;padding:3px;margin-bottom:16px;width:fit-content;border:1px solid var(--border)}
+  .tog button{background:none;border:none;padding:6px 14px;font-size:11px;font-weight:600;color:var(--tx-1);cursor:pointer;border-radius:6px;font-family:var(--font);transition:.15s}
+  .tog button.on{background:var(--bg-card);color:var(--tx-0);box-shadow:var(--sh1)}
+
+  /* Sequence */
+  .seq{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:14px}
+  .seq-t{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--tx-2);margin-bottom:6px}
+  .seq-f{display:flex;align-items:center;flex-wrap:wrap}
+  .seq-i{font-size:10px;font-weight:600;padding:3px 9px;border-radius:5px;white-space:nowrap;cursor:pointer;transition:.15s}
+  .seq-i:hover{filter:brightness(.92)}
+  .seq-a{color:var(--tx-2);font-size:12px;margin:0 4px}
+
+  /* Filter bar */
+  .fil{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  .fil .l{font-size:10px;color:var(--tx-2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
+  .fb{background:none;border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 10px;font-size:10px;color:var(--tx-1);cursor:pointer;font-family:var(--font);font-weight:500;transition:.15s}
+  .fb:hover{background:var(--bg-1)}
+  .fb.on{background:var(--bg-1);color:var(--tx-0);border-color:var(--border-h)}
+  .fsep{width:1px;height:16px;background:var(--border);margin:0 3px}
+
+  /* Shared pills */
+  .p{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:600;white-space:nowrap;font-family:var(--mono);letter-spacing:.2px}
+  .p-pr{background:var(--bg-1);color:var(--tx-0)}
+  .p-sb{background:var(--cat-a-bg);color:var(--cat-a)}
+  .p-sc{background:var(--p15-bg);color:var(--accent)}
+  .p-sp{background:var(--bg-1);color:var(--tx-2)}
+  .p-sr{background:var(--bg-1);color:var(--retired-tx)}
+  .p-pi{border:1px solid}
+  .pp1{border-color:var(--p1);color:var(--p1)}.pp15{border-color:var(--p15);color:var(--p15)}
+  .pp2a{border-color:var(--p2a);color:var(--p2a)}.pp2{border-color:var(--p2);color:var(--p2)}
+  .pp3{border-color:var(--p3);color:var(--p3)}
+  .p-l3{background:var(--cat-a-bg);color:var(--cat-a)}
+  .p-l2{background:var(--p15-bg);color:var(--accent)}
+  .ip{color:var(--accent);font-size:11px}
+  .nbdg{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--cat-a-bg);color:var(--cat-a);padding:1px 4px;border-radius:3px}
+  .cbdg{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--cat-b-bg);color:var(--cat-b);padding:1px 4px;border-radius:3px}
+
+  /* ===== LADDER ===== */
+  .rung{margin-bottom:8px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+  .rung-h{padding:8px 14px;display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--border)}
+  .rung-n{font-size:16px;font-weight:700;opacity:.1;font-family:var(--mono);min-width:18px}
+  .rung-t{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+  .rung-d{font-size:10px;color:var(--tx-1)}
+  .rung-dp{font-size:9px;font-weight:500;padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap}
+  .dp-s{background:var(--cat-a-bg);color:var(--cat-a)}
+  .dp-n{background:var(--cat-b-bg);color:var(--cat-b)}
+  .dp-e{background:var(--cat-c-bg);color:var(--cat-c)}
+  .rung-b{padding:8px;display:flex;flex-wrap:wrap;gap:6px}
+  .empty{font-size:10px;color:var(--tx-2);padding:2px 6px;font-style:italic}
+
+  /* Small card */
+  .sc{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;width:calc(50% - 3px);min-width:270px;transition:.15s;box-shadow:var(--sh1)}
+  .sc:hover{border-color:var(--border-h);box-shadow:var(--sh2)}
+  .sc.cA{border-left:3px solid var(--cat-a)}.sc.cB{border-left:3px solid var(--cat-b)}
+  .sc.cC{border-left:3px solid var(--cat-c)}.sc.cD{border-left:3px solid var(--cat-d)}
+  .sc.ret{opacity:.4;border-left-color:var(--retired-tx)}
+  .sc.ret .nm{text-decoration:line-through}
+  .sc .nm{font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;line-height:1.4;margin-bottom:2px}
+  .sc .ds{font-size:10px;color:var(--tx-1);line-height:1.5}
+  .sc .mt{display:flex;gap:4px;align-items:center;margin-top:6px;flex-wrap:wrap}
+
+  /* ===== PHASE ===== */
+  .pg{margin-bottom:8px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);background:var(--bg-card)}
+  .ph{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:.15s}
+  .ph:hover{background:var(--bg-1)}
+  .chev{font-size:10px;color:var(--tx-2);transition:transform .2s;width:12px;text-align:center}
+  .chev.o{transform:rotate(90deg)}
+  .pl{font-size:13px;font-weight:700}
+  .psl{font-size:11px;color:var(--tx-1)}
+  .ptm{font-size:9px;color:var(--tx-1);padding:2px 7px;background:var(--bg-1);border-radius:4px;font-family:var(--mono);margin-left:6px}
+  .pct{font-family:var(--mono);font-size:9px;color:var(--tx-2);margin-left:auto}
+  .pb{display:none;padding:0 10px 10px}
+  .pb.o{display:block}
+  .sph{margin-top:8px}
+  .sph-h{font-size:10px;font-weight:600;color:var(--tx-1);text-transform:uppercase;letter-spacing:.5px;padding:3px 0;margin-bottom:5px;border-bottom:1px solid var(--border)}
+  .sph-p{display:flex;flex-direction:column;gap:7px}
+
+  /* Phase card — full width */
+  .pc{background:var(--bg-0);border:1px solid var(--border);border-radius:8px;padding:12px 14px;width:100%;box-shadow:var(--sh1);transition:.15s}
+  .pc:hover{border-color:var(--border-h);box-shadow:var(--sh2)}
+  .pc.cA{border-left:3px solid var(--cat-a)}.pc.cB{border-left:3px solid var(--cat-b)}
+  .pc.cC{border-left:3px solid var(--cat-c)}.pc.cD{border-left:3px solid var(--cat-d)}
+  .pc .top{display:flex;justify-content:space-between;gap:12px;margin-bottom:4px}
+  .pc .left{flex:1}
+  .pc .nm{font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;margin-bottom:2px}
+  .pc .ds{font-size:10px;color:var(--tx-1);line-height:1.5}
+  .pc .right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+
+  /* Tier breakdown */
+  .tiers{margin-top:12px;padding:10px 12px;background:var(--bg-1);border:1px solid var(--border-h);border-radius:var(--r-sm)}
+  .tiers-t{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tx-0);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border-h)}
+  .tier{display:flex;gap:10px;padding:8px;margin-bottom:6px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-sm);align-items:flex-start}
+  .tier:last-child{margin-bottom:0}
+  .tier-tag{font-size:9px;font-weight:700;padding:3px 9px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:1px;min-width:58px;text-align:center}
+  .tier-s{background:var(--cat-a-bgS);color:var(--cat-a)}
+  .tier-n{background:var(--cat-b-bgS);color:var(--cat-b)}
+  .tier-e{background:var(--cat-c-bgS);color:var(--cat-c)}
+  .tier-body{flex:1}
+  .tier-what{font-size:11px;color:var(--tx-0);font-weight:600;margin-bottom:2px}
+  .tier-how{font-size:10px;color:var(--tx-1);line-height:1.55}
+
+  @media(prefers-color-scheme:dark){
+    .tier-s{color:#5DCAA5}.tier-n{color:#7BB8E8}.tier-e{color:#AFA9EC}
+    .tiers{border-color:rgba(255,255,255,0.12)}
+    .tiers-t{border-bottom-color:rgba(255,255,255,0.1)}
+    .tier{border-color:rgba(255,255,255,0.08)}
+  }
+
+  /* Pipeline */
+  .pipe{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+  .pipe-t{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--tx-2);margin-bottom:5px}
+  .ps{display:flex;align-items:flex-start;gap:7px;padding:2px 0;font-size:10px}
+  .ps-d{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0}
+  .ps-done .ps-d{background:var(--done)}.ps-inprog .ps-d{background:var(--inprog)}
+  .ps-notstart .ps-d{background:var(--notstart)}.ps-blocked .ps-d{background:var(--blocked)}
+  .ps-l{flex:1;color:var(--tx-0)}
+  .ps-done .ps-l{color:var(--done)}.ps-inprog .ps-l{color:var(--inprog);font-weight:500}
+  .ps-blocked .ps-l{color:var(--blocked)}
+  .ps-n{font-size:9px;color:var(--tx-2);flex-shrink:0}
+
+  .deps{margin-top:6px;padding:5px 9px;background:var(--bg-1);border-radius:var(--r-sm);font-size:10px;color:var(--tx-1);line-height:1.5}
+  .deps b{color:var(--tx-0);font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:.3px}
+
+  /* Legend */
+  .leg{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;padding:10px 14px;background:var(--bg-1);border-radius:8px;border:1px solid var(--border)}
+  .leg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--tx-1)}
+  .leg-d{display:inline-block;width:7px;height:7px;border-radius:50%}
+
+  /* Principles */
+  .prin{margin-top:12px;padding:12px 16px;background:var(--bg-1);border-radius:var(--r);border:1px solid var(--border)}
+  .prin h3{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--tx-2);margin-bottom:8px}
+  .pri{margin-bottom:6px}.pri:last-child{margin-bottom:0}
+  .pri .pt{font-size:11px;font-weight:600;margin-bottom:1px}
+  .pri .px{font-size:10px;color:var(--tx-1);line-height:1.5}
+
+  @media(max-width:640px){.sc{width:100%;min-width:0}.seq-i{font-size:9px;padding:2px 6px}.seq-a{margin:0 2px;font-size:10px}}
+</style>
+</head>
+<body>
+<div class="hdr"><h1>AI Digital Products — Portfolio Map</h1><p class="sub">29 products · 4 categories · User Evolution Ladder <span class="vtag">v7 — Mar 28 2026</span></p></div>
+
+<div class="tog">
+  <button class="on" id="vt-l" onclick="sv('l')">Evolution Ladder</button>
+  <button id="vt-p" onclick="sv('p')">Phase Roadmap</button>
+</div>
+
+<div class="seq">
+  <div class="seq-t">Build Sequence</div>
+  <div class="seq-f">
+    <span class="seq-i" style="background:var(--p1-bg);color:var(--p1)" onclick="jp('P1')">P1 Negotiation Coach</span><span class="seq-a">→</span>
+    <span class="seq-i" style="background:var(--bg-2);color:var(--tx-1)" onclick="jp('P1.5')">P1.5 Onboarding</span><span class="seq-a">→</span>
+    <span class="seq-i" style="background:var(--bg-2);color:var(--tx-1)" onclick="jp('P1')">P1b Decision Coach</span><span class="seq-a">→</span>
+    <span class="seq-i" style="background:var(--p2a-bg);color:var(--p2a)" onclick="jp('P2')">P2a Secretary</span><span class="seq-a">→</span>
+    <span class="seq-i" style="background:var(--p2-bg);color:var(--p2)" onclick="jp('P2')">P2b Bible</span><span class="seq-a">→</span>
+    <span class="seq-i" style="background:var(--p3-bg);color:var(--p3)" onclick="jp('P2')">P2c Sales System</span>
+  </div>
+</div>
+
+<div class="fil" id="fbar"></div>
+<div id="vl"></div>
+<div id="vp" style="display:none"></div>
+<div class="leg" id="ll"></div>
+<div class="leg" id="lp" style="display:none"></div>
+
+<div class="prin">
+  <h3>Design Principles (v7)</h3>
+  <div class="pri"><div class="pt">Organic Capability Ladder</div><div class="px">Starter (load & go) → Notion Connected (profiles, persistence) → Enterprise (automation, multi-channel). Buyers discover tiers through use — no hard upsell.</div></div>
+  <div class="pri"><div class="pt">Cross-Product Profile Sharing</div><div class="px">Products sharing Notion data create compound value. Primary pairs: Negotiation+Sales, Negotiation+PersonalDev, Sales+Secretary, Secretary+All.</div></div>
+  <div class="pri"><div class="pt">Secretary = Ecosystem Keystone</div><div class="px">Compounds with every product. Gateway priced at $27. Makes everything else stickier.</div></div>
+</div>
+
+<script>
+const P=[
+  // === Cat A ===
+  {id:1,nm:"AI Negotiation Coach",ds:"Prep, drafting, role-play, debrief. Ships with Notion-Upgrade folder.",cat:"A",rung:3,pr:"$67+$27",st:"built",pri:"P1",ip:1,lad:3,chg:1,
+    tiers:[
+      {tag:"Starter",cls:"tier-s",what:"One Claude Project — no Notion, no integrations",how:"Zip file → create Claude Project → paste instructions → upload knowledge base & scenarios. Talk to your coach. Each session starts fresh."},
+      {tag:"Notion",cls:"tier-n",what:"Same project + Notion connected via MCP",how:"Toggle Notion MCP on. Coach now remembers people (Key Person Profiles), keeps running intelligence files, processes transcripts & emails. Persistent memory across sessions."},
+      {tag:"Enterprise",cls:"tier-e",what:"Future — not being built yet",how:"Attorney-grade: multi-party mapping, full dossiers, legal-adjacent analysis. Ships only if tiers 1-2 prove demand."}
+    ],
+    pipe:[{s:"Files 1-3 built",x:"done",n:"10K words"},{s:"Files 4-5 build",x:"inprog",n:"In progress"},{s:"QA review",x:"notstart",n:"After files"},{s:"Sales page",x:"notstart",n:"Handoff exists"},{s:"Meta ads",x:"notstart"},{s:"Payhip setup",x:"notstart"},{s:"Go live",x:"blocked",n:"Blocked by above"}],dep:"None — finish build and ship. ~1 week → ads early April."},
+  {id:2,nm:"Scenario Expansion Pack",ds:"15 advanced scenarios + role-play — $27 order bump",cat:"A",rung:3,pr:"$27",st:"built",pri:"P1",ip:1,lad:0,chg:0,
+    pipe:[{s:"Build (part of Files 4-5)",x:"inprog",n:"Now"}],dep:"Ships with #1."},
+  {id:4,nm:"Decision Conversation Coach",ds:"Same product as #1, consumer angle — family money talks",cat:"A",rung:3,pr:"$67+$27",st:"concept",pri:"P1b",ip:1,lad:2,chg:0,
+    tiers:[{tag:"Starter",cls:"tier-s",what:"Same files as #1, different sales page",how:"Consumer positioning: 'Have a difficult money conversation with confidence.' Same Claude Project kit."},{tag:"Notion",cls:"tier-n",what:"Inherits #1's Notion tier",how:"Same Key Person Profiles — works for spouse, partner, parent, business co-founder."}],
+    pipe:[{s:"New sales page",x:"notstart",n:"1-2 days"},{s:"New Meta ad set",x:"notstart",n:"Consumer targeting"}],dep:"P1 live + 7-10 days data."},
+  {id:6,nm:"AI Sales System",ds:"Capture + enrichment + Camp/Voss sequencing. Pizza Expo field-tested. Freelancers.",cat:"A",rung:3,pr:"$97+$47",st:"concept",pri:"P2c",ip:1,lad:3,chg:1,replaced:1,
+    tiers:[
+      {tag:"Starter",cls:"tier-s",what:"Claude Project kit — no CRM, no Notion",how:"System prompt + knowledge base + 3 workflow playbooks (trade show, cold outreach, inbound). Capture prospects, research them, generate personalized follow-up sequences."},
+      {tag:"Notion",cls:"tier-n",what:"Sales Contacts database + Secretary-pattern lead management",how:"Notion stores all leads. Say 'pull up Kerry' and Claude loads their full profile. Cross-lead pattern recognition. Persistent pipeline."},
+      {tag:"Enterprise",cls:"tier-e",what:"GoHighLevel CRM + N8N automation + CallDoc voice",how:"Full CRM sync, automated enrichment, multi-channel sequencing (email+SMS+voice). AI voice outbound on qualified leads."}
+    ],
+    pipe:[{s:"MVP build",x:"notstart",n:"6-10 weeks"},{s:"ActiveMenus case study",x:"inprog",n:"GHL testing"},{s:"Sales page",x:"notstart"},{s:"Phase 2: GHL",x:"notstart",n:"Post-MVP"},{s:"Phase 3: CallDoc",x:"notstart",n:"Long-term"}],dep:"P1 validates. June-July 2026."},
+  {id:8,nm:"FL RE Transaction Coach",ds:"State-specific contract guidance for FL agents",cat:"A",rung:3,pr:"$97-147",st:"concept",pri:"P2",ip:1,lad:2,chg:0,
+    tiers:[{tag:"Starter",cls:"tier-s",what:"Claude Project with FL contract knowledge",how:"Buyer gets transaction coaching for FL residential deals — contract interpretation, timeline management, scenario playbooks."},{tag:"Notion",cls:"tier-n",what:"Transaction tracker + document management",how:"Track active transactions, store documents, maintain counterparty context across the deal lifecycle."}],
+    pipe:[{s:"FAR/BAR IP question",x:"blocked",n:"Research needed"},{s:"Build",x:"notstart",n:"1-2 weeks"}],dep:"P1 validates. FAR/BAR IP first."},
+  {id:31,nm:"Personal Development Coach",ds:"DISC/MBTI → personality coaching. Compounds with #1 and #6.",cat:"A",rung:3,pr:"$67+$27",st:"concept",pri:"P3",ip:0,lad:3,chg:1,isNew:1,
+    tiers:[
+      {tag:"Starter",cls:"tier-s",what:"Claude Project with personality frameworks",how:"Answer profiling questions, get coaching curated to your personality type. No persistence — each session is standalone."},
+      {tag:"Notion",cls:"tier-n",what:"Profile builds over time + cross-product data",how:"Notion stores your evolving personality profile. Coaching gets more accurate. If you also own #1, your counterparty profiles inform relationship coaching."},
+      {tag:"Enterprise",cls:"tier-e",what:"Multi-relationship management",how:"Track patterns across all relationships and growth areas. Longitudinal personal development tracking."}
+    ],
+    pipe:[{s:"Evaluate IP depth",x:"notstart"},{s:"Build knowledge base",x:"notstart",n:"2-3 weeks"},{s:"Package",x:"notstart"}],dep:"P1 + Sales System validate model."},
+  {id:11,nm:"Platform-specific Kits",ds:"Coach kits for specific platforms/verticals",cat:"A",rung:3,pr:"$27-67",st:"parked",pri:"TBD",ip:0,lad:0,chg:0},
+  {id:12,nm:"Multi-kit Bundle",ds:"Discount bundle of 3+ kits — compound pricing at 85-90%",cat:"A",rung:5,pr:"$47-67",st:"concept",pri:"P5+",ip:0,lad:0,chg:0},
+  {id:18,nm:"AI Negotiation Partner",ds:"Merged into #1 as Notion Connected tier.",cat:"A",rung:3,pr:"—",st:"retired",pri:"—",ip:1,lad:0,chg:1,isRet:1},
+
+  // === Cat B ===
+  {id:3,nm:"Progressive Onboarding Kit",ds:"User Preferences that makes Claude learn your style",cat:"B",rung:2,pr:"$17",st:"built",pri:"P1.5",ip:1,lad:2,chg:0,
+    tiers:[{tag:"Starter",cls:"tier-s",what:"Text block you paste into User Preferences",how:"Structured phases (Discovery→Calibration→Partnership). Claude progressively learns how you work."},{tag:"Notion",cls:"tier-n",what:"Calibration data persists in Notion",how:"Preferences become portable across projects and shareable with Coach Kits."}],
+    pipe:[{s:"Self-test (60% gate)",x:"notstart",n:"Go/no-go"},{s:"Build if passes",x:"notstart",n:"1-2 days"}],dep:"After P1 launches. 60%+ adherence required."},
+  {id:5,nm:"Free Quick Start Preferences",ds:"Free lead magnet — email list builder",cat:"B",rung:1,pr:"Free",st:"concept",pri:"P1.5b",ip:0,lad:0,chg:0,
+    pipe:[{s:"Build",x:"notstart",n:"1 day"}],dep:"After Starter Kit."},
+  {id:13,nm:"AI Secretary System",ds:"Real-time assistant + context persistence + session mgmt. Ecosystem keystone.",cat:"B",rung:4,pr:"$27",st:"built",pri:"P2a",ip:1,lad:3,chg:1,
+    tiers:[
+      {tag:"Starter",cls:"tier-s",what:"One Claude Project with Secretary instructions",how:"Manages context, tracks conversations, provides real-time briefings. No persistence between sessions."},
+      {tag:"Notion",cls:"tier-n",what:"Secretary Pad + full state persistence",how:"Cross-session memory. Task extraction. Context brokering across topics. This is where the product becomes dramatically more powerful."},
+      {tag:"Enterprise",cls:"tier-e",what:"Multi-venture orchestration + scheduled operations",how:"Automated routing, scheduled operations via CoWork/N8N. Multiple domains managed by one Secretary."}
+    ],
+    pipe:[{s:"Generalize operating rules",x:"notstart"},{s:"Create Notion template",x:"notstart"},{s:"Produce setup guide",x:"notstart"},{s:"Sales page + listing",x:"notstart"}],dep:"P1 validates. 2-4 days. Internal tool exists."},
+  {id:15,nm:"Claude Instruction Bible",ds:"100+ behavioral rules. Includes Knowledge Loading chapter.",cat:"B",rung:4,pr:"$27-47",st:"concept",pri:"P2b",ip:1,lad:2,chg:1,
+    tiers:[{tag:"Starter",cls:"tier-s",what:"Standalone guide — PDF or text file",how:"100+ rules organized by failure mode. Buyer reads, applies rules to their own Claude Projects."},{tag:"Notion",cls:"tier-n",what:"Notion templates for instruction management",how:"Track which rules are active, log failures, iterate systematically instead of ad hoc."}],
+    pipe:[{s:"Generalize rules",x:"notstart"},{s:"Write Knowledge Loading chapter",x:"notstart"},{s:"Package",x:"notstart"}],dep:"After Secretary. 1-2 weeks."},
+  {id:16,nm:"Notion Power Setup — Ecosystem Key",ds:"Unlocks full power of every Coach Kit. Rung 3→4 bridge.",cat:"B",rung:4,pr:"$27-47",st:"concept",pri:"P2-3",ip:0,lad:0,chg:1,
+    pipe:[{s:"Positioning decision",x:"notstart",n:"Linked to tier pricing"},{s:"Build",x:"notstart",n:"1 week"}],dep:"Linked to Notion Connected tier pricing decision."},
+  {id:17,nm:"Projects Starter Kit",ds:"Bundle for new Projects users",cat:"B",rung:3,pr:"$17-27",st:"concept",pri:"P2",ip:0,lad:0,chg:0},
+  {id:19,nm:"Prompt Library Packs",ds:"Pre-written prompts by domain",cat:"B",rung:3,pr:"$17-27",st:"concept",pri:"P2",ip:0,lad:0,chg:0},
+  {id:9,nm:"Migration Accelerator",ds:"ChatGPT→Claude guide",cat:"B",rung:2,pr:"$17",st:"parked",pri:"TBD",ip:0,lad:0,chg:0},
+  {id:10,nm:"Teams Onboarding Kit",ds:"For teams deploying Claude",cat:"B",rung:4,pr:"$47-97",st:"parked",pri:"TBD",ip:0,lad:0,chg:0},
+  {id:20,nm:"Power User Guide",ds:"Comprehensive leveling-up guide",cat:"B",rung:4,pr:"$27-47",st:"concept",pri:"P2-3",ip:0,lad:0,chg:0},
+  {id:29,nm:"Documentation Templates",ds:"Notion templates for complex systems",cat:"B",rung:4,pr:"$17-27",st:"concept",pri:"P2-3",ip:1,lad:0,chg:0},
+  {id:14,nm:"Session Management",ds:"Merged into Secretary (#13).",cat:"B",rung:4,pr:"—",st:"retired",pri:"—",ip:1,lad:0,chg:1,isRet:1},
+
+  // === Cat C ===
+  {id:7,nm:"AI Product Builder Kit",ds:"Teaches others to build Coach kits",cat:"C",rung:5,pr:"$47-97",st:"concept",pri:"P3+",ip:1,lad:0,chg:0,pipe:[{s:"Document process (passive)",x:"inprog"}],dep:"2-3 shipped kits."},
+  {id:22,nm:"Life OS Lite",ds:"Notion template version",cat:"C",rung:5,pr:"$49-99",st:"concept",pri:"P3+",ip:1,lad:0,chg:0},
+  {id:27,nm:"Three-Layer Framework",ds:"Thought leadership guide",cat:"C",rung:5,pr:"$27-47",st:"concept",pri:"P3+",ip:1,lad:0,chg:0},
+  {id:28,nm:"AI Migration Playbook",ds:"Guide for platform migration",cat:"C",rung:5,pr:"TBD",st:"concept",pri:"P3+",ip:1,lad:0,chg:1,isNew:1},
+  {id:30,nm:"System Builder's Toolkit",ds:"Bundle of methodology products",cat:"C",rung:5,pr:"TBD",st:"concept",pri:"P3+",ip:0,lad:0,chg:1,isNew:1},
+  {id:21,nm:"Life OS / The Brain",ds:"Full AI life operating system",cat:"C",rung:5,pr:"$200-1K+/mo",st:"concept",pri:"P4+",ip:1,lad:0,chg:0},
+  {id:23,nm:"RE Transaction Module",ds:"RE workflow module",cat:"C",rung:5,pr:"TBD",st:"concept",pri:"P4+",ip:1,lad:0,chg:0},
+  {id:24,nm:"Build Your Own Life OS",ds:"Course",cat:"C",rung:5,pr:"TBD",st:"concept",pri:"P4+",ip:1,lad:0,chg:0},
+  {id:25,nm:"Household Ops System",ds:"Couples/family ops",cat:"C",rung:5,pr:"$49-99/mo",st:"built",pri:"P4+",ip:1,lad:0,chg:0},
+  {id:26,nm:"AI OS Premium Course",ds:"Premium course",cat:"C",rung:5,pr:"$197-497",st:"concept",pri:"P5+",ip:1,lad:0,chg:0},
+
+  // === Cat D ===
+  {id:99,nm:"Industry Brain Modules",ds:"High-ticket recurring B2B",cat:"D",rung:5,pr:"$4-5K/mo",st:"concept",pri:"P5+",ip:1,lad:0,chg:0},
+  {id:98,nm:"AI Voice Module",ds:"Voice AI — separate workstream",cat:"D",rung:5,pr:"TBD",st:"concept",pri:"TBD",ip:0,lad:0,chg:0},
+];
+
+const R=[
+  {n:0,t:"No Claude",d:"Content marketing",bg:"var(--bg-2)",dp:null,dc:""},
+  {n:1,t:"Zero config",d:"Fresh account",bg:"var(--bg-1)",dp:null,dc:""},
+  {n:2,t:"User preferences",d:"Customized settings",bg:"var(--bg-2)",dp:null,dc:""},
+  {n:3,t:"First project",d:"Domain-specific AI advisor",bg:"var(--bg-1)",dp:"Starter tier",dc:"dp-s"},
+  {n:4,t:"Connected tools",d:"Notion via MCP",bg:"var(--bg-2)",dp:"Notion Connected",dc:"dp-n"},
+  {n:5,t:"Full ecosystem",d:"Multiple projects, workflows",bg:"var(--bg-1)",dp:"Enterprise tier",dc:"dp-e"},
+];
+
+const PH=[
+  {id:"P1",l:"Phase 1",sl:"Ship the Negotiation Coach",c:"var(--p1)",tm:"Now → ~1 week",
+    sp:[{l:"P1 — Core Product",pr:["P1"]},{l:"P1b — Consumer Angle",pr:["P1b"]}]},
+  {id:"P1.5",l:"Phase 1.5",sl:"Quick wins after launch",c:"var(--p15)",tm:"After P1",
+    sp:[{l:"P1.5 — Onboarding Kit",pr:["P1.5"]},{l:"P1.5b — Lead Magnet",pr:["P1.5b"]}]},
+  {id:"P2",l:"Phase 2",sl:"Ecosystem build-out",c:"var(--p2)",tm:"After P1 validates → Jul 2026",
+    sp:[{l:"P2a — Secretary · 2-4 days · ships first",pr:["P2a"]},{l:"P2b — Instruction Bible · 1-2 weeks",pr:["P2b"]},{l:"P2c — Sales System · 6-10 weeks",pr:["P2c"]},{l:"P2 — Other",pr:["P2","P2-3"]}]},
+  {id:"P3",l:"Phase 3+",sl:"After ecosystem proves out",c:"var(--p3)",tm:"H2 2026+",
+    sp:[{l:"P3",pr:["P3","P3+"]},{l:"P4+",pr:["P4+"]},{l:"P5+",pr:["P5+"]}]},
+  {id:"parked",l:"Parked",sl:"Waiting for triggers",c:"var(--tx-2)",tm:"—",sp:[{l:"",pr:["TBD"]}]},
+  {id:"retired",l:"Retired",sl:"Merged in v7",c:"var(--retired-tx)",tm:"",sp:[{l:"",pr:["—"]}]},
+];
+
+let cv='l',af='all',op={};
+function sv(v){cv=v;document.getElementById('vt-l').classList.toggle('on',v==='l');document.getElementById('vt-p').classList.toggle('on',v==='p');document.getElementById('vl').style.display=v==='l'?'':'none';document.getElementById('vp').style.display=v==='p'?'':'none';document.getElementById('ll').style.display=v==='l'?'':'none';document.getElementById('lp').style.display=v==='p'?'':'none';document.getElementById('fbar').style.display=v==='l'?'':'none';v==='p'?rp():rl()}
+function jp(id){sv('p');op[id]=true;rp();setTimeout(()=>{const e=document.getElementById('ph-'+id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'})},60)}
+function fc(c){af=c;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));document.getElementById('f-'+c).classList.add('on');rl()}
+function mf(p){if(af==='all')return true;if(af==='chg')return p.chg;if(af==='lad')return p.lad>=2;return p.cat===af}
+function pc(p){return p==='P1'||p==='P1b'?'pp1':p==='P1.5'||p==='P1.5b'?'pp15':p==='P2a'?'pp2a':p.startsWith('P2')?'pp2':'pp3'}
+function sl(s){return s==='built'?'● built':s==='retired'?'✕ retired':s==='parked'?'○ parked':'◐ concept'}
+function scl(s){return 'p-s'+(s==='built'?'b':s==='retired'?'r':s==='parked'?'p':'c')}
+
+// LADDER
+function rl(){const c=document.getElementById('vl');c.innerHTML='';R.forEach(r=>{const rp=P.filter(p=>p.rung===r.n&&mf(p));const d=document.createElement('div');d.className='rung';d.style.background=r.bg;const dh=r.dp?`<span class="rung-dp ${r.dc}">${r.dp}</span>`:'';d.innerHTML=`<div class="rung-h"><span class="rung-n">${r.n}</span><span class="rung-t">${r.t}</span><span class="rung-d">${r.d}</span>${dh}</div><div class="rung-b">${rp.length===0?'<div class="empty">'+(r.n===0?'Funnel starts here':'No match')+'</div>':''}${rp.map(scard).join('')}</div>`;c.appendChild(d)})}
+function scard(p){return`<div class="sc c${p.cat} ${p.isRet?'ret':''}"><div class="nm">${p.ip?'<span class="ip">★</span>':''}#${p.id} ${p.nm}${p.isNew?'<span class="nbdg">new</span>':''}${p.chg&&!p.isNew&&!p.isRet?'<span class="cbdg">chg</span>':''}</div><div class="ds">${p.ds}</div><div class="mt">${p.pr!=='—'?`<span class="p p-pr">${p.pr}</span>`:''}<span class="p ${scl(p.st)}">${sl(p.st)}</span>${p.pri!=='—'&&p.pri!=='TBD'?`<span class="p p-pi ${pc(p.pri)}">${p.pri}</span>`:''}${p.lad>=2?`<span class="p p-l${p.lad}">${p.lad===3?'★★★':'★★'}</span>`:''}</div></div>`}
+
+// PHASE
+function tp(id){op[id]=!op[id];rp()}
+function rp(){const c=document.getElementById('vp');c.innerHTML='';PH.forEach(ph=>{let all=[];ph.sp.forEach(s=>s.pr.forEach(pri=>P.forEach(p=>{if(p.pri===pri&&!all.find(x=>x.id===p.id))all.push(p)})));const io=op[ph.id]||false;const d=document.createElement('div');d.className='pg';d.id='ph-'+ph.id;d.style.borderLeft=`3px solid ${ph.c}`;d.innerHTML=`<div class="ph" onclick="tp('${ph.id}')"><span class="chev ${io?'o':''}">▶</span><span class="pl" style="color:${ph.c}">${ph.l}</span><span class="psl">${ph.sl}</span>${ph.tm&&ph.tm!=='—'?`<span class="ptm">${ph.tm}</span>`:''}<span class="pct">${all.length}</span></div><div class="pb ${io?'o':''}">${ph.sp.map(s=>{let sp=[];s.pr.forEach(pri=>P.forEach(p=>{if(p.pri===pri&&!sp.find(x=>x.id===p.id))sp.push(p)}));if(!sp.length)return'';const sh=ph.sp.length>1&&s.l;return`<div class="sph">${sh?`<div class="sph-h">${s.l}</div>`:''}<div class="sph-p">${sp.map(pcard).join('')}</div></div>`}).join('')}</div>`;c.appendChild(d)})}
+function pcard(p){const ht=p.tiers&&p.tiers.length>0;const hp=p.pipe&&p.pipe.length>0;const hd=p.dep&&p.dep.length>0;return`<div class="pc c${p.cat}"><div class="top"><div class="left"><div class="nm">${p.ip?'<span class="ip">★</span>':''}#${p.id} ${p.nm}${p.isNew?'<span class="nbdg">new</span>':''}${p.chg&&!p.isNew&&!p.isRet?'<span class="cbdg">chg</span>':''}</div><div class="ds">${p.ds}</div></div><div class="right">${p.pr!=='—'?`<span class="p p-pr">${p.pr}</span>`:''}${p.lad>=2?`<span class="p p-l${p.lad}">${p.lad===3?'★★★ ladder':'★★ partial'}</span>`:''}</div></div>${ht?`<div class="tiers"><div class="tiers-t">What the Buyer Gets at Each Tier</div>${p.tiers.map(t=>`<div class="tier"><span class="tier-tag ${t.cls}">${t.tag}</span><div class="tier-body"><div class="tier-what">${t.what}</div><div class="tier-how">${t.how}</div></div></div>`).join('')}</div>`:''}${hp?`<div class="pipe"><div class="pipe-t">Pipeline</div>${p.pipe.map(s=>`<div class="ps ps-${s.x}"><span class="ps-d"></span><span class="ps-l">${s.s}</span>${s.n?`<span class="ps-n">${s.n}</span>`:''}</div>`).join('')}</div>`:''}${hd?`<div class="deps"><b>Depends on: </b>${p.dep}</div>`:''}</div>`}
+
+// Init
+document.getElementById('fbar').innerHTML=`<span class="l">Filter</span><button onclick="fc('all')" class="fb on" id="f-all">All (29)</button><button onclick="fc('A')" class="fb" id="f-A">Coach (8)</button><button onclick="fc('B')" class="fb" id="f-B">Power (11)</button><button onclick="fc('C')" class="fb" id="f-C">Premium (8)</button><button onclick="fc('D')" class="fb" id="f-D">Platform (2)</button><div class="fsep"></div><button onclick="fc('chg')" class="fb" id="f-chg">v7 changes</button><button onclick="fc('lad')" class="fb" id="f-lad">Has ladder</button>`;
+document.getElementById('ll').innerHTML=`<div class="leg-i"><span class="leg-d" style="background:var(--cat-a)"></span>Coach</div><div class="leg-i"><span class="leg-d" style="background:var(--cat-b)"></span>Power</div><div class="leg-i"><span class="leg-d" style="background:var(--cat-c)"></span>Premium</div><div class="leg-i"><span class="leg-d" style="background:var(--cat-d)"></span>Platform</div><div class="leg-i"><span style="color:var(--accent);font-size:11px">★</span>Real IP</div><div class="leg-i"><span class="nbdg">new</span>v7</div><div class="leg-i"><span class="cbdg">chg</span>v7</div>`;
+document.getElementById('lp').innerHTML=`<div class="leg-i"><span class="leg-d" style="background:var(--done)"></span>Done</div><div class="leg-i"><span class="leg-d" style="background:var(--inprog)"></span>In progress</div><div class="leg-i"><span class="leg-d" style="background:var(--notstart)"></span>Not started</div><div class="leg-i"><span class="leg-d" style="background:var(--blocked)"></span>Blocked</div><div class="leg-i"><span class="tier-tag tier-s" style="font-size:8px">Starter</span>Load & go</div><div class="leg-i"><span class="tier-tag tier-n" style="font-size:8px">Notion</span>Connected</div><div class="leg-i"><span class="tier-tag tier-e" style="font-size:8px">Enterprise</span>Future</div>`;
+rl();rp();
+</script>
+</body>
+</html>
