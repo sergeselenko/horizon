@@ -3,27 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Combined Dashboard — Sunday March 29, 2026</title>
+<title>Combined Dashboard — Monday March 30, 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{
---bg:#f0f2f7;--card:rgba(255,255,255,0.65);--card-hover:rgba(255,255,255,0.82);
---border:rgba(0,0,0,0.06);--text:#1a1d2b;--text2:#4a5068;--muted:#8891a5;
---red:#e63946;--amber:#e6940a;--blue:#2563eb;--green:#16a34a;--slate:#64748b;
---section-bg:rgba(30,35,55,0.07);
-}
+:root{--bg:#f0f2f7;--card:rgba(255,255,255,0.65);--card-hover:rgba(255,255,255,0.82);--border:rgba(0,0,0,0.06);--text:#1a1d2b;--text2:#4a5068;--muted:#8891a5;--red:#e63946;--amber:#e6940a;--blue:#2563eb;--green:#16a34a;--slate:#64748b;--section-bg:rgba(30,35,55,0.07)}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;position:relative;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;
-background:radial-gradient(ellipse at 20% 20%,rgba(37,99,235,0.08),transparent 50%),
-radial-gradient(ellipse at 80% 30%,rgba(124,58,237,0.06),transparent 50%),
-radial-gradient(ellipse at 50% 80%,rgba(230,148,10,0.06),transparent 50%),
-radial-gradient(ellipse at 90% 90%,rgba(22,163,74,0.05),transparent 50%);
-pointer-events:none}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 20% 20%,rgba(37,99,235,0.08),transparent 50%),radial-gradient(ellipse at 80% 30%,rgba(124,58,237,0.06),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(230,148,10,0.06),transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(22,163,74,0.05),transparent 50%);pointer-events:none}
 .container{max-width:820px;margin:0 auto;padding:20px 16px;position:relative;z-index:1}
 h1{font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;margin-bottom:4px}
 .subtitle{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:16px}
-/* Tabs */
 .tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.4);backdrop-filter:blur(8px);border-radius:12px;padding:4px;border:1px solid var(--border)}
 .tab{flex:1;padding:10px 16px;border-radius:10px;border:none;background:transparent;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.25s ease;color:var(--muted)}
 .tab.active{background:white;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
@@ -31,10 +20,8 @@ h1{font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;margin-bottom:4px}
 .tab-content{display:none;animation:fadeIn 0.35s ease}
 .tab-content.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-/* Cards */
 .card{background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:all 0.2s ease}
 .card:hover{background:var(--card-hover);box-shadow:0 4px 16px rgba(0,0,0,0.04)}
-/* Section headers */
 .section{margin-bottom:16px}
 .section-header{background:var(--section-bg);padding:10px 14px;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
 .section-header h3{font-weight:700;font-size:0.95rem;flex:1}
@@ -43,13 +30,11 @@ h1{font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;margin-bottom:4px}
 .section-body.collapsed{display:none}
 .chevron{transition:transform 0.25s ease;font-size:0.8rem}
 .section.open .chevron{transform:rotate(180deg)}
-/* Status colors on left border */
 .card.urgent{border-left:3px solid var(--red)}
 .card.input{border-left:3px solid var(--blue)}
 .card.next{border-left:3px solid var(--amber)}
 .card.done{border-left:3px solid var(--green)}
 .card.parked{border-left:3px solid var(--slate)}
-/* Venture tags */
 .vtag{font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:600;padding:2px 7px;border-radius:5px;display:inline-block;letter-spacing:0.04em;vertical-align:middle;margin-right:4px}
 .vtag-household{background:rgba(37,99,235,0.12);color:#2563eb}
 .vtag-activemenus{background:rgba(230,148,10,0.12);color:#b87308}
@@ -60,7 +45,6 @@ h1{font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;margin-bottom:4px}
 .vtag-titleco{background:rgba(13,148,136,0.12);color:#0d9488}
 .vtag-leadgen{background:rgba(22,163,74,0.12);color:#16a34a}
 .vtag-couples{background:rgba(236,72,153,0.12);color:#ec4899}
-/* Phase cards for Today */
 .phase{margin-bottom:16px}
 .phase-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .phase-icon{font-size:1.1rem}
@@ -71,262 +55,136 @@ h1{font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;margin-bottom:4px}
 .step-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:0.75rem;flex-shrink:0}
 .step-text{flex:1}
 .step-text strong{font-weight:600}
-/* Week timeline */
 .timeline{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding:4px 0}
 .tday{flex:1;min-width:90px;background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center;font-size:0.72rem;transition:all 0.2s ease}
 .tday.today{border-color:var(--blue);background:rgba(37,99,235,0.06)}
 .tday-name{font-weight:700;font-size:0.75rem;margin-bottom:2px}
 .tday-date{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:4px}
 .tday-event{font-size:0.65rem;color:var(--text2);line-height:1.3}
-/* Audit badge */
 .audit-badge{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;padding:3px 8px;border-radius:6px;margin-left:4px}
-.audit-new{background:rgba(22,163,74,0.12);color:#16a34a}
 .audit-stale{background:rgba(230,148,10,0.12);color:#b87308}
 .audit-alert{background:rgba(230,57,70,0.12);color:#e63946}
-/* Footer */
 .footer{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);padding:20px 0 10px;border-top:1px solid var(--border);margin-top:24px}
-.item-meta{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--muted);margin-top:4px}
+.focus-banner{background:linear-gradient(135deg,rgba(230,57,70,0.08),rgba(109,40,217,0.06));border:1px solid rgba(230,57,70,0.15);border-radius:14px;padding:14px 18px;margin-bottom:16px}
+.focus-banner h3{font-weight:700;font-size:0.9rem;margin-bottom:6px;color:var(--red)}
+.focus-banner p{font-size:0.82rem;color:var(--text2);line-height:1.45}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>📋 Combined Dashboard</h1>
-<p class="subtitle">Secretary v14 · Sunday March 29, 2026 · Post-audit</p>
-
+<p class="subtitle">Secretary v14 · Monday March 30, 2026</p>
 <div class="tabs">
 <button class="tab active" onclick="switchTab('today')">📅 Today</button>
 <button class="tab" onclick="switchTab('horizon')">🧭 Horizon</button>
 </div>
 
-<!-- ==================== TODAY TAB ==================== -->
 <div id="today" class="tab-content active">
+<div class="focus-banner">
+<h3>🎯 Today's Priority: Negotiation Kit Launch</h3>
+<p>Max output on the Negotiations Kit. Two work blocks: after dentist → 12:30 PM, then after Sage Infusion → evening. Clean up, finish, ship.</p>
+</div>
 
 <div class="phase">
-<div class="phase-header">
-<span class="phase-icon">☀️</span>
-<span class="phase-title">Morning</span>
-<span class="phase-time">Before noon</span>
+<div class="phase-header"><span class="phase-icon">☀️</span><span class="phase-title">Morning</span><span class="phase-time">Early</span></div>
+<div class="step"><span class="step-icon" style="background:rgba(37,99,235,0.12)">🦷</span>
+<span class="step-text"><span class="vtag vtag-household">HOUSEHOLD</span> <strong>Kids dentist.</strong> Apple Calendar. Take kids, head home after.</span></div>
 </div>
+
+<div class="phase">
+<div class="phase-header"><span class="phase-icon">💻</span><span class="phase-title">Work Block 1</span><span class="phase-time">Post-dentist → 12:30 PM</span></div>
+<div class="step"><span class="step-icon" style="background:rgba(230,57,70,0.12)">🚀</span>
+<span class="step-text"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> <strong>Negotiation Kit launch.</strong> Primary focus — build, clean up, finish.</span></div>
 <div class="step"><span class="step-icon" style="background:rgba(230,148,10,0.12)">📝</span>
-<span class="step-text"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> <strong>Send ISR Agreement to Anthony.</strong> Meg review is the last gate — check if she's done. Sunday target, Monday morning latest.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(230,148,10,0.12)">📧</span>
-<span class="step-text"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> <strong>Send Boostly heads-up email to Anthony.</strong> Gmail draft ready. Gated on ISR agreement send timing — can go today or tomorrow.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(37,99,235,0.12)">📱</span>
-<span class="step-text"><span class="vtag vtag-personal">PERSONAL</span> <strong>Drink plenty of water</strong> — prep for Sage Infusion tomorrow at 1:30 PM.</span></div>
-</div>
-
-<div class="phase">
-<div class="phase-header">
-<span class="phase-icon">🌤️</span>
-<span class="phase-title">Midday / Afternoon</span>
-<span class="phase-time">Open day — no calendar events</span>
-</div>
-<div class="step"><span class="step-icon" style="background:rgba(109,40,217,0.12)">💻</span>
-<span class="step-text"><span class="vtag vtag-selenko">SELENKO</span> <strong>Paste Architect + AI Digital Products handoff prompts</strong> (in downloads) — start build sessions when ready.</span></div>
+<span class="step-text"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> <strong>ISR Agreement → Anthony</strong> if Meg reviewed. Unblocks Boostly email + tomorrow's calls.</span></div>
 <div class="step"><span class="step-icon" style="background:rgba(124,58,237,0.12)">📋</span>
-<span class="step-text"><span class="vtag vtag-everlane">EVERLANE</span> <strong>Send Craig McClure buyer's agent agreement.</strong> Still pending from Friday. Quick win to close the loop.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(37,99,235,0.12)">🍻</span>
-<span class="step-text"><span class="vtag vtag-personal">PERSONAL</span> <strong>Schedule ABC Happy Hour</strong> — April 3 (first Friday), Copper Shaker Bar, downtown St. Pete.</span></div>
+<span class="step-text"><span class="vtag vtag-everlane">EVERLANE</span> <strong>Send Craig McClure buyer's agent agreement.</strong> Quick close — pending since Friday.</span></div>
 </div>
 
 <div class="phase">
-<div class="phase-header">
-<span class="phase-icon">🌙</span>
-<span class="phase-title">Evening</span>
-<span class="phase-time">Family time</span>
+<div class="phase-header"><span class="phase-icon">💉</span><span class="phase-title">Sage Infusion</span><span class="phase-time">1:30 PM</span></div>
+<div class="step"><span class="step-icon" style="background:rgba(8,145,178,0.12)">📍</span>
+<span class="step-text"><span class="vtag vtag-personal">PERSONAL</span> <strong>Sage Infusion.</strong> (727) 977-8836. Hydrate beforehand.</span></div>
 </div>
-<div class="step"><span class="step-icon" style="background:rgba(37,99,235,0.12)">👨‍👩‍👧‍👦</span>
-<span class="step-text"><span class="vtag vtag-household">HOUSEHOLD</span> <strong>Catching up with Meg.</strong> Babysitter day. Skipping Hunter's soccer.</span></div>
+
+<div class="phase">
+<div class="phase-header"><span class="phase-icon">💻</span><span class="phase-title">Work Block 2</span><span class="phase-time">After infusion → evening</span></div>
+<div class="step"><span class="step-icon" style="background:rgba(230,57,70,0.12)">🚀</span>
+<span class="step-text"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> <strong>Continue Negotiation Kit.</strong> Push to finish.</span></div>
+<div class="step"><span class="step-icon" style="background:rgba(109,40,217,0.12)">🔧</span>
+<span class="step-text"><span class="vtag vtag-selenko">SELENKO</span> <strong>Clean up & updates.</strong> Close loose ends, system housekeeping.</span></div>
+<div class="step"><span class="step-icon" style="background:rgba(230,148,10,0.12)">📧</span>
+<span class="step-text"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> <strong>Send Boostly heads-up to Anthony.</strong> Gmail draft ready. Call is tomorrow 1 PM.</span></div>
 </div>
 
 <div class="card" style="background:rgba(37,99,235,0.04);border:1px solid rgba(37,99,235,0.12)">
-<strong style="font-size:0.85rem">🏠 Home Awareness</strong>
+<strong style="font-size:0.85rem">🏠 Tomorrow Preview</strong>
 <div style="font-size:0.8rem;margin-top:6px;color:var(--text2)">
-Kids dentist Monday 9 AM (Apple Cal — not on GCal). Sage Infusion Mon 1:30 PM (Apple Cal). Dad blood work for kidney doctor (all-day Mon, on GCal). Gala's eye doctor Mon 9:45 AM (GCal, 4178 N Armenia Ave).
+Tue: Boostly call 1p, Expo Debrief 4p — prep tonight if needed. Dad blood work (all-day). Gala Dr 9:45a. Jim's broken MoH invite → decline it today.
 </div>
 </div>
 </div>
 
-<!-- ==================== HORIZON TAB ==================== -->
 <div id="horizon" class="tab-content">
-
-<!-- Week Ahead Timeline -->
 <div class="timeline">
-<div class="tday today">
-<div class="tday-name">SUN</div><div class="tday-date">Mar 29</div>
-<div class="tday-event">Open day<br>ISR Agreement target</div>
-</div>
-<div class="tday">
-<div class="tday-name">MON</div><div class="tday-date">Mar 30</div>
-<div class="tday-event">🦷 Kids Dentist 9a<br>👁️ Gala Dr 9:45a<br>💉 Sage Infusion 1:30p<br>🩸 Dad blood work</div>
-</div>
-<div class="tday">
-<div class="tday-name">TUE</div><div class="tday-date">Mar 31</div>
-<div class="tday-event">📞 Boostly 1p<br>📞 Expo Debrief 4p</div>
-</div>
-<div class="tday">
-<div class="tday-name">WED</div><div class="tday-date">Apr 1</div>
-<div class="tday-event">📋 Roles Call 9a<br>🚀 Artemis II 2p→midnight</div>
-</div>
-<div class="tday">
-<div class="tday-name">THU</div><div class="tday-date">Apr 2</div>
-<div class="tday-event">—</div>
-</div>
+<div class="tday today"><div class="tday-name">MON</div><div class="tday-date">Mar 30</div><div class="tday-event">🦷 Dentist<br>💉 Sage 1:30p<br>🚀 Neg Kit</div></div>
+<div class="tday"><div class="tday-name">TUE</div><div class="tday-date">Mar 31</div><div class="tday-event">🩸 Dad blood<br>👁️ Gala 9:45a<br>📞 Boostly 1p<br>📞 Debrief 4p</div></div>
+<div class="tday"><div class="tday-name">WED</div><div class="tday-date">Apr 1</div><div class="tday-event">📋 Roles 9a<br>🚀 Artemis 2p→</div></div>
+<div class="tday"><div class="tday-name">THU</div><div class="tday-date">Apr 2</div><div class="tday-event">—</div></div>
+<div class="tday"><div class="tday-name">FRI</div><div class="tday-date">Apr 3</div><div class="tday-event">🍻 ABC HH?</div></div>
 </div>
 
-<!-- BLOCKED / URGENT -->
 <div class="section open" id="sec-urgent">
-<div class="section-header" onclick="toggleSection('sec-urgent')" style="background:rgba(230,57,70,0.08)">
-<span>⚡</span><h3>Blocked / Urgent</h3><span class="count">3</span><span class="chevron">▼</span>
-</div>
+<div class="section-header" onclick="toggleSection('sec-urgent')" style="background:rgba(230,57,70,0.08)"><span>⚡</span><h3>Blocked / Urgent</h3><span class="count">3</span><span class="chevron">▼</span></div>
 <div class="section-body">
-<div class="card urgent">
-<strong>ISR Agreement — Meg review is last gate</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Sunday target, Monday morning latest. Blocks: Boostly heads-up email, restaurant file to Jim/Mike, all Tuesday calls. Communication sequence locked: ISR → Boostly heads-up → restaurant file → Tuesday calls.</div>
-</div>
-<div class="card urgent">
-<strong>Boostly — Shane declined invite (expected). No response from Travisse yet.</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Shane's decline was wrong invite (accidental). Travisse has correct invite, sent Saturday. Call is Tuesday 1 PM. Gmail draft ready for Anthony context email. <span class="audit-badge audit-alert">⚠ NO RESPONSE</span></div>
-</div>
-<div class="card urgent">
-<strong>Jim's broken MoH Planning invite still on calendar</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Shows Apr 1 at 9 AM Pacific (= noon ET). Serge's correct event is Wed 9 AM ET. <strong>Action: decline Jim's invite</strong> to kill the duplicate notification.</div>
-</div>
-</div>
-</div>
+<div class="card urgent"><strong>ISR Agreement — Meg review last gate</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Monday morning latest. Blocks all downstream comms.</div></div>
+<div class="card urgent"><strong>Boostly — Travisse hasn't confirmed</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Call tomorrow 1 PM. No reply since Saturday. <span class="audit-badge audit-alert">⚠ UNCONFIRMED</span></div></div>
+<div class="card urgent"><strong>Jim's MoH Planning invite → DECLINE</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Duplicate of Wed 9 AM ET Roles Call. Wrong timezone.</div></div>
+</div></div>
 
-<!-- INPUT NEEDED -->
 <div class="section open" id="sec-input">
-<div class="section-header" onclick="toggleSection('sec-input')" style="background:rgba(37,99,235,0.06)">
-<span>💬</span><h3>Input Needed</h3><span class="count">2</span><span class="chevron">▼</span>
-</div>
+<div class="section-header" onclick="toggleSection('sec-input')" style="background:rgba(37,99,235,0.06)"><span>💬</span><h3>Input Needed</h3><span class="count">2</span><span class="chevron">▼</span></div>
 <div class="section-body">
-<div class="card input">
-<strong>ActiveMenus — Strategic Posture Open Question</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> How much time to invest in someone else's business vs. own ventures? Tuesday/Wednesday calls will inform this. Dynamic strategy — no lock-in needed yet. Venture Posture: Active — Strategic Assessment.</div>
-</div>
-<div class="card input">
-<strong>AI Digital Products — Negotiation Coach P1 build</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> ~1 week build → $67 product → ads early April. End-of-April clarity checkpoint: $200/day signal needed. Handoff prompt ready in downloads.</div>
-</div>
-</div>
-</div>
+<div class="card input"><strong>Negotiation Kit — launch readiness</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> P1 product. $67 → ads early April. Today's #1 focus.</div></div>
+<div class="card input"><strong>ActiveMenus — Strategic Posture</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Tue/Wed calls inform. No lock-in yet.</div></div>
+</div></div>
 
-<!-- NEXT UP -->
 <div class="section open" id="sec-next">
-<div class="section-header" onclick="toggleSection('sec-next')" style="background:rgba(230,148,10,0.06)">
-<span>🔥</span><h3>Next Up</h3><span class="count">6</span><span class="chevron">▼</span>
-</div>
+<div class="section-header" onclick="toggleSection('sec-next')" style="background:rgba(230,148,10,0.06)"><span>🔥</span><h3>Next Up</h3><span class="count">5</span><span class="chevron">▼</span></div>
 <div class="section-body">
-<div class="card next">
-<strong>Craig McClure — buyer's agent agreement</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> Needs sending. Pending since Friday.</div>
-</div>
-<div class="card next">
-<strong>ABC Happy Hour — schedule for April 3</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-personal">PERSONAL</span> Copper Shaker Bar, downtown St. Pete. First Friday of month.</div>
-</div>
-<div class="card next">
-<strong>BoldTrail / Mark — follow up</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> Text from March 25 (843-749-8038). Automations running but not reaching real contacts. May renewal coming. No new Gmail activity. <span class="audit-badge audit-stale">5 DAYS</span></div>
-</div>
-<div class="card next">
-<strong>YMCA summer camp refund policy</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-household">HOUSEHOLD</span> Gmail draft sent to info@stpeteymca.org. Considering pulling Hunter for SPCS.</div>
-</div>
-<div class="card next">
-<strong>Restaurant prospects file (v2) → Jim/Mike</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Ready. 8 prospects BLOCKED needing Anthony's answers. Send Mon/Tue, after ISR.</div>
-</div>
-<div class="card next">
-<strong>8 behavioral /flags pending /capture (v9–v11)</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Instruction improvement candidates. Run /capture when ready.</div>
-</div>
-</div>
-</div>
+<div class="card next"><strong>Craig McClure agreement</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> Send today. Pending since Friday.</div></div>
+<div class="card next"><strong>ABC Happy Hour — schedule April 3</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-personal">PERSONAL</span> Copper Shaker Bar.</div></div>
+<div class="card next"><strong>BoldTrail / Mark follow-up</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> May renewal. <span class="audit-badge audit-stale">5+ DAYS</span></div></div>
+<div class="card next"><strong>Restaurant prospects v2 → Jim/Mike</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> After ISR. Before Tuesday call.</div></div>
+<div class="card next"><strong>8 /flags pending /capture (v9–v11)</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Instruction improvements.</div></div>
+</div></div>
 
-<!-- RECENTLY COMPLETED -->
-<div class="section open" id="sec-done">
-<div class="section-header" onclick="toggleSection('sec-done')" style="background:rgba(22,163,74,0.06)">
-<span>✨</span><h3>Recently Completed</h3><span class="count">5</span><span class="chevron">▼</span>
-</div>
-<div class="section-body">
-<div class="card done">
-<strong>Key Person Profiles database — LIVE</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Built in Architect v6. 6 entries. Global Instructions lookup rule deployed. Cross-project gap resolved.</div>
-</div>
-<div class="card done">
-<strong>ActiveMenus Advisor v2 — pre-Tuesday deliverables complete</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Restaurant prospects v2, Boostly draft, delegation prompt for Notion enrichment, communication sequence locked.</div>
-</div>
-<div class="card done">
-<strong>System Operating Guide</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Created March 28. 10 sections. Hub narrative cleaned up.</div>
-</div>
-<div class="card done">
-<strong>/emit command — cross-project state propagation</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Prompt page created. Global Instructions + Operating Guide updated.</div>
-</div>
-<div class="card done">
-<strong>CVS Praluent call for Dad</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-personal">PERSONAL</span> Voicemail left March 28. Follow-up task: call ~April 18.</div>
-</div>
-</div>
-</div>
-
-<!-- PARKED -->
-<div class="section" id="sec-parked">
-<div class="section-header" onclick="toggleSection('sec-parked')" style="background:rgba(100,116,139,0.06)">
-<span>💤</span><h3>Parked</h3><span class="count">5</span><span class="chevron">▼</span>
-</div>
+<div class="section" id="sec-done">
+<div class="section-header" onclick="toggleSection('sec-done')" style="background:rgba(22,163,74,0.06)"><span>✨</span><h3>Recently Completed</h3><span class="count">4</span><span class="chevron">▼</span></div>
 <div class="section-body collapsed">
-<div class="card parked">
-<strong>Everlane — Strategic Restructuring (referral engine)</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> Big idea: low-overhead referral engine. CRM migration from BoldTrail. BoldTrail renewal May. Full detail in Parking Lot.</div>
-</div>
-<div class="card parked">
-<strong>Title Company — gated on $20K/mo income</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-titleco">TITLE CO</span> Zero allocation until Meg transition unlocked.</div>
-</div>
-<div class="card parked">
-<strong>Command Center Dashboard — 4-layer architecture</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Vision documented. High priority but not yet scheduled.</div>
-</div>
-<div class="card parked">
-<strong>Apple Reminders/Notes migration (~160+ tasks, 52 notes)</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Dedicated 2-3 session project. Not yet started.</div>
-</div>
-<div class="card parked">
-<strong>Commission split framework — Lead Gen / Alex</strong>
-<div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-leadgen">LEAD GEN</span> Low priority given repositioning. Still open.</div>
-</div>
-</div>
+<div class="card done"><strong>Key Person Profiles — LIVE</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> 6 entries. Cross-project lookup deployed.</div></div>
+<div class="card done"><strong>ActiveMenus Advisor v2 deliverables</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Prospects v2, Boostly draft, sequence locked.</div></div>
+<div class="card done"><strong>SOG + /emit + /digest</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> All live.</div></div>
+<div class="card done"><strong>Command Center — Architect v6 handoff ready</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Paste when ready.</div></div>
+</div></div>
+
+<div class="section" id="sec-parked">
+<div class="section-header" onclick="toggleSection('sec-parked')" style="background:rgba(100,116,139,0.06)"><span>💤</span><h3>Parked</h3><span class="count">5</span><span class="chevron">▼</span></div>
+<div class="section-body collapsed">
+<div class="card parked"><strong>Everlane — Referral engine restructuring</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> BoldTrail renewal May.</div></div>
+<div class="card parked"><strong>Title Company — gated on $20K/mo</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-titleco">TITLE CO</span></div></div>
+<div class="card parked"><strong>Command Center Dashboard build</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span></div></div>
+<div class="card parked"><strong>Apple Reminders/Notes migration</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span></div></div>
+<div class="card parked"><strong>Lead Gen commission split</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-leadgen">LEAD GEN</span></div></div>
+</div></div>
 </div>
 
+<div class="footer">Secretary v14 · Monday March 30, 2026 · Priority: Negotiation Kit launch</div>
 </div>
-
-<div class="footer">
-Secretary v14 · Startup Audit: 7 calendar events, 4 Gmail scans · Sunday March 29, 2026
-</div>
-</div>
-
 <script>
-function switchTab(id){
-document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-event.target.classList.add('active');
-}
-function toggleSection(id){
-const sec=document.getElementById(id);
-sec.classList.toggle('open');
-const body=sec.querySelector('.section-body');
-body.classList.toggle('collapsed');
-}
-// Start with parked collapsed
-document.addEventListener('DOMContentLoaded',()=>{
-document.getElementById('sec-parked').classList.remove('open');
-});
+function switchTab(id){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');event.target.classList.add('active')}
+function toggleSection(id){const s=document.getElementById(id);s.classList.toggle('open');s.querySelector('.section-body').classList.toggle('collapsed')}
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('sec-done').classList.remove('open');document.getElementById('sec-parked').classList.remove('open')});
 </script>
 </body>
 </html>
