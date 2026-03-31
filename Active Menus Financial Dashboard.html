@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Opportunity Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-border: #dfe1e6;
+  --text: #111827;
+  --text-sec: #4b5563;
+  --text-muted: #9ca3af;
+  --activemenus: #e6940a;
+  --activemenus-light: rgba(230,148,10,0.08);
+  --activemenus-border: rgba(230,148,10,0.3);
+  --selenko: #6d28d9;
+  --green: #059669;
+  --amber: #d97706;
+  --red: #e63946;
+  --gray-mid: #6b7280;
+  --hover-bg: rgba(109,40,217,0.04);
+  --hover-border: rgba(109,40,217,0.25);
+  --mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+  --radius-card: 14px;
+  --radius-sm: 10px;
+  --border-w: 1.5px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+::selection{background:rgba(109,40,217,0.18)}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);font-weight:500;font-size:13px;line-height:1.5;min-height:100vh}
+
+/* PIN GATE */
+#pin-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#eee8ff 0%,#f5f5f7 40%,#e8eeff 100%)}
+#pin-gate.hidden{display:none}
+.pin-card{background:var(--card);border:var(--border-w) solid var(--card-border);border-radius:var(--radius-card);padding:40px;text-align:center;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.08)}
+.pin-card h2{font-size:22px;font-weight:700;margin-bottom:6px}
+.pin-card p{color:var(--text-sec);font-size:13px;margin-bottom:24px}
+.pin-input{width:180px;padding:12px 16px;font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;text-align:center;border:var(--border-w) solid var(--card-border);border-radius:var(--radius-sm);outline:none;letter-spacing:8px;transition:border-color 0.2s,box-shadow 0.2s}
+.pin-input:focus{border-color:var(--activemenus);box-shadow:0 0 0 4px rgba(230,148,10,0.12)}
+.pin-input.shake{animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-error{color:var(--red);font-size:12px;font-weight:600;margin-top:12px;min-height:18px}
+
+/* DASHBOARD CONTAINER */
+#dashboard{display:none;opacity:0;transition:opacity 0.4s ease}
+#dashboard.visible{display:block;opacity:1}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(245,245,247,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:var(--border-w) solid var(--card-border);padding:0 24px}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:56px;gap:16px}
+.header-title{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.header-dot{width:8px;height:8px;border-radius:50%;background:var(--activemenus)}
+.tabs{display:flex;gap:2px;flex:1;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-btn{padding:8px 14px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;color:var(--text-sec);background:none;border:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:all 0.2s;white-space:nowrap;border-radius:8px 8px 0 0}
+.tab-btn:hover{background:var(--hover-bg);color:var(--text)}
+.tab-btn.active{color:var(--activemenus);background:var(--activemenus-light);border-bottom-color:var(--activemenus);font-weight:700}
+.header-actions{display:flex;align-items:center;gap:8px}
+.reset-btn{font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;color:var(--text-sec);background:var(--card);border:var(--border-w) solid var(--card-border);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all 0.2s}
+.reset-btn:hover{border-color:var(--activemenus-border);color:var(--activemenus)}
+
+/* MAIN CONTENT */
+.main{max-width:1400px;margin:0 auto;padding:24px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:var(--border-w) solid var(--card-border);border-radius:var(--radius-card);padding:20px;position:relative}
+.card-accent{position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--radius-card) var(--radius-card) 0 0}
+
+/* GROUP LABELS */
+.group-label{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;padding-left:14px;border-left:4px solid var(--activemenus);cursor:pointer;user-select:none}
+.group-label-text h3{font-size:14px;font-weight:700;color:var(--text)}
+.group-label-text p{font-size:12.5px;font-weight:400;color:var(--text-sec);margin-top:2px}
+.group-chevron{width:24px;height:24px;border-radius:6px;background:rgba(0,0,0,0.04);color:var(--text-muted);font-size:11px;display:inline-flex;align-items:center;justify-content:center;transition:all 0.25s ease;flex-shrink:0;margin-top:2px}
+.group.expanded .group-chevron{transform:rotate(90deg);background:rgba(230,148,10,0.1);color:var(--activemenus)}
+.group-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+.group.expanded .group-body{max-height:2000px}
+
+/* INPUT ROWS */
+.input-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
+.input-row:last-child{border-bottom:none}
+.input-label{flex:1;min-width:0}
+.input-label .name{font-size:13px;font-weight:500;color:var(--text)}
+.input-label .source{font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:400}
+.input-slider{width:140px;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:#e5e7eb;outline:none;cursor:pointer}
+.input-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--activemenus);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.15);cursor:pointer}
+.input-number{width:80px;padding:6px 8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;text-align:right;border:var(--border-w) solid var(--card-border);border-radius:8px;outline:none;background:var(--card);color:var(--text);transition:border-color 0.2s}
+.input-number:focus{border-color:var(--activemenus);box-shadow:0 0 0 3px rgba(230,148,10,0.1)}
+.input-unit{font-size:11px;color:var(--text-muted);font-weight:500;width:40px}
+.toggle-group{display:flex;border:var(--border-w) solid var(--card-border);border-radius:8px;overflow:hidden}
+.toggle-opt{padding:6px 14px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--card);color:var(--text-sec);transition:all 0.2s}
+.toggle-opt.active{background:var(--activemenus);color:white}
+
+/* STREAM CARDS */
+.stream-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.stream-card{position:relative;overflow:hidden}
+.stream-card .card-accent{background:var(--activemenus)}
+.stream-name{font-size:15px;font-weight:700;margin-top:8px}
+.stream-desc{font-size:12px;font-weight:400;color:var(--text-sec);margin-top:4px}
+.stream-amount{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--activemenus);margin:16px 0 8px}
+.stream-amount span{font-size:14px;font-weight:500;color:var(--text-sec)}
+.stream-breakdown{font-size:12px;color:var(--text-sec);line-height:1.8}
+.stream-breakdown strong{color:var(--text);font-weight:600}
+.stream-multiplier{margin-top:12px;padding:8px 12px;background:rgba(230,148,10,0.06);border-radius:8px;font-size:12px;font-weight:600;color:var(--activemenus);text-align:center}
+
+/* CHARTS */
+.chart-container{position:relative;width:100%;background:var(--card);border:var(--border-w) solid var(--card-border);border-radius:var(--radius-card);padding:20px;margin-bottom:16px}
+.chart-container h3{font-size:14px;font-weight:700;margin-bottom:4px}
+.chart-container p{font-size:12px;color:var(--text-sec);margin-bottom:16px}
+canvas{width:100%!important;display:block}
+
+/* SCENARIO CARDS */
+.scenario-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.scenario-card{padding:16px;cursor:pointer;transition:all 0.2s}
+.scenario-card.active-scenario{border-color:var(--activemenus);box-shadow:0 0 0 2px var(--activemenus-border)}
+.scenario-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.scenario-val{font-size:24px;font-weight:800}
+.scenario-sub{font-size:11px;color:var(--text-sec);margin-top:4px}
+
+/* CAP BAR */
+.cap-bar-wrap{margin-top:16px}
+.cap-bar-label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:6px}
+.cap-bar{height:24px;background:#e5e7eb;border-radius:12px;overflow:hidden;position:relative}
+.cap-bar-fill{height:100%;border-radius:12px;background:linear-gradient(90deg,var(--activemenus),#f59e0b);transition:width 0.4s ease}
+.cap-bar-text{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--text)}
+
+/* ROI PANEL */
+.roi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.roi-stat{text-align:center;padding:24px}
+.roi-stat .big-num{font-size:36px;font-weight:800;color:var(--activemenus)}
+.roi-stat .big-label{font-size:12px;color:var(--text-sec);margin-top:4px}
+.comparison-bar{margin-top:16px}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.bar-label{font-size:12px;font-weight:600;width:120px;text-align:right}
+.bar-track{flex:1;height:28px;background:#e5e7eb;border-radius:8px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:8px;transition:width 0.4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:700;color:white}
+
+/* GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:24px}
+.gauge-svg{width:200px;height:120px}
+.gauge-pct{font-size:36px;font-weight:800;color:var(--activemenus);margin-top:-10px}
+.gauge-label{font-size:12px;color:var(--text-sec)}
+
+/* ALERT CARD */
+.alert-card{border:var(--border-w) solid var(--amber);background:rgba(217,119,6,0.05);border-radius:var(--radius-card);padding:16px 20px;margin-top:16px}
+.alert-card h4{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px}
+.alert-card p{font-size:12px;color:var(--text-sec)}
+
+/* STATUS BADGES */
+.status-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px}
+.status-badge.unsigned{background:rgba(217,119,6,0.1);color:var(--amber)}
+.status-badge.active{background:rgba(5,150,105,0.1);color:var(--green)}
+.status-badge.blocked{background:rgba(230,57,70,0.1);color:var(--red)}
+
+/* SENSITIVITY TABLE */
+.sens-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.sens-table th{text-align:left;font-weight:700;padding:8px 12px;border-bottom:var(--border-w) solid var(--card-border);font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-sec)}
+.sens-table td{padding:8px 12px;border-bottom:1px solid rgba(0,0,0,0.04);font-weight:500}
+.sens-table tr:last-child td{border-bottom:none}
+.sens-positive{color:var(--green)}
+.sens-warning{color:var(--amber)}
+.sens-danger{color:var(--red)}
+
+/* DEPENDENCY CARDS */
+.dep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px}
+.dep-card{display:flex;align-items:center;gap:12px}
+.dep-card .dep-name{font-size:13px;font-weight:600}
+.dep-card .dep-detail{font-size:11px;color:var(--text-sec)}
+
+/* CROSS-VENTURE STATS */
+.cv-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:16px}
+.cv-stat{text-align:center}
+.cv-stat .num{font-size:28px;font-weight:800}
+.cv-stat .label{font-size:11px;color:var(--text-sec);margin-top:2px}
+
+/* MILESTONE MARKERS */
+.milestones{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.milestone{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,0.04);color:var(--text-sec)}
+.milestone.reached{background:rgba(5,150,105,0.1);color:var(--green)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .header-title{display:none}
+  .tabs{justify-content:flex-start}
+  .tab-btn{font-size:11px;padding:8px 10px}
+  .main{padding:16px}
+  .stream-grid,.roi-grid,.scenario-row,.dep-grid,.cv-stats{grid-template-columns:1fr}
+  .input-row{flex-wrap:wrap}
+  .input-slider{width:100%;order:3}
+  .input-label{flex-basis:60%}
+  .input-number{width:70px}
+}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate">
+  <div class="pin-card">
+    <h2>Financial Opportunity Dashboard</h2>
+    <p>ActiveMenus ISR Position Analysis</p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••" autofocus>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-title"><span class="header-dot"></span> Financial Opportunity Dashboard</div>
+      <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="inputs">Inputs</button>
+        <button class="tab-btn" data-tab="per-restaurant">Per-Restaurant</button>
+        <button class="tab-btn" data-tab="projections">Projections</button>
+        <button class="tab-btn" data-tab="roi">Time & ROI</button>
+        <button class="tab-btn" data-tab="cross-venture">Cross-Venture</button>
+        <button class="tab-btn" data-tab="risk">Risk</button>
+      </div>
+      <div class="header-actions">
+        <button class="reset-btn" onclick="resetDefaults()">Reset Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- TAB 1: INPUTS -->
+    <div class="tab-content active" id="tab-inputs">
+
+      <!-- Pricing Group -->
+      <div class="group expanded" id="grp-pricing">
+        <div class="group-label" onclick="toggleGroup('grp-pricing')">
+          <span class="group-chevron">▸</span>
+          <div class="group-label-text">
+            <h3>Pricing</h3>
+            <p>Buy rates (what you pay ActiveMenus) and retail rates (what restaurants pay)</p>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="card" style="margin-bottom:16px">
+            <div class="input-row">
+              <div class="input-label"><div class="name">Buy Rate — Monthly Subscription</div><div class="source">Source: comp structure doc — confirmed</div></div>
+              <input type="range" class="input-slider" min="25" max="100" value="50" step="5" data-var="buyMonthly" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="50" min="25" max="100" step="5" data-var="buyMonthly" oninput="syncSlider(this)">
+              <span class="input-unit">$/mo</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Buy Rate — Per-Order Fee</div><div class="source">Source: comp structure doc — confirmed</div></div>
+              <input type="range" class="input-slider" min="10" max="150" value="50" step="5" data-var="buyOrder" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="0.50" min="0.10" max="1.50" step="0.05" data-var="buyOrder" oninput="syncSlider(this)">
+              <span class="input-unit">$/order</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Expo Retail — Monthly Subscription</div><div class="source">Source: Anthony confirmed March 20</div></div>
+              <input type="range" class="input-slider" min="49" max="299" value="99" step="5" data-var="expoRetailMonthly" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="99" min="49" max="299" step="5" data-var="expoRetailMonthly" oninput="syncSlider(this)">
+              <span class="input-unit">$/mo</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Expo Retail — Per-Order Fee</div><div class="source">Source: Anthony confirmed March 20</div></div>
+              <input type="range" class="input-slider" min="25" max="200" value="99" step="5" data-var="expoRetailOrder" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="0.99" min="0.25" max="2.00" step="0.05" data-var="expoRetailOrder" oninput="syncSlider(this)">
+              <span class="input-unit">$/order</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Standard Retail — Monthly Subscription</div><div class="source">DISPUTED — $150 (Knowledge Digest), $199 (v3), $200 (comp doc). Default: $150</div></div>
+              <input type="range" class="input-slider" min="99" max="499" value="150" step="5" data-var="stdRetailMonthly" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="150" min="99" max="499" step="5" data-var="stdRetailMonthly" oninput="syncSlider(this)">
+              <span class="input-unit">$/mo</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Standard Retail — Per-Order Fee</div><div class="source">Source: Knowledge Digest, comp structure doc (consistent)</div></div>
+              <input type="range" class="input-slider" min="50" max="300" value="150" step="10" data-var="stdRetailOrder" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="1.50" min="0.50" max="3.00" step="0.10" data-var="stdRetailOrder" oninput="syncSlider(this)">
+              <span class="input-unit">$/order</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission Group -->
+      <div class="group" id="grp-commission">
+        <div class="group-label" onclick="toggleGroup('grp-commission')">
+          <span class="group-chevron">▸</span>
+          <div class="group-label-text">
+            <h3>Commission Structure</h3>
+            <p>Enhanced rate, lifetime cap, post-cap rate, and penalty terms</p>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="card" style="margin-bottom:16px">
+            <div class="input-row">
+              <div class="input-label"><div class="name">Enhanced Commission Rate</div><div class="source">Source: comp structure + March 20 "yes to all"</div></div>
+              <input type="range" class="input-slider" min="10" max="50" value="25" step="1" data-var="commRate" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="25" min="10" max="50" step="1" data-var="commRate" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Lifetime Cap</div><div class="source">Source: comp structure + March 20 confirmation</div></div>
+              <input type="range" class="input-slider" min="50000" max="1000000" value="250000" step="25000" data-var="lifetimeCap" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="250000" min="50000" max="1000000" step="25000" data-var="lifetimeCap" oninput="syncSlider(this)">
+              <span class="input-unit">$</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Post-Cap Rate</div><div class="source">Source: comp structure + March 20 confirmation</div></div>
+              <input type="range" class="input-slider" min="5" max="25" value="10" step="1" data-var="postCapRate" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="10" min="5" max="25" step="1" data-var="postCapRate" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Penalty Rate (threshold miss)</div><div class="source">Source: confirmed verbally March 19</div></div>
+              <input type="range" class="input-slider" min="10" max="25" value="15" step="1" data-var="penaltyRate" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="15" min="10" max="25" step="1" data-var="penaltyRate" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Volume Group -->
+      <div class="group" id="grp-volume">
+        <div class="group-label" onclick="toggleGroup('grp-volume')">
+          <span class="group-chevron">▸</span>
+          <div class="group-label-text">
+            <h3>Volume & Activity</h3>
+            <p>Order volume, churn, conversion rates — the most impactful assumptions</p>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="card" style="margin-bottom:16px">
+            <div class="input-row">
+              <div class="input-label"><div class="name">Orders per Restaurant per Month</div><div class="source">Estimate — safety-net: 150-300, full routing: 500+. MOST IMPACTFUL VARIABLE.</div></div>
+              <input type="range" class="input-slider" min="50" max="1000" value="200" step="25" data-var="ordersPerMonth" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="200" min="50" max="1000" step="25" data-var="ordersPerMonth" oninput="syncSlider(this)">
+              <span class="input-unit">orders</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Monthly Churn Rate</div><div class="source">Estimate — above industry M2M (16% annual)</div></div>
+              <input type="range" class="input-slider" min="0" max="10" value="4" step="0.5" data-var="churnRate" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="4" min="0" max="10" step="0.5" data-var="churnRate" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Expo Lead Conversion Rate</div><div class="source">Estimate — between referral and deal registration benchmarks</div></div>
+              <input type="range" class="input-slider" min="5" max="50" value="20" step="1" data-var="expoConvRate" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="20" min="5" max="50" step="1" data-var="expoConvRate" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Reseller Activation Rate</div><div class="source">ActiveMenus actual (3/30): 10%. Industry: 11–20%</div></div>
+              <input type="range" class="input-slider" min="5" max="30" value="10" step="1" data-var="resellerActivation" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="10" min="5" max="30" step="1" data-var="resellerActivation" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Volume Buy Rate Discount (large partners)</div><div class="source">Estimate — no volume pricing exists yet</div></div>
+              <input type="range" class="input-slider" min="50" max="100" value="75" step="5" data-var="volumeDiscount" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="75" min="50" max="100" step="5" data-var="volumeDiscount" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline Group -->
+      <div class="group" id="grp-pipeline">
+        <div class="group-label" onclick="toggleGroup('grp-pipeline')">
+          <span class="group-chevron">▸</span>
+          <div class="group-label-text">
+            <h3>Pipeline — Current State</h3>
+            <p>Expo contacts, partner opportunities, and ongoing add rate</p>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="card" style="margin-bottom:16px">
+            <div class="input-row">
+              <div class="input-label"><div class="name">Expo Restaurant Contacts</div><div class="source">Source: Project Snapshot (March 29)</div></div>
+              <input type="range" class="input-slider" min="0" max="100" value="24" step="1" data-var="expoContacts" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="24" min="0" max="100" step="1" data-var="expoContacts" oninput="syncSlider(this)">
+              <span class="input-unit">leads</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">BLOCKED Expo Contacts</div><div class="source">Source: Project Snapshot — pending Anthony's answers</div></div>
+              <input type="range" class="input-slider" min="0" max="24" value="8" step="1" data-var="blockedContacts" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="8" min="0" max="24" step="1" data-var="blockedContacts" oninput="syncSlider(this)">
+              <span class="input-unit">leads</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Expo Reseller/Partner Contacts</div><div class="source">Source: Project Snapshot (March 29)</div></div>
+              <input type="range" class="input-slider" min="0" max="50" value="20" step="1" data-var="expoResellerContacts" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="20" min="0" max="50" step="1" data-var="expoResellerContacts" oninput="syncSlider(this)">
+              <span class="input-unit">leads</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">MOH New Restaurants per Month</div><div class="source">Scenario A assumption</div></div>
+              <input type="range" class="input-slider" min="0" max="10" value="1" step="1" data-var="mohMonthly" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="1" min="0" max="10" step="1" data-var="mohMonthly" oninput="syncSlider(this)">
+              <span class="input-unit">/mo</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Boostly Total Locations</div><div class="source">Source: Knowledge Digest</div></div>
+              <input type="range" class="input-slider" min="0" max="5000" value="1200" step="100" data-var="boostlyTotal" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="1200" min="0" max="5000" step="100" data-var="boostlyTotal" oninput="syncSlider(this)">
+              <span class="input-unit">locs</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Boostly Penetration Rate</div><div class="source">Estimate</div></div>
+              <input type="range" class="input-slider" min="0" max="50" value="10" step="1" data-var="boostlyPenetration" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="10" min="0" max="50" step="1" data-var="boostlyPenetration" oninput="syncSlider(this)">
+              <span class="input-unit">%</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Number of Direct Restaurants (Serge)</div><div class="source">Current state</div></div>
+              <input type="range" class="input-slider" min="0" max="25" value="0" step="1" data-var="directRestaurants" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="0" min="0" max="25" step="1" data-var="directRestaurants" oninput="syncSlider(this)">
+              <span class="input-unit">rest.</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Direct Restaurant Pricing Tier</div></div>
+              <div class="toggle-group">
+                <button class="toggle-opt active" data-tier="expo" onclick="setTier(this)">Expo</button>
+                <button class="toggle-opt" data-tier="standard" onclick="setTier(this)">Standard</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Investment Group -->
+      <div class="group" id="grp-time">
+        <div class="group-label" onclick="toggleGroup('grp-time')">
+          <span class="group-chevron">▸</span>
+          <div class="group-label-text">
+            <h3>Time Investment</h3>
+            <p>Hours invested, work value, and ongoing time commitment</p>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="card" style="margin-bottom:16px">
+            <div class="input-row">
+              <div class="input-label"><div class="name">Total Hours Invested to Date</div><div class="source">Estimate — Work Log + sessions + expo days</div></div>
+              <input type="range" class="input-slider" min="50" max="300" value="115" step="5" data-var="hoursInvested" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="115" min="50" max="300" step="5" data-var="hoursInvested" oninput="syncSlider(this)">
+              <span class="input-unit">hrs</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Estimated Value of Work Produced</div><div class="source">Work Log (March 9-12 only) — actual total significantly higher</div></div>
+              <input type="range" class="input-slider" min="10000" max="200000" value="38100" step="1000" data-var="workValue" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="38100" min="10000" max="200000" step="1000" data-var="workValue" oninput="syncSlider(this)">
+              <span class="input-unit">$</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Ongoing Hours/Month (Arm's-Length)</div><div class="source">Estimate — sprint model with monitoring</div></div>
+              <input type="range" class="input-slider" min="0" max="80" value="10" step="5" data-var="hoursArmsLength" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="10" min="0" max="80" step="5" data-var="hoursArmsLength" oninput="syncSlider(this)">
+              <span class="input-unit">hrs/mo</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Ongoing Hours/Month (Active)</div><div class="source">Estimate — direct sales + partner management</div></div>
+              <input type="range" class="input-slider" min="0" max="160" value="40" step="5" data-var="hoursActive" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="40" min="0" max="160" step="5" data-var="hoursActive" oninput="syncSlider(this)">
+              <span class="input-unit">hrs/mo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cross-Venture Group -->
+      <div class="group" id="grp-crossventure">
+        <div class="group-label" onclick="toggleGroup('grp-crossventure')">
+          <span class="group-chevron">▸</span>
+          <div class="group-label-text">
+            <h3>Cross-Venture Context</h3>
+            <p>Multi-venture revenue target, alternative hourly rate, daily revenue signals</p>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="card" style="margin-bottom:16px">
+            <div class="input-row">
+              <div class="input-label"><div class="name">Monthly Revenue Target (All Ventures)</div><div class="source">Source: Operator Profile — confirmed</div></div>
+              <input type="range" class="input-slider" min="5000" max="50000" value="20000" step="1000" data-var="revenueTarget" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="20000" min="5000" max="50000" step="1000" data-var="revenueTarget" oninput="syncSlider(this)">
+              <span class="input-unit">$/mo</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Alternative Hourly Rate</div><div class="source">Estimate — consulting pricing analysis equivalent</div></div>
+              <input type="range" class="input-slider" min="50" max="500" value="150" step="10" data-var="altHourlyRate" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="150" min="50" max="500" step="10" data-var="altHourlyRate" oninput="syncSlider(this)">
+              <span class="input-unit">$/hr</span>
+            </div>
+            <div class="input-row">
+              <div class="input-label"><div class="name">Other Venture Daily Revenue Signal</div><div class="source">Source: Operator Profile — April checkpoint</div></div>
+              <input type="range" class="input-slider" min="0" max="1000" value="200" step="25" data-var="dailySignal" oninput="syncInput(this)">
+              <input type="number" class="input-number" value="200" min="0" max="1000" step="25" data-var="dailySignal" oninput="syncSlider(this)">
+              <span class="input-unit">$/day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: PER-RESTAURANT -->
+    <div class="tab-content" id="tab-per-restaurant">
+      <div class="stream-grid" id="stream-cards"></div>
+    </div>
+
+    <!-- TAB 3: PROJECTIONS -->
+    <div class="tab-content" id="tab-projections">
+      <div class="scenario-row" id="scenario-cards"></div>
+      <div class="chart-container">
+        <h3>Monthly Income Projection</h3>
+        <p>36-month forecast with milestone markers — adjust inputs to see impact</p>
+        <canvas id="chart-monthly" height="280"></canvas>
+        <div class="milestones" id="milestones"></div>
+      </div>
+      <div class="chart-container">
+        <h3>Cumulative Earnings</h3>
+        <p>Total earned over time — red line marks $250K lifetime cap</p>
+        <canvas id="chart-cumulative" height="240"></canvas>
+      </div>
+      <div class="cap-bar-wrap">
+        <div class="cap-bar-label">
+          <span>Cap Progress</span>
+          <span id="cap-pct-label">0%</span>
+        </div>
+        <div class="cap-bar">
+          <div class="cap-bar-fill" id="cap-bar-fill" style="width:0%"></div>
+          <span class="cap-bar-text" id="cap-bar-text">$0 / $250,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: TIME & ROI -->
+    <div class="tab-content" id="tab-roi">
+      <div class="roi-grid" id="roi-cards"></div>
+      <div class="chart-container" style="margin-top:16px">
+        <h3>Effective Hourly Rate Comparison</h3>
+        <p>ActiveMenus effective $/hr vs. alternative consulting rate</p>
+        <div id="roi-bars"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: CROSS-VENTURE -->
+    <div class="tab-content" id="tab-cross-venture">
+      <div style="display:flex;flex-wrap:wrap;gap:16px">
+        <div class="card" style="flex:1;min-width:280px;text-align:center;padding:32px">
+          <div id="gauge-container"></div>
+          <div class="gauge-pct" id="cv-pct">0%</div>
+          <div class="gauge-label">of $20K/mo Target from ActiveMenus</div>
+        </div>
+        <div style="flex:1;min-width:280px">
+          <div class="cv-stats" id="cv-stats"></div>
+          <div class="alert-card" id="april-callout">
+            <h4>April Checkpoint</h4>
+            <p>ActiveMenus contributes <strong>$0</strong> by end of April. Expo leads are in onboarding lag (months 1-2). First revenue expected month 3+. Plan accordingly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: RISK -->
+    <div class="tab-content" id="tab-risk">
+      <div class="card" style="margin-bottom:16px">
+        <div style="border-left:4px solid var(--activemenus);padding-left:14px;margin-bottom:12px">
+          <h3 style="font-size:14px;font-weight:700">Pricing Sensitivity</h3>
+          <p style="font-size:12.5px;color:var(--text-sec)">Impact on per-restaurant income if buy rate changes</p>
+        </div>
+        <table class="sens-table" id="sens-table">
+          <thead><tr><th>Scenario</th><th>Buy Rate</th><th>Stream 1</th><th>Stream 2</th><th>Stream 3</th><th>Impact</th></tr></thead>
+          <tbody id="sens-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div style="border-left:4px solid var(--activemenus);padding-left:14px;margin-bottom:12px">
+          <h3 style="font-size:14px;font-weight:700">Dependency Status</h3>
+          <p style="font-size:12.5px;color:var(--text-sec)">Key dependencies that affect revenue realization</p>
+        </div>
+        <div class="dep-grid" id="dep-cards"></div>
+      </div>
+
+      <div class="chart-container">
+        <h3>Churn Degradation</h3>
+        <p>How different churn rates erode a 50-restaurant portfolio over 12 months</p>
+        <canvas id="chart-churn" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE — All 28 variables with defaults from Section 1
+// ============================================================
+const DEFAULTS = {
+  buyMonthly: 50, buyOrder: 0.50,
+  expoRetailMonthly: 99, expoRetailOrder: 0.99,
+  stdRetailMonthly: 150, stdRetailOrder: 1.50,
+  commRate: 25, lifetimeCap: 250000, postCapRate: 10, penaltyRate: 15,
+  ordersPerMonth: 200, churnRate: 4, expoConvRate: 20, resellerActivation: 10, volumeDiscount: 75,
+  expoContacts: 24, blockedContacts: 8, expoResellerContacts: 20, mohMonthly: 1,
+  boostlyTotal: 1200, boostlyPenetration: 10, directRestaurants: 0,
+  directTier: 'expo',
+  hoursInvested: 115, workValue: 38100, hoursArmsLength: 10, hoursActive: 40,
+  revenueTarget: 20000, altHourlyRate: 150, dailySignal: 200
+};
+
+let V = {...DEFAULTS};
+
+// Slider ↔ Number sync helpers
+// For dollar-cent fields (buyOrder, expoRetailOrder, stdRetailOrder), 
+// slider uses cents internally but number input shows dollars
+const CENT_FIELDS = ['buyOrder','expoRetailOrder','stdRetailOrder'];
+
+function getVal(varName){return V[varName]}
+
+function syncInput(slider){
+  const varName = slider.dataset.var;
+  const numInput = slider.parentElement.querySelector('input[type=number]');
+  if(CENT_FIELDS.includes(varName)){
+    V[varName] = parseFloat(slider.value)/100;
+    numInput.value = V[varName].toFixed(2);
+  } else {
+    V[varName] = parseFloat(slider.value);
+    numInput.value = V[varName];
+  }
+  recalculate();
+}
+
+function syncSlider(numInput){
+  const varName = numInput.dataset.var;
+  const slider = numInput.parentElement.querySelector('input[type=range]');
+  V[varName] = parseFloat(numInput.value);
+  if(CENT_FIELDS.includes(varName)){
+    slider.value = Math.round(V[varName]*100);
+  } else {
+    slider.value = V[varName];
+  }
+  recalculate();
+}
+
+function setTier(btn){
+  btn.parentElement.querySelectorAll('.toggle-opt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  V.directTier = btn.dataset.tier;
+  recalculate();
+}
+
+function resetDefaults(){
+  if(!confirm('Reset all inputs to default values?')) return;
+  V = {...DEFAULTS};
+  // Sync all UI elements
+  document.querySelectorAll('.input-slider').forEach(s=>{
+    const vn = s.dataset.var;
+    if(CENT_FIELDS.includes(vn)) s.value = Math.round(V[vn]*100);
+    else s.value = V[vn];
+  });
+  document.querySelectorAll('.input-number').forEach(n=>{
+    const vn = n.dataset.var;
+    if(CENT_FIELDS.includes(vn)) n.value = V[vn].toFixed(2);
+    else n.value = V[vn];
+  });
+  document.querySelectorAll('.toggle-opt').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tier === 'expo');
+  });
+  recalculate();
+}
+
+// ============================================================
+// CALCULATION ENGINE — Section 2
+// ============================================================
+function calcStreams(){
+  const opm = V.ordersPerMonth;
+  // Stream 1: 25% commission on what AM receives from reseller-sourced restaurants
+  const am_receives_s1 = V.buyMonthly + (V.buyOrder * opm);
+  const s1 = am_receives_s1 * (V.commRate/100);
+
+  // Stream 2: Direct reseller margin
+  let retailM, retailO;
+  if(V.directTier==='expo'){retailM=V.expoRetailMonthly;retailO=V.expoRetailOrder}
+  else{retailM=V.stdRetailMonthly;retailO=V.stdRetailOrder}
+  const rest_pays = retailM + (retailO * opm);
+  const serge_pays = V.buyMonthly + (V.buyOrder * opm);
+  const s2 = rest_pays - serge_pays;
+
+  // Stream 3: Channel partner at volume discount
+  const vd = V.volumeDiscount/100;
+  const partner_buy_m = V.buyMonthly * vd;
+  const partner_buy_o = V.buyOrder * vd;
+  const am_receives_s3 = partner_buy_m + (partner_buy_o * opm);
+  const s3 = am_receives_s3 * (V.commRate/100);
+
+  return {s1, s2, s3, am_receives_s1, rest_pays, serge_pays, am_receives_s3, retailM, retailO};
+}
+
+function runProjection(months, scenario){
+  // scenario: 'conservative','moderate','aggressive'
+  let multipliers = {conservative:0.6, moderate:1.0, aggressive:1.5};
+  let m = multipliers[scenario]||1;
+
+  const totalConverted = V.expoContacts * (1 - V.blockedContacts/Math.max(V.expoContacts,1)) * (V.expoConvRate/100);
+  const convSchedule = [0,0,0.30,0.30,0.25,0.15]; // months 0-5
+
+  const streams = calcStreams();
+  let data = [];
+  let resellerActive = 0;
+  let directActive = V.directRestaurants;
+  let partnerActive = 0;
+  let cumulative = 0;
+  let capHit = false;
+
+  for(let mo=1;mo<=months;mo++){
+    // Expo conversions (restaurant leads → reseller-sourced, stream 1)
+    let expoNew = 0;
+    if(mo>=3 && mo<=6){
+      const idx = mo - 1; // month 3 → idx 2 → convSchedule[2]=0.30
+      if(idx < convSchedule.length){
+        expoNew = Math.round(totalConverted * convSchedule[idx] * m);
+      }
+    }
+    // MOH ongoing
+    let mohNew = Math.round(V.mohMonthly * m);
+
+    // Boostly partner deployment (starts month 4, ramps over 6 months)
+    let partnerNew = 0;
+    if(mo >= 4 && mo <= 9){
+      const boostlyConverted = V.boostlyTotal * (V.boostlyPenetration/100) * m;
+      partnerNew = Math.round(boostlyConverted / 6);
+    }
+
+    // Churn
+    const churnR = resellerActive * (V.churnRate/100);
+    const churnD = directActive * (V.churnRate/100);
+    const churnP = partnerActive * (V.churnRate/100);
+
+    resellerActive = Math.max(0, resellerActive + expoNew + mohNew - churnR);
+    directActive = Math.max(0, directActive - churnD);
+    partnerActive = Math.max(0, partnerActive + partnerNew - churnP);
+
+    let s1mo = resellerActive * streams.s1;
+    let s2mo = directActive * streams.s2;
+    let s3mo = partnerActive * streams.s3;
+
+    // Cap check
+    let totalMo = s1mo + s2mo + s3mo;
+    if(!capHit && cumulative + totalMo >= V.lifetimeCap){
+      capHit = true;
+    }
+    if(capHit){
+      // Post-cap: reduce commission-based streams proportionally
+      const ratio = V.postCapRate / V.commRate;
+      s1mo = resellerActive * streams.s1 * (V.postCapRate / V.commRate);
+      s3mo = partnerActive * streams.s3 * (V.postCapRate / V.commRate);
+      totalMo = s1mo + s2mo + s3mo;
+    }
+    cumulative += totalMo;
+
+    data.push({
+      month: mo, s1: s1mo, s2: s2mo, s3: s3mo, total: totalMo,
+      cumulative, resellerActive, directActive, partnerActive,
+      totalActive: resellerActive + directActive + partnerActive, capHit
+    });
+  }
+  return data;
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function recalculate(){
+  renderStreams();
+  renderProjections();
+  renderROI();
+  renderCrossVenture();
+  renderRisk();
+}
+
+function fmt(n,d=0){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtPct(n){return n.toFixed(1)+'%'}
+
+// --- PER-RESTAURANT STREAM CARDS ---
+function renderStreams(){
+  const s = calcStreams();
+  const multiplier = s.s2 > 0 && s.s1 > 0 ? (s.s2/s.s1).toFixed(1) : '—';
+  const html = `
+    <div class="card stream-card">
+      <div class="card-accent" style="background:var(--activemenus)"></div>
+      <div class="stream-name">Stream 1: Reseller-Sourced</div>
+      <div class="stream-desc">25% commission on what ActiveMenus receives from reseller-recruited restaurants</div>
+      <div class="stream-amount">${fmt(s.s1,2)} <span>/mo per restaurant</span></div>
+      <div class="stream-breakdown">
+        ActiveMenus receives: <strong>${fmt(s.am_receives_s1,2)}/mo</strong><br>
+        (${fmt(V.buyMonthly)} subscription + ${fmt(V.buyOrder,2)} × ${V.ordersPerMonth} orders)<br>
+        Your commission: <strong>${V.commRate}%</strong> = ${fmt(s.s1,2)}
+      </div>
+    </div>
+    <div class="card stream-card">
+      <div class="card-accent" style="background:var(--green)"></div>
+      <div class="stream-name">Stream 2: Direct (Reseller Margin)</div>
+      <div class="stream-desc">Full margin on restaurants you onboard directly — ${V.directTier === 'expo' ? 'expo' : 'standard'} pricing</div>
+      <div class="stream-amount" style="color:var(--green)">${fmt(s.s2,2)} <span>/mo per restaurant</span></div>
+      <div class="stream-breakdown">
+        Restaurant pays: <strong>${fmt(s.rest_pays,2)}/mo</strong>
+        (${fmt(s.retailM)} + ${fmt(s.retailO,2)} × ${V.ordersPerMonth})<br>
+        You pay ActiveMenus: <strong>${fmt(s.serge_pays,2)}/mo</strong>
+        (${fmt(V.buyMonthly)} + ${fmt(V.buyOrder,2)} × ${V.ordersPerMonth})<br>
+        Your margin: ${fmt(s.s2,2)}
+      </div>
+      <div class="stream-multiplier">Direct is <strong>${multiplier}x</strong> more valuable than Stream 1</div>
+    </div>
+    <div class="card stream-card">
+      <div class="card-accent" style="background:var(--selenko)"></div>
+      <div class="stream-name">Stream 3: Channel Partner</div>
+      <div class="stream-desc">25% commission on volume-discounted buy rate from large partners</div>
+      <div class="stream-amount" style="color:var(--selenko)">${fmt(s.s3,2)} <span>/mo per restaurant</span></div>
+      <div class="stream-breakdown">
+        Partner buy rate: <strong>${V.volumeDiscount}%</strong> of standard<br>
+        AM receives: <strong>${fmt(s.am_receives_s3,2)}/mo</strong><br>
+        Your commission: ${V.commRate}% = ${fmt(s.s3,2)}
+      </div>
+    </div>`;
+  document.getElementById('stream-cards').innerHTML = html;
+}
+
+// --- PROJECTIONS ---
+function renderProjections(){
+  const cons = runProjection(36,'conservative');
+  const mod = runProjection(36,'moderate');
+  const agg = runProjection(36,'aggressive');
+
+  // Scenario summary cards
+  const scenarios = [
+    {label:'Conservative',color:'var(--gray-mid)',data:cons,key:'conservative'},
+    {label:'Moderate',color:'var(--activemenus)',data:mod,key:'moderate'},
+    {label:'Aggressive',color:'var(--green)',data:agg,key:'aggressive'}
+  ];
+  let scHtml = '';
+  scenarios.forEach(sc=>{
+    const m12 = sc.data[11]||{total:0};
+    const m24 = sc.data[23]||{total:0};
+    const isActive = sc.key === 'moderate';
+    scHtml += `<div class="card scenario-card${isActive?' active-scenario':''}" style="border-left:4px solid ${sc.color}">
+      <div class="scenario-label" style="color:${sc.color}">${sc.label}</div>
+      <div class="scenario-val">${fmt(m12.total)}</div>
+      <div class="scenario-sub">Monthly income at month 12</div>
+      <div class="scenario-val" style="font-size:18px;margin-top:8px">${fmt(m24.total)}</div>
+      <div class="scenario-sub">Monthly income at month 24</div>
+      <div class="scenario-sub" style="margin-top:8px">${m12.totalActive.toFixed(0)} active restaurants (mo 12)</div>
+    </div>`;
+  });
+  document.getElementById('scenario-cards').innerHTML = scHtml;
+
+  // Monthly income chart
+  drawLineChart('chart-monthly', [
+    {data:cons.map(d=>d.total),color:'#6b7280',label:'Conservative'},
+    {data:mod.map(d=>d.total),color:'#e6940a',label:'Moderate'},
+    {data:agg.map(d=>d.total),color:'#059669',label:'Aggressive'}
+  ], 36, [500,1000,2500,5000]);
+
+  // Cumulative chart
+  drawAreaChart('chart-cumulative', [
+    {data:cons.map(d=>d.cumulative),color:'#6b7280'},
+    {data:mod.map(d=>d.cumulative),color:'#e6940a'},
+    {data:agg.map(d=>d.cumulative),color:'#059669'}
+  ], 36, V.lifetimeCap);
+
+  // Cap bar
+  const cumMod12 = mod[11]?mod[11].cumulative:0;
+  const capPct = Math.min(cumMod12/V.lifetimeCap*100,100);
+  document.getElementById('cap-bar-fill').style.width = capPct+'%';
+  document.getElementById('cap-pct-label').textContent = capPct.toFixed(1)+'%';
+  document.getElementById('cap-bar-text').textContent = fmt(cumMod12)+' / '+fmt(V.lifetimeCap);
+
+  // Milestones
+  const milestonesArr = [500,1000,2500,5000];
+  const modMax = mod.length>0?mod[mod.length-1].total:0;
+  let msHtml = '';
+  milestonesArr.forEach(ms=>{
+    const reached = modMax >= ms;
+    const hitMonth = mod.findIndex(d=>d.total>=ms)+1;
+    msHtml += `<div class="milestone${reached?' reached':''}">${fmt(ms)}/mo${reached && hitMonth?' — Month '+hitMonth:''}</div>`;
+  });
+  document.getElementById('milestones').innerHTML = msHtml;
+}
+
+// --- CHART HELPERS (vanilla canvas) ---
+function drawLineChart(canvasId, series, months, milestones){
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.parentElement;
+  const w = rect.clientWidth - 40;
+  const h = canvas.height;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w+'px';
+  canvas.style.height = h+'px';
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const pad = {top:20,right:60,bottom:30,left:60};
+  const cw = w-pad.left-pad.right;
+  const ch = h-pad.top-pad.bottom;
+
+  // Find max
+  let maxVal = 0;
+  series.forEach(s=>s.data.forEach(v=>{if(v>maxVal)maxVal=v}));
+  maxVal = Math.max(maxVal, Math.max(...milestones)) * 1.1;
+  if(maxVal===0)maxVal=100;
+
+  // Grid
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 1;
+  ctx.font = '11px Outfit';
+  ctx.fillStyle = '#9ca3af';
+  ctx.textAlign = 'right';
+  for(let i=0;i<=4;i++){
+    const y = pad.top + ch - (ch*i/4);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+    ctx.fillText(fmt(maxVal*i/4),pad.left-8,y+4);
+  }
+  // X labels
+  ctx.textAlign = 'center';
+  for(let m=0;m<months;m+=6){
+    const x = pad.left + (cw*m/(months-1));
+    ctx.fillText('M'+(m+1),x,h-pad.bottom+16);
+  }
+
+  // Milestone lines
+  ctx.setLineDash([4,4]);
+  ctx.strokeStyle = 'rgba(230,148,10,0.2)';
+  milestones.forEach(ms=>{
+    if(ms<=maxVal){
+      const y = pad.top + ch - (ch*ms/maxVal);
+      ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+      ctx.fillStyle = '#e6940a';
+      ctx.textAlign = 'left';
+      ctx.fillText(fmt(ms),pad.left+cw+4,y+4);
+      ctx.fillStyle = '#9ca3af';
+    }
+  });
+  ctx.setLineDash([]);
+
+  // Lines
+  series.forEach(s=>{
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    s.data.forEach((v,i)=>{
+      const x = pad.left + (cw*i/(months-1));
+      const y = pad.top + ch - (ch*v/maxVal);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  });
+
+  // Legend
+  ctx.textAlign = 'left';
+  let lx = pad.left;
+  series.forEach(s=>{
+    ctx.fillStyle = s.color;
+    ctx.fillRect(lx,pad.top-14,12,3);
+    ctx.fillStyle = '#4b5563';
+    ctx.font = '10px Outfit';
+    ctx.fillText(s.label,lx+16,pad.top-10);
+    lx += ctx.measureText(s.label).width + 32;
+  });
+}
+
+function drawAreaChart(canvasId, series, months, capLine){
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.parentElement;
+  const w = rect.clientWidth - 40;
+  const h = canvas.height;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w+'px';
+  canvas.style.height = h+'px';
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const pad = {top:20,right:60,bottom:30,left:70};
+  const cw = w-pad.left-pad.right;
+  const ch = h-pad.top-pad.bottom;
+
+  let maxVal = capLine * 1.3;
+  series.forEach(s=>s.data.forEach(v=>{if(v>maxVal)maxVal=v}));
+  if(maxVal===0)maxVal=100;
+
+  // Grid
+  ctx.strokeStyle = '#e5e7eb';ctx.lineWidth=1;
+  ctx.font='11px Outfit';ctx.fillStyle='#9ca3af';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){
+    const y=pad.top+ch-(ch*i/4);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+    const val=maxVal*i/4;
+    ctx.fillText(val>=1000?'$'+Math.round(val/1000)+'K':fmt(val),pad.left-8,y+4);
+  }
+  ctx.textAlign='center';
+  for(let m=0;m<months;m+=6){
+    const x=pad.left+(cw*m/(months-1));
+    ctx.fillText('M'+(m+1),x,h-pad.bottom+16);
+  }
+
+  // Cap line
+  const capY = pad.top+ch-(ch*capLine/maxVal);
+  ctx.strokeStyle='#e63946';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(pad.left,capY);ctx.lineTo(pad.left+cw,capY);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#e63946';ctx.textAlign='left';ctx.font='11px Outfit';
+  ctx.fillText('$250K Cap',pad.left+cw+4,capY+4);
+
+  // Area fills + lines
+  series.forEach(s=>{
+    ctx.beginPath();
+    ctx.moveTo(pad.left,pad.top+ch);
+    s.data.forEach((v,i)=>{
+      const x=pad.left+(cw*i/(months-1));
+      const y=pad.top+ch-(ch*Math.min(v,maxVal)/maxVal);
+      ctx.lineTo(x,y);
+    });
+    ctx.lineTo(pad.left+cw*(s.data.length-1)/(months-1),pad.top+ch);
+    ctx.closePath();
+    ctx.fillStyle=s.color+'15';
+    ctx.fill();
+    // Line
+    ctx.strokeStyle=s.color;ctx.lineWidth=2;
+    ctx.beginPath();
+    s.data.forEach((v,i)=>{
+      const x=pad.left+(cw*i/(months-1));
+      const y=pad.top+ch-(ch*Math.min(v,maxVal)/maxVal);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  });
+}
+
+// --- ROI ---
+function renderROI(){
+  const mod = runProjection(12,'moderate');
+  const cum12 = mod[11]?mod[11].cumulative:0;
+  const totalHours12 = V.hoursInvested + V.hoursActive * 12;
+  const effectiveNow = V.hoursInvested > 0 ? 0 / V.hoursInvested : 0; // $0 earned to date
+  const effective12 = totalHours12 > 0 ? cum12 / totalHours12 : 0;
+  const altEarnings12 = totalHours12 * V.altHourlyRate;
+  const breakEven = mod.findIndex(d => {
+    const hrs = V.hoursInvested + V.hoursActive * (d.month);
+    return hrs > 0 && d.cumulative / hrs >= V.altHourlyRate;
+  });
+  const breakEvenMonth = breakEven >= 0 ? breakEven + 1 : 'N/A';
+
+  const armsLength12 = V.hoursInvested + V.hoursArmsLength * 12;
+  const effectiveArms = armsLength12 > 0 ? cum12 / armsLength12 : 0;
+
+  document.getElementById('roi-cards').innerHTML = `
+    <div class="card roi-stat">
+      <div class="big-num">${fmt(effective12)}</div>
+      <div class="big-label">Projected Effective $/hr at Month 12 (Active)</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-sec)">
+        ${fmt(cum12)} earned ÷ ${totalHours12.toLocaleString()} total hours
+      </div>
+    </div>
+    <div class="card roi-stat">
+      <div class="big-num" style="color:var(--green)">${fmt(effectiveArms)}</div>
+      <div class="big-label">Projected Effective $/hr at Month 12 (Arm's-Length)</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-sec)">
+        ${fmt(cum12)} earned ÷ ${armsLength12.toLocaleString()} total hours
+      </div>
+    </div>
+    <div class="card roi-stat">
+      <div class="big-num" style="color:${typeof breakEvenMonth==='number'?'var(--activemenus)':'var(--red)'}">${typeof breakEvenMonth==='number'?'Month '+breakEvenMonth:breakEvenMonth}</div>
+      <div class="big-label">Break-Even Month (vs. ${fmt(V.altHourlyRate)}/hr Alternative)</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-sec)">
+        When effective $/hr exceeds alternative rate
+      </div>
+    </div>`;
+
+  // Comparison bars
+  const maxBar = Math.max(effective12, effectiveArms, V.altHourlyRate);
+  document.getElementById('roi-bars').innerHTML = `
+    <div class="bar-row">
+      <div class="bar-label">Active (12mo)</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(effective12/maxBar*100)||0}%;background:var(--activemenus)">${fmt(effective12)}/hr</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Arm's-Length</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(effectiveArms/maxBar*100)||0}%;background:var(--green)">${fmt(effectiveArms)}/hr</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Alternative</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(V.altHourlyRate/maxBar*100)||0}%;background:var(--gray-mid)">${fmt(V.altHourlyRate)}/hr</div></div>
+    </div>`;
+}
+
+// --- CROSS-VENTURE ---
+function renderCrossVenture(){
+  const mod = runProjection(12,'moderate');
+  const m12Total = mod[11]?mod[11].total:0;
+  const pctTarget = V.revenueTarget > 0 ? (m12Total / V.revenueTarget * 100) : 0;
+  const gap = Math.max(0, V.revenueTarget - m12Total);
+  const dailyEquiv = m12Total / 30;
+
+  document.getElementById('cv-pct').textContent = fmtPct(pctTarget);
+
+  // Gauge SVG
+  document.getElementById('gauge-container').innerHTML = `
+    <svg viewBox="0 0 200 110" style="width:200px">
+      <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#e5e7eb" stroke-width="12" stroke-linecap="round"/>
+      <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--activemenus)" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${Math.min(pctTarget,100)*2.51} 251" style="transition:stroke-dasharray 0.4s ease"/>
+    </svg>`;
+
+  document.getElementById('cv-stats').innerHTML = `
+    <div class="card cv-stat"><div class="num" style="color:var(--activemenus)">${fmt(m12Total)}</div><div class="label">Projected AM Monthly (Mo 12)</div></div>
+    <div class="card cv-stat"><div class="num" style="color:var(--red)">${fmt(gap)}</div><div class="label">Gap from Other Ventures</div></div>
+    <div class="card cv-stat"><div class="num">${fmt(dailyEquiv)}</div><div class="label">AM Daily Equivalent</div></div>
+    <div class="card cv-stat"><div class="num">${fmt(V.dailySignal)}</div><div class="label">Target Daily Signal</div></div>`;
+}
+
+// --- RISK ---
+function renderRisk(){
+  const s = calcStreams();
+  const scenarios = [
+    {label:'Current',pct:0},
+    {label:'-10% Buy Rate',pct:10},
+    {label:'-20% Buy Rate',pct:20},
+    {label:'-30% Buy Rate',pct:30}
+  ];
+
+  let tbHtml = '';
+  scenarios.forEach(sc=>{
+    const factor = 1 - sc.pct/100;
+    const adjBuyM = V.buyMonthly * factor;
+    const adjBuyO = V.buyOrder * factor;
+    const am1 = adjBuyM + adjBuyO * V.ordersPerMonth;
+    const ns1 = am1 * (V.commRate/100);
+    // Stream 2 unaffected by buy rate decrease — margin increases
+    const ns2 = s.rest_pays - (adjBuyM + adjBuyO * V.ordersPerMonth);
+    const vd = V.volumeDiscount/100;
+    const am3 = (adjBuyM*vd) + (adjBuyO*vd*V.ordersPerMonth);
+    const ns3 = am3 * (V.commRate/100);
+
+    const cls = sc.pct===0?'':sc.pct<=10?'sens-warning':sc.pct<=20?'sens-warning':'sens-danger';
+    const impact = sc.pct===0?'Baseline':
+      `S1: ${((ns1-s.s1)/s.s1*100).toFixed(0)}%, S3: ${((ns3-s.s3)/s.s3*100).toFixed(0)}%`;
+    tbHtml += `<tr>
+      <td class="${cls}" style="font-weight:600">${sc.label}</td>
+      <td>${fmt(adjBuyM)} + ${fmt(adjBuyO,2)}/order</td>
+      <td>${fmt(ns1,2)}/mo</td>
+      <td class="sens-positive">${fmt(ns2,2)}/mo</td>
+      <td>${fmt(ns3,2)}/mo</td>
+      <td class="${cls}">${impact}</td>
+    </tr>`;
+  });
+  document.getElementById('sens-tbody').innerHTML = tbHtml;
+
+  // Dependencies
+  document.getElementById('dep-cards').innerHTML = `
+    <div class="card dep-card">
+      <div><div class="dep-name">ISR Agreement</div><div class="dep-detail"><span class="status-badge unsigned">Unsigned</span> Terms agreed, pending signature</div></div>
+    </div>
+    <div class="card dep-card">
+      <div><div class="dep-name">MOH Pipeline</div><div class="dep-detail"><span class="status-badge active">Active</span> Jim following up on leads</div></div>
+    </div>
+    <div class="card dep-card">
+      <div><div class="dep-name">Anthony Blockers</div><div class="dep-detail"><span class="status-badge blocked">${V.blockedContacts} Blocked</span> Pending product answers</div></div>
+    </div>`;
+
+  // Churn chart
+  drawChurnChart();
+}
+
+function drawChurnChart(){
+  const canvas = document.getElementById('chart-churn');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.parentElement;
+  const w = rect.clientWidth - 40;
+  const h = canvas.height;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w+'px';
+  canvas.style.height = h+'px';
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const pad = {top:20,right:20,bottom:30,left:50};
+  const cw = w-pad.left-pad.right;
+  const ch = h-pad.top-pad.bottom;
+  const startPop = 50;
+  const churnRates = [0,2,4,6,8,10];
+  const colors = ['#059669','#16a34a','#e6940a','#d97706','#e63946','#991b1b'];
+  const months = 12;
+
+  ctx.strokeStyle = '#e5e7eb';ctx.lineWidth=1;
+  ctx.font='11px Outfit';ctx.fillStyle='#9ca3af';ctx.textAlign='right';
+  for(let i=0;i<=5;i++){
+    const y=pad.top+ch-(ch*i/5);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+    ctx.fillText(Math.round(startPop*i/5),pad.left-8,y+4);
+  }
+  ctx.textAlign='center';
+  for(let m=0;m<=months;m+=3){
+    ctx.fillText('M'+m,pad.left+cw*m/months,h-pad.bottom+14);
+  }
+
+  churnRates.forEach((cr,ci)=>{
+    ctx.strokeStyle=colors[ci];ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let m=0;m<=months;m++){
+      let pop = startPop * Math.pow(1-cr/100, m);
+      const x=pad.left+cw*m/months;
+      const y=pad.top+ch-(ch*pop/startPop);
+      if(m===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // Label
+    let endPop = startPop * Math.pow(1-cr/100, months);
+    ctx.fillStyle=colors[ci];ctx.textAlign='left';ctx.font='10px Outfit';
+    ctx.fillText(cr+'%',pad.left+cw+4,pad.top+ch-(ch*endPop/startPop)+3);
+  });
+}
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    // Redraw charts when their tab becomes visible
+    if(btn.dataset.tab==='projections'||btn.dataset.tab==='risk'){
+      setTimeout(recalculate,50);
+    }
+  });
+});
+
+// ============================================================
+// ACCORDION TOGGLE
+// ============================================================
+function toggleGroup(id){
+  document.getElementById(id).classList.toggle('expanded');
+}
+
+// ============================================================
+// PIN GATE
+// ============================================================
+const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+const pinInput = document.getElementById('pin-input');
+const pinError = document.getElementById('pin-error');
+
+pinInput.addEventListener('input', async function(){
+  if(this.value.length === 4){
+    const hash = await sha256(this.value);
+    if(hash === PIN_HASH){
+      document.getElementById('pin-gate').classList.add('hidden');
+      const dash = document.getElementById('dashboard');
+      dash.style.display = 'block';
+      requestAnimationFrame(()=>{ dash.classList.add('visible'); });
+      recalculate();
+      window.addEventListener('resize', ()=>{ recalculate(); });
+    } else {
+      pinError.textContent = 'Invalid PIN';
+      this.classList.add('shake');
+      setTimeout(()=>{this.classList.remove('shake');this.value='';pinError.textContent='';},600);
+    }
+  }
+});
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ============================================================
+// INITIAL STATE
+// ============================================================
+// Charts need to be drawn after tab is visible, so we handle that
+// in tab switching and after PIN unlock.
+</script>
+</body>
+</html>
