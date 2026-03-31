@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Light — Operation Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ========================================
+   CSS VARIABLES (Selenko Design System)
+   ======================================== */
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-border: #dfe1e6;
+  --text: #111827;
+  --text-sec: #4b5563;
+  --text-muted: #9ca3af;
+  --ai-digital: #e63946;
+  --selenko: #6d28d9;
+  --hover-bg: rgba(109,40,217,0.04);
+  --hover-border: rgba(109,40,217,0.25);
+  --green: #059669;
+  --amber: #d97706;
+  --gray-mid: #6b7280;
+  --cpa-green: #059669;
+  --cpa-yellow: #d97706;
+  --cpa-orange: #ea580c;
+  --cpa-red: #e63946;
+  --brand-primary: #1D4ED8;
+  --brand-accent: #2563EB;
+  --brand-light: #60A5FA;
+  --brand-dark: #0F172A;
+  --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+::selection { background: rgba(109,40,217,0.18); }
+
+/* ========================================
+   RESET & BASE
+   ======================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--brand-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: rgba(109,40,217,0.07);
+  color: var(--selenko);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+/* ========================================
+   PIN GATE
+   ======================================== */
+#pin-gate {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, #eee8ff 0%, #f5f5f7 40%, #e8eeff 100%);
+}
+#pin-gate::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(230,57,70,0.06) 0%, transparent 70%);
+  top: 10%; right: 10%;
+  pointer-events: none;
+}
+#pin-gate::after {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(109,40,217,0.05) 0%, transparent 70%);
+  bottom: 10%; left: 15%;
+  pointer-events: none;
+}
+.pin-box {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 1;
+  max-width: 380px;
+  width: 90%;
+}
+.pin-box .pin-emoji { font-size: 48px; margin-bottom: 16px; display: block; }
+.pin-box h1 {
+  font-size: 24px; font-weight: 800; margin-bottom: 6px;
+  color: var(--text);
+}
+.pin-box p { color: var(--text-sec); font-weight: 400; font-size: 13px; margin-bottom: 24px; }
+.pin-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.15em;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.pin-input:focus {
+  border-color: var(--hover-border);
+  box-shadow: 0 0 0 4px rgba(109,40,217,0.08);
+}
+.pin-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  background: var(--ai-digital);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.pin-btn:hover { background: #cf2f3d; }
+.pin-btn:active { transform: scale(0.98); }
+.pin-error { color: var(--ai-digital); font-size: 12px; font-weight: 600; margin-top: 10px; min-height: 18px; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+  20%, 40%, 60%, 80% { transform: translateX(6px); }
+}
+.shake { animation: shake 0.5s ease; }
+
+/* ========================================
+   MAIN APP (hidden until PIN)
+   ======================================== */
+#app { display: none; }
+
+/* ========================================
+   STICKY HEADER
+   ======================================== */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(245,245,247,0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1.5px solid var(--card-border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  gap: 12px;
+}
+.header-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ai-digital);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.header-title span { color: var(--text-muted); font-weight: 500; font-size: 12px; margin-left: 6px; letter-spacing: 0; }
+.tabs-wrap {
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+  mask-image: linear-gradient(90deg, #000 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent 100%);
+}
+.tabs-wrap::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--text-sec);
+  padding: 8px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: all 0.15s;
+  position: relative;
+}
+.tab-btn:hover { background: var(--hover-bg); color: var(--text); }
+.tab-btn.active {
+  color: var(--ai-digital);
+  font-weight: 700;
+  background: rgba(230,57,70,0.06);
+}
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 14px; right: 14px;
+  height: 2.5px;
+  background: var(--ai-digital);
+  border-radius: 2px;
+}
+.search-btn {
+  flex-shrink: 0;
+  background: none; border: 1.5px solid var(--card-border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.search-btn:hover {
+  border-color: var(--hover-border);
+  background: var(--hover-bg);
+  color: var(--text-sec);
+}
+.search-btn kbd {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: rgba(0,0,0,0.05);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+/* ========================================
+   TAB CONTENT AREAS
+   ======================================== */
+.tab-content { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+.tab-content.active { display: block; animation: fadeIn 0.15s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ========================================
+   HERO SECTION (Mission Control)
+   ======================================== */
+.hero {
+  background: linear-gradient(160deg, #eee8ff 0%, #f5f5f7 40%, #e8eeff 100%);
+  border-radius: var(--radius);
+  padding: 40px 36px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(230,57,70,0.06) 0%, transparent 70%);
+  top: -100px; right: -50px;
+  pointer-events: none;
+}
+.hero-text { flex: 1; position: relative; z-index: 1; }
+.hero-text h1 {
+  font-size: clamp(30px, 4.5vw, 44px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.hero-text h1 .accent { color: var(--ai-digital); }
+.hero-text .subtitle {
+  font-size: 15px; font-weight: 500;
+  color: var(--text-sec);
+  margin-bottom: 16px;
+}
+.hero-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.hero-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--text-sec);
+}
+.hero-meta-item .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ai-digital);
+  flex-shrink: 0;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  min-width: 130px;
+  text-align: center;
+}
+.stat-card .num {
+  font-size: 32px; font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-card .num.red { color: var(--ai-digital); }
+.stat-card .label {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.version-footer {
+  font-size: 11px; font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ========================================
+   PROGRESS BAR
+   ======================================== */
+.progress-wrap {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.progress-bar {
+  flex: 1; height: 6px;
+  background: var(--card-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--ai-digital);
+  border-radius: 3px;
+  transition: width 0.3s ease-out;
+  width: 0%;
+}
+.progress-label {
+  font-size: 12px; font-weight: 700;
+  color: var(--text-sec);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ========================================
+   TIMELINE
+   ======================================== */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.timeline-node {
+  flex: 1;
+  min-width: 160px;
+  text-align: center;
+  position: relative;
+}
+.timeline-node::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  right: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--card-border);
+}
+.timeline-node:last-child::after { display: none; }
+.timeline-dot {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2.5px solid var(--ai-digital);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px;
+  font-size: 14px; font-weight: 800;
+  color: var(--ai-digital);
+  position: relative;
+  z-index: 1;
+}
+.timeline-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+.timeline-label { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.timeline-sublabel { font-size: 11px; font-weight: 400; color: var(--text-sec); max-width: 160px; margin: 0 auto; }
+
+/* ========================================
+   TWO-TRACK VISUAL
+   ======================================== */
+.tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+.track.track-a { background: rgba(5,150,105,0.06); border: 1.5px solid rgba(5,150,105,0.2); }
+.track.track-b { background: rgba(217,119,6,0.06); border: 1.5px solid rgba(217,119,6,0.2); }
+.track-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 90px;
+}
+.track.track-a .track-label { color: var(--green); }
+.track.track-b .track-label { color: var(--amber); }
+.track-badges { display: flex; gap: 4px; flex-wrap: nowrap; }
+.track-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.track.track-a .track-badge { background: rgba(5,150,105,0.1); color: var(--green); }
+.track.track-b .track-badge { background: rgba(217,119,6,0.1); color: var(--amber); }
+.track-merge {
+  text-align: center;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 0;
+  border-top: 1.5px dashed var(--card-border);
+}
+
+/* ========================================
+   DAY HEADER
+   ======================================== */
+.day-header {
+  margin-bottom: 20px;
+}
+.day-header h2 {
+  font-size: 22px; font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.day-header .day-time {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-sec);
+  margin-bottom: 12px;
+}
+
+/* ========================================
+   GROUP LABELS
+   ======================================== */
+.group-label {
+  border-left: 4px solid var(--ai-digital);
+  padding-left: 14px;
+  margin-bottom: 16px;
+  margin-top: 24px;
+}
+.group-label:first-child { margin-top: 0; }
+.group-label h3 {
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+}
+.group-label p {
+  font-size: 12.5px; font-weight: 400;
+  color: var(--text-sec);
+}
+
+/* ========================================
+   TASK CARDS
+   ======================================== */
+.task-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--ai-digital);
+}
+.task-card:hover {
+  border-color: var(--hover-border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.task-card.blocked {
+  opacity: 0.6;
+}
+.task-card.blocked::before {
+  background: var(--amber);
+}
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.task-id {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--ai-digital);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.task-card.blocked .task-id { background: var(--amber); }
+.task-name {
+  font-size: 15px; font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.blocked-banner {
+  display: none;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--amber);
+  background: rgba(217,119,6,0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.task-card.blocked .blocked-banner { display: inline-block; }
+.task-time {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-sec);
+  background: rgba(0,0,0,0.04);
+  padding: 3px 9px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.task-type {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.task-type.hands-on { background: rgba(37,99,235,0.1); color: var(--brand-accent); }
+.task-type.delegate { background: rgba(109,40,217,0.1); color: var(--selenko); }
+.task-type.blocked-type { background: rgba(217,119,6,0.1); color: var(--amber); }
+.task-type.wait { background: rgba(217,119,6,0.1); color: var(--amber); }
+.task-type.mixed { background: linear-gradient(90deg, rgba(109,40,217,0.1), rgba(37,99,235,0.1)); color: var(--selenko); }
+.task-dep {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.sub-counter {
+  font-size: 11px; font-weight: 500;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  min-width: 28px;
+  text-align: center;
+}
+.expand-chevron {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-muted);
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+  flex-shrink: 0;
+}
+.task-card.expanded .expand-chevron {
+  transform: rotate(90deg);
+  background: rgba(109,40,217,0.1);
+  color: var(--selenko);
+}
+.task-checkbox {
+  width: 22px; height: 22px;
+  border: 2px solid var(--card-border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.task-checkbox.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.task-checkbox.checked::after {
+  content: '';
+  width: 10px; height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+/* Task body (expanded) */
+.task-body {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+.task-card.expanded .task-body {
+  opacity: 1;
+}
+.task-body-inner {
+  padding: 0 18px 18px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 14px;
+}
+
+/* Sub-checkboxes */
+.sub-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 6px 0;
+  font-size: 13px; font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+.sub-item.indent { padding-left: 24px; }
+.sub-item .sub-check {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.2s ease;
+}
+.sub-item .sub-check.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.sub-item .sub-check.checked::after {
+  content: '';
+  width: 8px; height: 5px;
+  border-left: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.sub-item.checked-item .sub-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Delegation prompt */
+.prompt-toggle {
+  margin-top: 14px;
+  padding: 8px 16px;
+  background: rgba(109,40,217,0.06);
+  border: 1.5px solid rgba(109,40,217,0.15);
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--selenko);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.prompt-toggle:hover {
+  background: rgba(109,40,217,0.1);
+  border-color: rgba(109,40,217,0.25);
+}
+.prompt-block {
+  display: none;
+  margin-top: 12px;
+  position: relative;
+}
+.prompt-block.visible { display: block; }
+.prompt-upload {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-sec);
+  margin-bottom: 6px;
+}
+.prompt-code {
+  background: rgba(109,40,217,0.05);
+  border: 1.5px solid rgba(109,40,217,0.12);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.copy-btn {
+  position: absolute;
+  top: 28px; right: 8px;
+  padding: 4px 12px;
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-sec);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover {
+  border-color: var(--hover-border);
+  color: var(--selenko);
+}
+.copy-btn.copied {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* ========================================
+   CALLOUT CARDS
+   ======================================== */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.callout.amber {
+  background: rgba(217,119,6,0.06);
+  border: 1.5px solid rgba(217,119,6,0.2);
+  color: var(--text);
+}
+.callout.amber .callout-title { color: var(--amber); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.callout.red {
+  background: rgba(230,57,70,0.04);
+  border: 1.5px solid rgba(230,57,70,0.2);
+}
+
+/* ========================================
+   PRE-FLIGHT CHECKLIST
+   ======================================== */
+.preflight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.preflight-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.preflight-item:hover { border-color: var(--hover-border); }
+.preflight-item .pf-check {
+  width: 22px; height: 22px;
+  border: 2px solid var(--card-border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.preflight-item .pf-check.checked {
+  background: var(--green);
+  border-color: var(--green);
+  animation: checkPop 0.3s ease;
+}
+.preflight-item .pf-check.checked::after {
+  content: '';
+  width: 10px; height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+@keyframes checkPop {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ========================================
+   HIT PUBLISH CARD
+   ======================================== */
+.publish-card {
+  background: var(--card);
+  border: 2px solid var(--ai-digital);
+  border-radius: var(--radius);
+  padding: 40px;
+  text-align: center;
+  position: relative;
+  margin: 24px auto;
+  max-width: 500px;
+  animation: publishGlow 2s ease-in-out infinite;
+}
+@keyframes publishGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(230,57,70,0.1); }
+  50% { box-shadow: 0 0 40px rgba(230,57,70,0.25); }
+}
+.publish-card .publish-emoji { font-size: 56px; margin-bottom: 12px; display: block; }
+.publish-card h2 { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.publish-card h2 .accent { color: var(--ai-digital); }
+.publish-card p { font-size: 15px; font-weight: 500; color: var(--text-sec); }
+.publish-card .publish-sub { font-size: 13px; color: var(--text-muted); margin-top: 8px; font-weight: 400; }
+
+/* ========================================
+   CPA GAUGE
+   ======================================== */
+.cpa-gauge {
+  display: flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  height: 40px;
+  margin-bottom: 12px;
+}
+.cpa-zone {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.cpa-zone.z-green { background: var(--cpa-green); }
+.cpa-zone.z-yellow { background: var(--cpa-yellow); }
+.cpa-zone.z-orange { background: var(--cpa-orange); }
+.cpa-zone.z-red { background: var(--cpa-red); }
+.cpa-labels {
+  display: flex;
+  margin-bottom: 16px;
+}
+.cpa-label-item {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-sec);
+}
+.cpa-label-item strong { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+
+/* ========================================
+   REFERENCE TABLES
+   ======================================== */
+.ref-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ref-table th {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-sec);
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1.5px solid var(--card-border);
+}
+.ref-table td {
+  padding: 10px 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+.ref-table tr:nth-child(even) td { background: #f9fafb; }
+.ref-table.scrollable { max-height: 400px; overflow-y: auto; display: block; }
+
+/* Brand swatches */
+.swatch-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.swatch {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 500; color: var(--text-sec);
+}
+.swatch-dot {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--card-border);
+}
+
+/* ========================================
+   SECTION CARDS (Post-Launch, Phase 1.5)
+   ======================================== */
+.section-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.section-card h3 {
+  font-size: 15px; font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.section-card p {
+  font-size: 13px; font-weight: 400;
+  color: var(--text-sec);
+  margin-bottom: 8px;
+}
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.benchmark-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.benchmark-card h4 {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.benchmark-card p { font-size: 12px; font-weight: 400; color: var(--text-sec); line-height: 1.5; }
+.benchmark-card.green h4 { color: var(--green); }
+.benchmark-card.amber h4 { color: var(--amber); }
+.benchmark-card.blue h4 { color: var(--brand-primary); }
+
+/* Ranked option cards */
+.option-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+.option-card .option-rank {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ai-digital);
+  margin-bottom: 4px;
+}
+.option-card .option-rank.rec { color: var(--green); }
+.option-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.option-card p { font-size: 12px; color: var(--text-sec); font-weight: 400; }
+
+/* Product roadmap table */
+.roadmap-table { width: 100%; margin-bottom: 24px; }
+
+/* ========================================
+   COMMAND PALETTE
+   ======================================== */
+.cmd-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+}
+.cmd-overlay.visible { display: flex; animation: fadeIn 0.15s ease; }
+.cmd-modal {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 64px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 600px;
+  overflow: hidden;
+  transform: translateY(-10px);
+  animation: slideUp 0.2s ease forwards;
+}
+@keyframes slideUp {
+  to { transform: translateY(0); }
+}
+.cmd-input-wrap {
+  padding: 16px;
+  border-bottom: 1.5px solid var(--card-border);
+}
+.cmd-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+}
+.cmd-input::placeholder { color: var(--text-muted); }
+.cmd-results {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+}
+.cmd-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.cmd-result:hover, .cmd-result.active { background: var(--hover-bg); }
+.cmd-result-text { font-size: 13px; font-weight: 500; flex: 1; }
+.cmd-result-tab {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.04);
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+.cmd-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .header-title { display: none; }
+  .header { padding: 0 12px; }
+  .tabs-wrap { mask-image: linear-gradient(90deg, #000 85%, transparent 100%); -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent 100%); }
+  .hero { flex-direction: column; padding: 28px 20px; gap: 24px; }
+  .stats-grid { width: 100%; }
+  .tab-content { padding: 16px; }
+  .preflight-grid { grid-template-columns: 1fr; }
+  .benchmark-grid { grid-template-columns: 1fr; }
+  .timeline { flex-direction: column; align-items: center; }
+  .timeline-node::after { display: none; }
+  .tracks .track { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ PIN GATE ============ -->
+<div id="pin-gate">
+  <div class="pin-box">
+    <span class="pin-emoji">🌅</span>
+    <h1>First Light</h1>
+    <p>Enter PIN to access mission control</p>
+    <input type="password" inputmode="numeric" class="pin-input" id="pinInput" placeholder="••••" maxlength="8" autocomplete="off">
+    <button class="pin-btn" id="pinBtn">Access Dashboard</button>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">FIRST LIGHT <span>Mission Control</span></div>
+    <div class="tabs-wrap" id="tabsWrap">
+      <button class="tab-btn active" data-tab="mission-control">Mission Control</button>
+      <button class="tab-btn" data-tab="day-1">Day 1</button>
+      <button class="tab-btn" data-tab="day-2">Day 2</button>
+      <button class="tab-btn" data-tab="day-3">Day 3</button>
+      <button class="tab-btn" data-tab="post-launch">Post-Launch</button>
+      <button class="tab-btn" data-tab="phase-15">Phase 1.5</button>
+      <button class="tab-btn" data-tab="reference">Reference</button>
+    </div>
+    <button class="search-btn" id="searchBtn">/ Search <kbd>/</kbd></button>
+  </div>
+
+  <!-- Tab: Mission Control -->
+  <div class="tab-content active" id="tab-mission-control"></div>
+  <!-- Tab: Day 1 -->
+  <div class="tab-content" id="tab-day-1"></div>
+  <!-- Tab: Day 2 -->
+  <div class="tab-content" id="tab-day-2"></div>
+  <!-- Tab: Day 3 -->
+  <div class="tab-content" id="tab-day-3"></div>
+  <!-- Tab: Post-Launch -->
+  <div class="tab-content" id="tab-post-launch"></div>
+  <!-- Tab: Phase 1.5 -->
+  <div class="tab-content" id="tab-phase-15"></div>
+  <!-- Tab: Reference -->
+  <div class="tab-content" id="tab-reference"></div>
+</div>
+
+<!-- ============ COMMAND PALETTE ============ -->
+<div class="cmd-overlay" id="cmdOverlay">
+  <div class="cmd-modal">
+    <div class="cmd-input-wrap">
+      <input type="text" class="cmd-input" id="cmdInput" placeholder="Search tasks, prompts, references...">
+    </div>
+    <div class="cmd-results" id="cmdResults">
+      <div class="cmd-empty">Type to search across all tabs</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========================================
+// PIN GATE
+// ========================================
+const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+const pinInput = document.getElementById('pinInput');
+const pinBtn = document.getElementById('pinBtn');
+const pinError = document.getElementById('pinError');
+const pinGate = document.getElementById('pin-gate');
+const app = document.getElementById('app');
+
+pinInput.focus();
+
+async function checkPin() {
+  const val = pinInput.value.trim();
+  if (!val) { shakePin(); return; }
+  const encoded = new TextEncoder().encode(val);
+  const hashBuf = await crypto.subtle.digest('SHA-256', encoded);
+  const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  if (hashHex === PIN_HASH) {
+    pinGate.style.display = 'none';
+    app.style.display = 'block';
+    initApp();
+  } else {
+    shakePin();
+  }
+}
+
+function shakePin() {
+  pinError.textContent = 'Incorrect PIN';
+  pinInput.parentElement.classList.add('shake');
+  pinInput.value = '';
+  pinInput.focus();
+  setTimeout(() => pinInput.parentElement.classList.remove('shake'), 500);
+}
+
+pinBtn.addEventListener('click', checkPin);
+pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPin(); });
+
+// ========================================
+// TASK DATA
+// ========================================
+const TASKS = [
+  // === DAY 1 — Critical Path ===
+  { id: 'DNS', name: 'MailerLite Domain Verification', day: 1, time: 'Up to 48h', type: 'WAIT', section: 'critical-path',
+    dependencies: [], items: [
+      'Create MailerLite free account (mailerlite.com)',
+      'Settings → Domains → Add sending domain: selenko.com',
+      'MailerLite gives you DNS records (DKIM, SPF, DMARC)',
+      'Log into GoDaddy → DNS Management → Add the records exactly as MailerLite specifies',
+      'Go back to MailerLite → Click "Verify" — if not instant, check back in a few hours',
+      'Connect MailerLite MCP in Claude: Settings → Connectors → Add Custom Connector — Name: MailerLite — URL: https://mcp.mailerlite.com/mcp — Connect → Authorize',
+      'Verify MCP connection: ask Claude "Use MailerLite MCP to list all subscriber groups." If it returns a list (even empty), connection works.'
+    ]},
+  { id: 'META', name: 'Meta Account Fix', day: 1, time: 'Variable', type: 'WAIT', section: 'critical-path',
+    dependencies: [], items: [
+      'Log into business.facebook.com or adsmanager.facebook.com',
+      'Payment Settings → Add your replacement card',
+      'Verify account is active and not restricted',
+      'If restricted: follow the prompts to appeal/verify identity',
+      'If it requires support: submit a ticket and move to Track A tasks while waiting'
+    ]},
+  // === DAY 1 — Tasks ===
+  { id: 'A1', name: 'Product File Verification', day: 1, time: '15 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'Check Downloads folder for all product files:',
+      '  File 1: Project Instructions (system prompt)',
+      '  File 2: Knowledge Base',
+      '  File 3: Scenario Starter Pack',
+      '  File 4: Expansion Pack (15 scenarios + 3 tools)',
+      '  File 5: Setup Guide',
+      '  Notion Upgrade folder (upgrade instructions)',
+      'Confirm these are the POST-QA-FIX versions (not originals)',
+      'If unsure, check the build chat outputs for final versions',
+      'Zip the core kit files into one ZIP',
+      'Zip the Expansion Pack into a separate ZIP'
+    ]},
+  { id: 'A1b', name: 'Crop Logo Assets from Gemini PNG', day: 1, time: '5 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'Open the Gemini logo PNG in Preview (Mac) or any image editor',
+      'Crop the standalone S mark → save as selenko-s-mark-512.png (512×512)',
+      'Save as selenko-s-mark-180.png (180×180 — Facebook profile pic)',
+      'Save as selenko-s-mark-32.png (32×32 — favicon)',
+      'Crop the full horizontal wordmark (light background) → save as selenko-wordmark-light.png',
+      'Crop the full horizontal wordmark (dark background) → save as selenko-wordmark-dark.png',
+      'Save all cropped assets in a "Selenko Brand Assets" folder'
+    ]},
+  { id: 'A1c', name: 'Canva Pro Brand Kit Setup', day: 1, time: '10 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: ['A1b'], items: [
+      'Open Canva Pro → Brand Hub → Brand Kits',
+      'Create new brand kit: "Selenko"',
+      'Upload logos: horizontal wordmark (light bg), horizontal wordmark (dark bg), standalone S mark (512px)',
+      'Add brand colors: Primary Blue #1D4ED8, Accent Blue #2563EB, Light Blue #60A5FA, Dark Slate #0F172A, White #FFFFFF, Light Gray #F8FAFC',
+      'Add brand fonts: Heading: Space Grotesk Bold, Subheading: Space Grotesk SemiBold, Body: Space Grotesk Regular',
+      'Space Grotesk is available in Canva\'s font library — search for it, don\'t upload',
+      'Once set up, every new Canva design can auto-apply brand colors, fonts, and logos'
+    ]},
+  { id: 'A2', name: 'Product Demo Screenshots', day: 1, time: '20 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: ['A1'], items: [
+      'Open your personal Claude account (not the Selenko project)',
+      'Create a new Project called "AI Negotiation Coach"',
+      'Paste the Project Instructions as Custom Instructions',
+      'Upload the Knowledge Base as a project file',
+      'Start a chat and run one of the Scenario Starter Pack prompts',
+      'Screenshot the coaching interaction (2-3 screenshots showing the coach in action)',
+      'These screenshots go into: sales page, Meta ad creative, and the Setup Guide'
+    ]},
+  { id: 'A6', name: 'GoDaddy Email Forwarding', day: 1, time: '10 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'In GoDaddy, set up email forwarding for support@selenko.com → forwards to your personal Gmail',
+      'Send a test email to support@selenko.com',
+      'Confirm it arrives in your Gmail inbox',
+      'This means: buyers reply to support@selenko.com, you see it in Gmail, Claude can see it via Gmail MCP'
+    ]},
+  { id: 'A9-D1', name: 'Organic Seeding — Day 1', day: 1, time: '5 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'Post on personal LinkedIn — building in public, NO product link',
+      'Tell the story of what you built and why — focus on the problem, your process, what you learned',
+      'Direct message 5-7 people with a heads-up: "I\'m launching something tomorrow that I think you\'d find useful"'
+    ]},
+  { id: 'A7-S1', name: 'Competitor Ad Research', day: 1, time: '15 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'Go to facebook.com/ads/library',
+      'Search for: "AI coaching," "negotiation course," "AI assistant," "prompt pack," "ChatGPT template"',
+      'Screenshot 5-10 competitor ads',
+      'Note for each: hook used, creative format, CTA style',
+      'Use this to differentiate your creative, not copy theirs'
+    ]},
+  // === DAY 2 — Tasks ===
+  { id: 'A3', name: 'Payhip Storefront Setup', day: 2, time: '30 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: ['A1', 'A2'], items: [
+      'Create Payhip free account (payhip.com)',
+      'Upload the Selenko logo as your store profile image',
+      'Store Settings → Store name: Selenko',
+      'Create Product 1: AI Negotiation Coach Kit — Price: $67',
+      'Upload core kit ZIP',
+      'Scan payhip-sales-page-copy-v2.md for old brand references before pasting',
+      '  Verify: product described as "coaching system" not "prompts"',
+      '  Verify: descriptor is "Smarter AI Systems"',
+      '  Verify: price references are $67',
+      'Paste sales page copy, add product images (demo screenshots)',
+      'Configure Cross-Selling (order bump): Create Expansion Pack ($27), upload ZIP, link as cross-sell',
+      'Enable the prominent popup option',
+      'Paste legal pages (Terms, Privacy, Refund, Disclaimers)',
+      'Add thank-you page message with Expansion Pack upsell link',
+      'Create 100% discount coupon for test purchases (Marketing → Coupons)',
+      'Get your Payhip product URL',
+      'Verify checkout page in incognito browser',
+      'Verify Payhip product page on mobile'
+    ]},
+  { id: 'A4', name: 'Legal Page Updates', day: 2, time: '10 min', type: 'DELEGATE', section: 'tasks',
+    dependencies: [], uploadFiles: ['legal-pages.md'],
+    delegationPrompt: `Fill in all brackets in this legal document with the following:
+- Company name: Selenko
+- Email: support@selenko.com
+- Effective date: April 1, 2026
+- Physical address: [Everlane Realty address - paste the actual address]
+- Email marketing platform: MailerLite (add to data processors list in privacy policy)
+- Payment processor: Payhip
+- Analytics: Meta Pixel
+Output the complete filled-in documents ready to paste into Payhip.`,
+    items: [
+      'Open a dedicated chat',
+      'Upload legal-pages.md',
+      'Paste the delegation prompt',
+      'Copy the filled-in legal pages into Payhip'
+    ]},
+  { id: 'A5', name: 'Email Sequence Setup', day: 2, time: '40-45 min', type: 'MIXED', section: 'tasks',
+    dependencies: ['DNS'], uploadFiles: ['post-purchase-email-sequence.md'],
+    delegationPrompt: `You have MailerLite MCP connected. Do the following:
+1. Create a subscriber group called "Negotiation Coach Buyers"
+2. Create a subscriber group called "Expansion Pack Buyers"
+3. For each of the 7 emails in the uploaded sequence file, draft the email content as HTML that I can paste into MailerLite's automation builder. Format each email with:
+   - Subject line
+   - Preview text
+   - HTML body (clean, simple formatting — no complex templates)
+   - The delay before this email (from the sequence file)
+   Use MailerLite MCP tools to create the groups directly. Output the 7 email drafts as formatted HTML blocks I can copy-paste.
+Sender: support@selenko.com
+Sender name: Selenko
+Remove any Gmail references from the copy.
+
+Also verify:
+- Brand descriptor "Smarter AI Systems" is used in email footers
+- No references to old brand colors or naming
+- Email tone matches brand voice: professional, clear, confident, not corporate
+- Price references are $67/$27 (not older values)
+
+NOTE: MailerLite MCP cannot build automation workflows. Your job is to create the groups and draft the email HTML. I will build the automation manually in MailerLite's UI.`,
+    items: [
+      'PART 1 — MCP Delegation (10 min):',
+      '  Open a dedicated Claude chat with MailerLite MCP connected',
+      '  Upload post-purchase-email-sequence.md',
+      '  Paste the delegation prompt',
+      'PART 2 — Manual automation build (30 min):',
+      '  In MailerLite → Automations → Create New',
+      '  Trigger: "When subscriber joins group: Negotiation Coach Buyers"',
+      '  Name: "Post-Purchase: Negotiation Coach Buyers"',
+      '  Add each of the 7 emails as steps with correct delays',
+      '  Paste Claude\'s HTML drafts into each email step',
+      '  Set sender as support@selenko.com',
+      '  Set automation to Active',
+      'PART 3 — Payhip native integration:',
+      '  In MailerLite → Integrations → Developer API → Generate token',
+      '  Copy the API token',
+      '  In Payhip → Marketing → Mailing Lists → Connect MailerLite → Paste API token',
+      '  In Payhip → each product → Advanced Options: assign to correct groups',
+      '  AI Negotiation Coach Kit → "Negotiation Coach Buyers"',
+      '  Expansion Pack → "Expansion Pack Buyers"'
+    ]},
+  { id: 'TEST', name: 'Test Purchase Verification', day: 2, time: '15 min', type: 'HANDS-ON', section: 'verification',
+    dependencies: ['A3', 'A5', 'B2'], items: [
+      'Install Meta Pixel Helper Chrome extension',
+      '✅ Product download — Did you receive the core kit ZIP? Files open correctly? → If FAIL: re-upload ZIPs in Payhip',
+      '✅ Order bump — Did the Expansion Pack popup appear? Was it added? → If FAIL: Check Cross-Selling settings',
+      '✅ Payhip→MailerLite — New subscriber in "Negotiation Coach Buyers" within 1-2 min? → If FAIL: Check API token, verify group name',
+      '✅ Email delivery — First automation email arrived? Check sender, subject, content. → If FAIL: Check automation is Active, check spam',
+      '✅ GoDaddy forwarding — Reply to email arrives in Gmail? → If FAIL: Check GoDaddy forwarding settings',
+      '✅ Pixel events — Meta Events Manager → Test Events. Verify: PageView ✓, InitiateCheckout ✓, Purchase ✓ → If PageView only: accelerate CAPI setup'
+    ]},
+  { id: 'A7-S23', name: 'AdCreative.ai — Brand Setup + Static Images', day: 2, time: '30 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: ['A2'], items: [
+      'Verify AdCreative.ai account access — confirm plan active, download credits available',
+      'Brand Setup: Upload Selenko logo + brand colors (#1D4ED8, #2563EB, #60A5FA, #0F172A), Font: Space Grotesk',
+      'Connect Meta ad account if prompted',
+      'Select ad format: static image, 1080×1080 (1:1)',
+      'Generate 15-20+ variations with concepts:',
+      '  Style 1: Product mockup — laptop showing coaching session',
+      '  Style 2: Bold text on brand background — "Your $200/hr coach. Or $67. Once."',
+      '  Style 3: Before/after split — "Generic AI" vs "Your AI Coach"',
+      'Use AI scoring to pick top 3 highest-predicted performers',
+      'Download winners in 1080×1080 (1:1) and 1080×1350 (4:5)',
+      'Keep text under 15% of image area'
+    ]},
+  { id: 'A8', name: 'Carousel Ad Production', day: 2, time: '30 min', type: 'MIXED', section: 'tasks',
+    dependencies: ['A7-S23'], uploadFiles: ['meta-ad-variations-v2.md'],
+    delegationPrompt: `Using the 16 ad variations in this file, produce 2 complete carousel ad copy sets for a 6-card Meta carousel ad.
+
+Product: AI Negotiation Coach Kit ($67)
+Order bump: Expansion Pack ($27)
+
+Each carousel set needs:
+- Primary text (shows above the carousel — 125 chars max before "See more" on mobile, so front-load the hook)
+- Per-card headline (25 chars max to avoid truncation)
+- Per-card description (optional, shows below headline)
+- CTA button: "Shop Now" or "Learn More"
+
+Carousel Set 1 — Problem → Solution arc:
+Card 1: Hook/problem (salary negotiation, tough conversation)
+Card 2: Agitate ("Your plan? Wing it?")
+Card 3: Product mockup intro
+Card 4: What's inside (list components)
+Card 5: Price anchor ("$200/hr coach... or $67 once")
+Card 6: CTA ("Get My Negotiation Coach →")
+
+Carousel Set 2 — Before/After arc:
+Card 1: Before state (unprepared, nervous)
+Card 2: The gap (what's missing)
+Card 3: After state (confident, prepared)
+Card 4: How it works (3-step process)
+Card 5: What you get (value stack)
+Card 6: CTA with price
+
+Rules from the brand standards:
+- No AI buzzwords (revolutionary, game-changing, cutting-edge)
+- Describe as "coaching system" not "prompts"
+- Keep it professional but conversational
+- Space Grotesk is the brand font
+
+Pricing note: This is $67, not an impulse-buy price point. The copy must anchor against the cost of alternatives to make $67 feel like a steal. Include at least one card that does explicit price anchoring.`,
+    items: [
+      'Step 1 — Generate carousel ad copy (DELEGATE):',
+      '  Open a dedicated Claude chat',
+      '  Upload meta-ad-variations-v2.md',
+      '  Paste the delegation prompt',
+      'Step 2 — Build carousels in Canva Pro (15 min each):',
+      '  Open Canva → search "Facebook carousel ad" templates',
+      '  Apply Selenko brand kit',
+      '  Build Carousel Set 1 (Problem→Solution): 6 cards',
+      '  Build Carousel Set 2 (Before/After): 6 cards',
+      '  Use demo screenshots from A2 for product mockup cards',
+      '  Use Canva\'s mockup generator for laptop/iPad frames',
+      '  Export each carousel as individual 1080×1080 PNG files',
+      '  In Meta Ads Manager: turn OFF "auto-optimize card order"'
+    ]},
+  { id: 'B1', name: 'Create Selenko Facebook Page', day: 2, time: '10 min', type: 'BLOCKED', section: 'tasks',
+    dependencies: ['Meta'], items: [
+      'facebook.com/pages/create',
+      'Category: "Software" or "Computers & Internet Website"',
+      'Name: "Selenko"',
+      'Profile picture: Standalone S mark (180×180)',
+      'Cover image: Create in Canva — 820×312px — wordmark + "Smarter AI Systems" on #0F172A',
+      'Page description: "AI-powered tools and systems for business professionals."',
+      'CTA button: "Shop Now" → link to Payhip product URL',
+      'Set username: facebook.com/selenko (if available)',
+      'You do NOT need posts or followers to run ads'
+    ]},
+  { id: 'B2', name: 'Meta Pixel + Event Verification', day: 2, time: '10 min', type: 'BLOCKED', section: 'tasks',
+    dependencies: ['Meta'], items: [
+      'Meta Events Manager → Connect Data Sources → Web → Pixel',
+      'Name: "Selenko Pixel"',
+      'Copy the Pixel ID',
+      'Go to Payhip → Integrations/Tracking → Paste Meta Pixel ID',
+      'Event Verification — after test purchase, check:',
+      '  Meta Events Manager → Test Events tab',
+      '  Verify: PageView ✓, InitiateCheckout ✓, Purchase ✓',
+      '  If PageView only: accelerate CAPI setup to Day 2-3',
+      '  If all three fire: you\'re good, move on'
+    ]},
+  { id: 'A9-D2', name: 'Organic Seeding — Day 2', day: 2, time: '5 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'Follow up on Day 1 DMs — send the Payhip product link',
+      'Share in 1-2 relevant communities (Reddit, Facebook Groups)',
+      'Direct message 5-8 additional people with the live link',
+      'Ask 2-3 people to try the product and leave honest feedback'
+    ]},
+  // === DAY 3 ===
+  { id: 'B3', name: 'Create Custom Audiences', day: 3, time: '10 min', type: 'BLOCKED', section: 'tasks',
+    dependencies: ['Meta'], items: [
+      'Meta Ads Manager → Audiences → Create Audience → Custom Audience',
+      'Create 5 empty containers:',
+      '  1. Website visitors (last 180 days) — Source: Selenko Pixel',
+      '  2. Product page viewers (last 30 days) — Source: Selenko Pixel',
+      '  3. Purchasers (Purchase event, last 180 days) — for exclusions',
+      '  4. Video viewers (25%/50%/75% watched, last 365 days)',
+      '  5. Facebook/Instagram page engagers (last 365 days)'
+    ]},
+  { id: 'B4', name: 'Build Meta Ads Campaign', day: 3, time: '20 min', type: 'BLOCKED', section: 'tasks',
+    dependencies: ['B1', 'B2', 'A7-S23', 'A8', 'A3'], items: [
+      'Create campaign: Objective: Sales',
+      'Name: 2026-04_Sales_NegCoach_ABO',
+      'Budget type: Ad Set Budget (ABO) — NOT CBO',
+      'Ad Set 1: "AI-Curious Professionals" — $20-25/day',
+      'Targeting: AI + Entrepreneurship + Business Software, narrow by Small business owners, Age 25-54',
+      'Placement: Advantage+ (automatic)',
+      'Ads — Dynamic Creative with 3-2-2:',
+      '  Creatives: Carousel Set 1 (PRIMARY), Carousel Set 2, Best static image',
+      '  Verify meta-ad-variations-v2.md references $67 consistently',
+      '  Primary text: Top 2 variations from ad copy file',
+      '  Headlines: Top 2 headlines from ad copy file',
+      'Optimization: Purchase events',
+      'Attribution: 7-day click',
+      'Bidding: Highest Volume (Lowest Cost)',
+      'Save as DRAFT — do NOT publish yet',
+      'Create "Daily Monitoring" custom column preset:',
+      '  Results, CPA, Spend, Impressions, Reach, Frequency, CPM, Link Clicks, CPC, CTR, Landing Page Views, Purchase ROAS',
+      'Double-check: Dynamic Creative ON, carousel auto-optimize OFF, Advantage+ placements ON'
+    ]},
+  { id: 'A9-D3', name: 'Organic Seeding — Day 3', day: 3, time: '5 min', type: 'HANDS-ON', section: 'tasks',
+    dependencies: [], items: [
+      'Post on personal Facebook — casual: "Built something, check it out"',
+      'Share the Payhip link with anyone who expressed interest Days 1-2',
+      'Any pre-ad purchase gives the algorithm a massive head start'
+    ]},
+  { id: 'PRE', name: 'Pre-Flight Checklist', day: 3, time: '10 min', type: 'VERIFICATION', section: 'verification',
+    dependencies: [], items: [
+      'Product downloads work (confirmed via test purchase)',
+      'Order bump (Expansion Pack) triggers correctly',
+      'Email automation is live (MailerLite sequence active)',
+      'Payhip→MailerLite native integration is active',
+      'GoDaddy email forwarding works (support@selenko.com → Gmail)',
+      'Ad creative uploaded to campaign (2 carousels + 1 static)',
+      'Payment method is active in Meta',
+      'Budget is set ($20-25/day)',
+      'Facebook Page is live with logo + cover',
+      'Pixel installed AND Purchase event verified',
+      'Organic seeding posts are live',
+      'Payhip thank-you page has Expansion Pack upsell',
+      'Ad destination URL verified (desktop + mobile)'
+    ]},
+  { id: 'LAUNCH', name: 'Hit Publish', day: 3, time: '1 min', type: 'MILESTONE', section: 'verification',
+    dependencies: [], items: [
+      'Hit Publish in Meta Ads Manager'
+    ]},
+];
+
+// ========================================
+// STATE
+// ========================================
+const state = {
+  checkedItems: {}, // { 'A1-0': true, 'A1-3': true, ... }
+  expandedTasks: {},
+  promptsVisible: {},
+};
+
+// ========================================
+// CORE FUNCTIONS
+// ========================================
+function initApp() {
+  renderMissionControl();
+  renderDayTab(1);
+  renderDayTab(2);
+  renderDayTab(3);
+  renderPostLaunch();
+  renderPhase15();
+  renderReference();
+  buildSearchIndex();
+  // Handle hash
+  const hash = window.location.hash.slice(1) || 'mission-control';
+  switchTab(hash, false);
+}
+
+// --- Tab switching ---
+const tabBtns = document.querySelectorAll('.tab-btn');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab, true));
+});
+window.addEventListener('popstate', () => {
+  const hash = window.location.hash.slice(1) || 'mission-control';
+  switchTab(hash, false);
+});
+
+function switchTab(tabId, pushState) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const tabEl = document.getElementById('tab-' + tabId);
+  if (tabEl) tabEl.classList.add('active');
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (btn) {
+    btn.classList.add('active');
+    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+  if (pushState) history.pushState(null, '', '#' + tabId);
+}
+
+// --- Progress calculation ---
+function getProgress(dayNum) {
+  const tasks = dayNum ? TASKS.filter(t => t.day === dayNum) : TASKS.filter(t => t.day);
+  let total = 0, checked = 0;
+  tasks.forEach(t => {
+    t.items.forEach((_, i) => {
+      total++;
+      if (state.checkedItems[t.id + '-' + i]) checked++;
+    });
+  });
+  return { total, checked, pct: total ? Math.round(checked/total*100) : 0 };
+}
+
+function updateAllProgress() {
+  [1,2,3].forEach(d => {
+    const p = getProgress(d);
+    const bar = document.getElementById('progress-day-' + d);
+    if (bar) {
+      bar.querySelector('.progress-fill').style.width = p.pct + '%';
+      bar.querySelector('.progress-label').textContent = p.pct + '%';
+    }
+  });
+  const overall = getProgress(null);
+  const oBar = document.getElementById('progress-overall');
+  if (oBar) {
+    oBar.querySelector('.progress-fill').style.width = overall.pct + '%';
+    oBar.querySelector('.progress-label').textContent = overall.checked + '/' + overall.total;
+  }
+}
+
+// --- Task card rendering ---
+function renderTaskCard(task) {
+  const isBlocked = task.type === 'BLOCKED';
+  const isVerification = task.type === 'VERIFICATION';
+  const isMilestone = task.type === 'MILESTONE';
+  
+  if (isMilestone) return renderPublishCard(task);
+  if (isVerification) return renderPreflightCard(task);
+
+  const checkedCount = task.items.filter((_, i) => state.checkedItems[task.id + '-' + i]).length;
+  const allChecked = checkedCount === task.items.length;
+  const isExpanded = state.expandedTasks[task.id];
+  
+  const typeClass = {
+    'HANDS-ON': 'hands-on', 'DELEGATE': 'delegate', 'BLOCKED': 'blocked-type',
+    'WAIT': 'wait', 'MIXED': 'mixed'
+  }[task.type] || 'hands-on';
+
+  const depStr = task.dependencies.length ? task.dependencies.map(d => d === 'Meta' ? '⏳' : '🔗').join('') : '';
+  
+  let html = `<div class="task-card ${isBlocked ? 'blocked' : ''} ${isExpanded ? 'expanded' : ''}" id="task-${task.id}">
+    <div class="task-header" onclick="toggleTask('${task.id}')">
+      <span class="task-id">${task.id}</span>
+      <span class="task-name">${task.name}</span>
+      ${isBlocked ? '<span class="blocked-banner">⏳ Blocked — Waiting on Meta</span>' : ''}
+      <span class="task-time">${task.time}</span>
+      <span class="task-type ${typeClass}">${task.type === 'MIXED' ? '📋+🔧' : task.type}</span>
+      ${depStr ? `<span class="task-dep">${depStr}</span>` : ''}
+      <span class="sub-counter">${checkedCount}/${task.items.length}</span>
+      <div class="task-checkbox ${allChecked ? 'checked' : ''}" onclick="event.stopPropagation(); toggleAllSubs('${task.id}')"></div>
+      <span class="expand-chevron">▸</span>
+    </div>
+    <div class="task-body" id="body-${task.id}">
+      <div class="task-body-inner">`;
+  
+  task.items.forEach((item, i) => {
+    const isChecked = state.checkedItems[task.id + '-' + i];
+    const isIndent = item.startsWith('  ');
+    const cleanItem = item.replace(/^\s+/, '');
+    // Render file refs as code, URLs as links
+    const rendered = cleanItem
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/(https?:\/\/[^\s,)]+)/g, '<a href="$1" target="_blank">$1</a>')
+      .replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');
+    
+    html += `<div class="sub-item ${isIndent ? 'indent' : ''} ${isChecked ? 'checked-item' : ''}" onclick="toggleSub('${task.id}', ${i})">
+      <div class="sub-check ${isChecked ? 'checked' : ''}"></div>
+      <span class="sub-text">${rendered}</span>
+    </div>`;
+  });
+
+  if (task.delegationPrompt) {
+    const promptVisible = state.promptsVisible[task.id];
+    html += `<button class="prompt-toggle" onclick="event.stopPropagation(); togglePrompt('${task.id}')">
+      ${promptVisible ? 'Hide' : 'View'} Delegation Prompt
+    </button>
+    <div class="prompt-block ${promptVisible ? 'visible' : ''}" id="prompt-${task.id}">
+      ${task.uploadFiles ? `<div class="prompt-upload">Upload: ${task.uploadFiles.map(f => '<code>' + f + '</code>').join(', ')}</div>` : ''}
+      <div class="prompt-code" id="prompt-code-${task.id}">${escHtml(task.delegationPrompt)}</div>
+      <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('${task.id}')">Copy</button>
+    </div>`;
+  }
+
+  html += `</div></div></div>`;
+  return html;
+}
+
+function renderPreflightCard(task) {
+  let html = '<div class="group-label"><h3>✈️ Pre-Flight Checklist</h3><p>All 13 must be green before you hit publish</p></div>';
+  html += '<div class="preflight-grid">';
+  task.items.forEach((item, i) => {
+    const isChecked = state.checkedItems[task.id + '-' + i];
+    html += `<div class="preflight-item" onclick="toggleSub('${task.id}', ${i})" id="task-${task.id}">
+      <div class="pf-check ${isChecked ? 'checked' : ''}"></div>
+      <span>${item}</span>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderPublishCard(task) {
+  const isChecked = state.checkedItems[task.id + '-0'];
+  return `<div class="publish-card" id="task-${task.id}" onclick="toggleSub('${task.id}', 0)">
+    <span class="publish-emoji">🌅</span>
+    <h2>FIRST <span class="accent">LIGHT</span></h2>
+    <p>Hit Publish in Meta Ads Manager.</p>
+    <p class="publish-sub">You're live. Walk away.</p>
+    <div style="margin-top:16px; display:flex; justify-content:center;">
+      <div class="task-checkbox ${isChecked ? 'checked' : ''}" style="width:28px;height:28px;border-radius:8px;"></div>
+    </div>
+  </div>`;
+}
+
+// --- Toggle functions ---
+function toggleTask(id) {
+  state.expandedTasks[id] = !state.expandedTasks[id];
+  const card = document.getElementById('task-' + id);
+  const body = document.getElementById('body-' + id);
+  if (!card || !body) return;
+  
+  if (state.expandedTasks[id]) {
+    card.classList.add('expanded');
+    const inner = body.querySelector('.task-body-inner');
+    body.style.height = inner.scrollHeight + 'px';
+  } else {
+    card.classList.remove('expanded');
+    body.style.height = '0px';
+  }
+}
+
+function toggleSub(taskId, idx) {
+  const key = taskId + '-' + idx;
+  state.checkedItems[key] = !state.checkedItems[key];
+  rerenderAll();
+}
+
+function toggleAllSubs(taskId) {
+  const task = TASKS.find(t => t.id === taskId);
+  if (!task) return;
+  const allChecked = task.items.every((_, i) => state.checkedItems[taskId + '-' + i]);
+  task.items.forEach((_, i) => {
+    state.checkedItems[taskId + '-' + i] = !allChecked;
+  });
+  rerenderAll();
+}
+
+function togglePrompt(id) {
+  state.promptsVisible[id] = !state.promptsVisible[id];
+  const block = document.getElementById('prompt-' + id);
+  if (block) block.classList.toggle('visible');
+  const btn = block?.previousElementSibling;
+  if (btn) btn.textContent = state.promptsVisible[id] ? 'Hide Delegation Prompt' : 'View Delegation Prompt';
+}
+
+function copyPrompt(id) {
+  const code = document.getElementById('prompt-code-' + id);
+  if (!code) return;
+  navigator.clipboard.writeText(code.textContent).then(() => {
+    const btn = code.parentElement.querySelector('.copy-btn');
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    // Fallback: select text
+    const range = document.createRange();
+    range.selectNodeContents(code);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
+
+function rerenderAll() {
+  renderDayTab(1);
+  renderDayTab(2);
+  renderDayTab(3);
+  updateAllProgress();
+  // Re-expand any previously expanded tasks
+  Object.keys(state.expandedTasks).forEach(id => {
+    if (state.expandedTasks[id]) {
+      const card = document.getElementById('task-' + id);
+      const body = document.getElementById('body-' + id);
+      if (card && body) {
+        card.classList.add('expanded');
+        const inner = body.querySelector('.task-body-inner');
+        if (inner) body.style.height = inner.scrollHeight + 'px';
+      }
+    }
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ========================================
+// TAB RENDERERS
+// ========================================
+function renderMissionControl() {
+  const overall = getProgress(null);
+  document.getElementById('tab-mission-control').innerHTML = `
+    <div class="hero">
+      <div class="hero-text">
+        <h1>Operation <span class="accent">First Light</span></h1>
+        <div class="subtitle">AI Negotiation Coach Kit ($67) + Expansion Pack ($27 order bump)</div>
+        <div class="hero-meta">
+          <div class="hero-meta-item"><span class="dot"></span>Target: Wed April 2, 2026</div>
+          <div class="hero-meta-item"><span class="dot"></span>~6 hours across 3 days</div>
+          <div class="hero-meta-item"><span class="dot"></span>$500–750 validation budget</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="num">23</div><div class="label">Total Tasks</div></div>
+        <div class="stat-card"><div class="num red">5</div><div class="label">Delegate</div></div>
+        <div class="stat-card"><div class="num">~6h</div><div class="label">Est. Hours</div></div>
+        <div class="stat-card"><div class="num">$500</div><div class="label">Min Budget</div></div>
+      </div>
+    </div>
+    <div class="version-footer">v4-final · March 30, 2026</div>
+    
+    <div class="progress-wrap" id="progress-overall">
+      <div style="font-size:12px;font-weight:700;color:var(--text-sec);min-width:100px;">Overall Progress</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${overall.pct}%"></div></div>
+      <div class="progress-label">${overall.checked}/${overall.total}</div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-node">
+        <div class="timeline-dot">1</div>
+        <div class="timeline-label">Setup & Prep</div>
+        <div class="timeline-sublabel">Files, brand kit, screenshots, DNS</div>
+      </div>
+      <div class="timeline-node">
+        <div class="timeline-dot">2</div>
+        <div class="timeline-label">Build & Test</div>
+        <div class="timeline-sublabel">Payhip, emails, ads, test purchase</div>
+      </div>
+      <div class="timeline-node">
+        <div class="timeline-dot">3</div>
+        <div class="timeline-label">Launch</div>
+        <div class="timeline-sublabel">Campaign, pre-flight, publish</div>
+      </div>
+      <div class="timeline-node">
+        <div class="timeline-dot" style="font-size:10px;">2-4</div>
+        <div class="timeline-label">Optimize & Scale</div>
+        <div class="timeline-sublabel">Day 7 opt, lead magnet, retargeting</div>
+      </div>
+    </div>
+
+    <div class="tracks">
+      <div class="track track-a">
+        <span class="track-label">No Meta Required</span>
+        <div class="track-badges">
+          ${['A1','A1b','A1c','A2','A3','A5','A6','A7','A8','A9'].map(id => `<span class="track-badge">${id}</span>`).join('')}
+        </div>
+      </div>
+      <div class="track track-b">
+        <span class="track-label">Requires Meta</span>
+        <div class="track-badges">
+          ${['B1','B2','B3','B4'].map(id => `<span class="track-badge">${id}</span>`).join('')}
+        </div>
+      </div>
+      <div class="track-merge">⋯ both tracks merge at Pre-Flight → 🌅 Launch</div>
+    </div>
+  `;
+}
+
+function renderDayTab(dayNum) {
+  const tasks = TASKS.filter(t => t.day === dayNum);
+  const p = getProgress(dayNum);
+  const dayNames = { 1: 'Monday, March 31', 2: 'Tuesday, April 1', 3: 'Wednesday, April 2' };
+  const dayTimes = {
+    1: '~1h 20min hands-on + ⏳ waiting on DNS/Meta',
+    2: '~2h 45min hands-on (+ 20 min if Meta resolved)',
+    3: '~17 min hands-on (+ 30 min if Meta resolved)'
+  };
+  
+  let html = `<div class="day-header">
+    <h2>Day ${dayNum} — ${dayNames[dayNum]}</h2>
+    <div class="day-time">${dayTimes[dayNum]}</div>
+    <div class="progress-wrap" id="progress-day-${dayNum}">
+      <div class="progress-bar"><div class="progress-fill" style="width:${p.pct}%"></div></div>
+      <div class="progress-label">${p.pct}%</div>
+    </div>
+  </div>`;
+
+  // Day 2 status check
+  if (dayNum === 2) {
+    html += `<div class="callout amber">
+      <div class="callout-title">⚠️ Status Check</div>
+      Check: DNS propagated? Meta account fixed? If Meta isn't resolved, B-series tasks stay blocked — but everything else proceeds normally.
+    </div>`;
+  }
+
+  // Group by section
+  const critPath = tasks.filter(t => t.section === 'critical-path');
+  const mainTasks = tasks.filter(t => t.section === 'tasks');
+  const verification = tasks.filter(t => t.section === 'verification');
+
+  if (critPath.length) {
+    html += `<div class="group-label" style="border-color:var(--ai-digital)"><h3>⏳ Critical Path</h3><p>Start these first — they have built-in wait times</p></div>`;
+    critPath.forEach(t => html += renderTaskCard(t));
+  }
+
+  if (mainTasks.length) {
+    if (critPath.length) {
+      html += `<div class="group-label"><h3>📋 Tasks</h3><p>Work through these while waiting on critical path items</p></div>`;
+    }
+    mainTasks.forEach(t => html += renderTaskCard(t));
+  }
+
+  // Day 2 Meta contingency
+  if (dayNum === 2) {
+    html += `<div class="callout amber" style="margin-top:16px;">
+      <div class="callout-title">⚠️ Meta Account Contingency</div>
+      <p style="margin-bottom:6px;">If your Meta account is NOT resolved by Wednesday morning:</p>
+      <div style="font-size:12px;line-height:1.7;color:var(--text);">
+        1. DO NOT create a new ad account — risks permanent restriction on both.<br>
+        2. The product is live on Payhip. Organic seeding is running.<br>
+        3. Continue: organic seeding, MailerLite list building, direct outreach, LinkedIn posting.<br>
+        4. Submit a Meta support ticket. Follow up daily.<br>
+        5. Track B executes whenever Meta resolves — all tasks remain the same, just shifted.<br>
+        6. This is not a launch failure. Paid ads accelerate, they don't enable.
+      </div>
+    </div>`;
+  }
+
+  if (verification.length) {
+    verification.forEach(t => html += renderTaskCard(t));
+  }
+
+  document.getElementById('tab-day-' + dayNum).innerHTML = html;
+}
+
+function renderPostLaunch() {
+  document.getElementById('tab-post-launch').innerHTML = `
+    <div class="day-header"><h2>Post-Launch: Days 1–7</h2></div>
+    
+    <div class="section-card">
+      <h3>📊 Daily Check — 5 min, once per day</h3>
+      <div style="font-size:12.5px;line-height:1.8;color:var(--text);">
+        <strong>Ads Manager</strong> → CPA, CTR, spend (use "Daily Monitoring" custom column preset)<br>
+        <strong>Payhip dashboard</strong> → page views AND conversion rate. If 50+ clicks but 15 views = redirect problem. If 50 views and 0 purchases = offer problem. Healthy: 1-3% conversion for $67 cold traffic.<br>
+        <strong>Payhip</strong> → any sales? Support emails? Buyers in correct MailerLite groups?<br>
+        <strong>MailerLite</strong> → bounces, delivery issues, open rates
+      </div>
+    </div>
+
+    <div class="callout amber">
+      <div class="callout-title">⚠️ Important</div>
+      DO NOT edit ads, change targeting, or adjust budget for 5-7 days. Every significant edit resets the learning phase.
+    </div>
+
+    <div class="group-label" style="border-color:var(--brand-primary)"><h3>📈 What's Normal</h3><p>Benchmarks for your first week (from DR5/DR6 research)</p></div>
+    <div class="benchmark-grid">
+      <div class="benchmark-card amber">
+        <h4>Days 1-2</h4>
+        <p>High CPC, few clicks, probably zero sales. Meta learning.<br><br>24h check: CTR >1.0% = healthy, <0.5% = warning. CPC <$1.50 = healthy, >$3.00 = warning.</p>
+      </div>
+      <div class="benchmark-card green">
+        <h4>Days 3-4</h4>
+        <p>CPC starts dropping. Maybe a sale.<br><br>72h: 2-3+ purchases with CPA trending under $25 = on track.</p>
+      </div>
+      <div class="benchmark-card blue">
+        <h4>Days 5-7</h4>
+        <p>Pattern emerges. Winning creative visible.<br><br>Go to Breakdown → Dynamic Creative Element → Image/Video to identify winners.</p>
+      </div>
+    </div>
+
+    <div class="group-label" style="border-color:var(--cpa-red)"><h3>💰 CPA Kill Criteria</h3><p>Adjusted for $67 product economics</p></div>
+    <div class="cpa-gauge">
+      <div class="cpa-zone z-green">< $30</div>
+      <div class="cpa-zone z-yellow">$30-45</div>
+      <div class="cpa-zone z-orange">$45-55</div>
+      <div class="cpa-zone z-red">> $55</div>
+    </div>
+    <div class="cpa-labels">
+      <div class="cpa-label-item"><strong>Excellent</strong>Scale cautiously</div>
+      <div class="cpa-label-item"><strong>Strong</strong>Monitor & optimize</div>
+      <div class="cpa-label-item"><strong>Marginal</strong>Review creative</div>
+      <div class="cpa-label-item"><strong>Concern</strong>Approaching break-even</div>
+    </div>
+    <div class="section-card" style="margin-top:8px;">
+      <p><strong>Unit economics:</strong> $67 sale → net ~$61-62 after Payhip 5% + processing. With $27 bump (~30% take rate) → AOV ~$75, net ~$69. Break-even CPA: ~$55-58 (core), ~$63-65 (with bump).</p>
+      <p style="margin-top:8px;"><strong>Kill individual creative:</strong> After $60-90 spend (1.5× break-even) with zero conversions.</p>
+      <p><strong>Kill on early signals:</strong> CTR below 0.8% after 48h + 1,000 impressions.</p>
+    </div>
+
+    <div class="group-label" style="border-color:var(--green);margin-top:24px;"><h3>🔄 Day 7: First Optimization</h3><p>First optimization round — data-driven decisions only</p></div>
+    <div class="section-card">
+      <div style="font-size:12.5px;line-height:1.8;">
+        • Kill underperforming ad variations (CTR < 0.8%)<br>
+        • Note winning creative — becomes your control<br>
+        • Check Breakdown → Dynamic Creative Element: carousel vs static<br>
+        • CPA > $50: review targeting, try broader Advantage+ audience<br>
+        • CPA < $35: consider increasing budget to $30-35/day (20% max increase)<br>
+        • Zero conversions + CTR >1%: landing page problem, not creative<br>
+        • Zero conversions + CTR <0.5%: creative problem — new concepts needed<br>
+      </div>
+    </div>
+  `;
+}
+
+function renderPhase15() {
+  document.getElementById('tab-phase-15').innerHTML = `
+    <div class="day-header"><h2>Phase 1.5 — Week 2+</h2></div>
+    
+    <div class="callout amber">
+      <div class="callout-title">⚠️ Overbuild Check</div>
+      Phase 1.5 launches ONLY after the basic direct-to-product flow is validated (at least a few sales or strong engagement signals by end of Week 1). If Week 1 shows zero traction, fix creative/targeting/offer — NOT adding funnel complexity.
+    </div>
+
+    <div class="group-label" style="border-color:var(--selenko)"><h3>📄 Lead Magnet</h3><p>"The AI Negotiation Prep Checklist" — branded PDF that previews the full kit</p></div>
+    <div class="section-card">
+      <h3>Content Structure</h3>
+      <p><strong>Page 1:</strong> Cover with Selenko branding. "The AI Negotiation Prep Checklist — 5 Steps to Walk Into Any Negotiation Ready"</p>
+      <p><strong>Page 2:</strong> 5-step prep framework as a visual checklist (objective, interests, questions, pushback, walk-away)</p>
+      <p><strong>Page 3:</strong> One sample coaching interaction — real prompt + AI response (3-4 exchanges)</p>
+      <p><strong>Page 4:</strong> "What's in the Full Kit" — all components + 8 scenario titles + CTA</p>
+      <button class="prompt-toggle" onclick="togglePrompt('lead-magnet')" style="margin-top:12px;">View Delegation Prompt</button>
+      <div class="prompt-block" id="prompt-lead-magnet">
+        <div class="prompt-upload">Upload: Scenario Starter Pack file</div>
+        <div class="prompt-code" id="prompt-code-lead-magnet">${escHtml(`Create a lead magnet PDF called "The AI Negotiation Prep Checklist" for the Selenko brand.
+
+This is a free resource that previews the paid AI Negotiation Coach Kit ($67). It demonstrates the coaching methodology without giving away the actual prompts.
+
+Structure:
+- Page 1: Cover with Selenko branding (Space Grotesk font, #1D4ED8 primary, #0F172A dark, #FFFFFF white). Headline: "The AI Negotiation Prep Checklist — 5 Steps to Walk Into Any Negotiation Ready"
+- Page 2: The 5-step prep framework as a visual checklist. Steps should reflect the methodology the coaching system uses: identify your objective, map the other party's interests, prepare your questions, anticipate pushback, set your walk-away point. Each step gets 2-3 sentences of guidance.
+- Page 3: One sample coaching interaction. Show an actual prompt from the Scenario Starter Pack and a realistic AI coaching response (3-4 exchanges). This is the "taste" that sells the full system.
+- Page 4: "What's in the Full Kit" — list all components by name with brief descriptions. Show all 8 scenario titles so they see the breadth. End with CTA: "Get the complete AI Negotiation Coach Kit → [Payhip link]"
+
+Brand descriptor: "Smarter AI Systems"
+Keep it under 5 pages. It should feel valuable on its own but make the full kit irresistible.`)}</div>
+        <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('lead-magnet')">Copy</button>
+      </div>
+    </div>
+
+    <div class="group-label" style="border-color:var(--brand-primary)"><h3>🌐 Landing Page Options</h3><p>Simple email capture page for the lead magnet</p></div>
+    <div class="option-card"><div class="option-rank rec">① Recommended</div><h4>Carrd Pro Standard — $19/yr</h4><p>Custom domain, MailerLite form integration, Meta Pixel via embed, beautiful templates.</p></div>
+    <div class="option-card"><div class="option-rank">② Free Alternative</div><h4>MailerLite Free Landing Pages — $0</h4><p>Native email integration, Meta Pixel via code injection. Downside: subscribepage.com domain.</p></div>
+    <div class="option-card"><div class="option-rank">③ Technical Option</div><h4>GitHub Pages — Free</h4><p>Full Pixel control, already set up. Requires HTML coding for form embed.</p></div>
+
+    <div class="group-label" style="border-color:var(--green);margin-top:24px;"><h3>📧 Nurture Sequence</h3><p>5 emails over 7 days — converts lead magnet subscribers to buyers</p></div>
+    <div class="section-card">
+      <p><strong>Email 1 (Immediate):</strong> Deliver PDF + quick tip</p>
+      <p><strong>Email 2 (Day 2):</strong> Negotiation insight — genuine value, no pitch</p>
+      <p><strong>Email 3 (Day 4):</strong> Story showing prepared vs unprepared — soft mention</p>
+      <p><strong>Email 4 (Day 5):</strong> Direct pitch for $67 kit</p>
+      <p><strong>Email 5 (Day 7):</strong> Final push — address main objection</p>
+      <button class="prompt-toggle" onclick="togglePrompt('nurture')" style="margin-top:12px;">View Delegation Prompt</button>
+      <div class="prompt-block" id="prompt-nurture">
+        <div class="prompt-code" id="prompt-code-nurture">${escHtml(`Build a second automation in MailerLite for lead magnet subscribers.
+
+Trigger: When subscriber joins group "Lead Magnet Subscribers"
+Sender: support@selenko.com
+Sender name: Selenko
+
+Email 1 (Immediate): Deliver the lead magnet PDF link + quick tip on how to get the most from negotiation scripts. Set expectations for the sequence.
+
+Email 2 (Day 2): Share a negotiation insight or framework — genuine value, no pitch. Something like "The one question that changes every negotiation" with a practical tip.
+
+Email 3 (Day 4): Story or example showing what prepared vs. unprepared negotiation looks like. Soft mention of the full kit.
+
+Email 4 (Day 5): Direct pitch for the AI Negotiation Coach Kit ($67). Benefits, what's included, who it's for. Link to Payhip.
+
+Email 5 (Day 7): Final push — different angle. Address the main objection ("Is AI really useful for negotiations?"). Include the Payhip link. After this, subscriber moves to general list.
+
+Keep emails 50-200 words. Curiosity-driven subject lines (7 words optimal). No AI buzzwords.`)}</div>
+        <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('nurture')">Copy</button>
+      </div>
+    </div>
+
+    <div class="group-label" style="border-color:var(--amber);margin-top:24px;"><h3>🔀 Split Test Strategy</h3><p>Compare direct-to-product vs lead magnet funnel</p></div>
+    <div class="section-card">
+      <p><strong>Path A (control):</strong> Ad → Payhip product page directly</p>
+      <p><strong>Path B (test):</strong> Ad → Lead magnet landing page → Email nurture → Payhip</p>
+      <p style="margin-top:8px;">Use separate ad sets with identical budget ($10-15/day each). Measure: cost per email capture, email-to-purchase conversion rate, total CPA per path. Give it 2 weeks of data.</p>
+    </div>
+
+    <div class="group-label" style="border-color:var(--ai-digital);margin-top:24px;"><h3>🗺️ Product Roadmap</h3><p>What comes after First Light</p></div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>Product</th><th>Timeline</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P1b</strong> Decision Conversation Coach</td><td>Days 7-10</td><td>Same product, consumer sales page</td></tr>
+          <tr><td><strong>P2a</strong> AI Secretary System</td><td>2-4 days after P1</td><td>Ships fast (already planned)</td></tr>
+          <tr><td><strong>P2b</strong> Claude Instruction Bible</td><td>1-2 weeks after P2a</td><td>Builds on P1 learnings</td></tr>
+          <tr><td><strong>P2c</strong> AI Sales System</td><td>6-10 weeks (Jun-Jul)</td><td>Pizza Expo validated</td></tr>
+          <tr><td><strong>#5</strong> Free Quick Start Preferences</td><td>After P1.5b</td><td>Feeds Onboarding Starter Kit</td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderReference() {
+  document.getElementById('tab-reference').innerHTML = `
+    <div class="day-header"><h2>Reference</h2></div>
+    
+    <div class="group-label" style="border-color:var(--brand-primary)"><h3>🔧 Connected Tools</h3><p>What Claude can access vs. what's manual</p></div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>Tool</th><th>Status</th><th>What It Enables</th></tr></thead>
+        <tbody>
+          <tr><td>Notion MCP</td><td>✅ Connected</td><td>Session logs, project tracking, snapshot updates</td></tr>
+          <tr><td>Gmail MCP</td><td>✅ Connected</td><td>See support replies forwarded from GoDaddy</td></tr>
+          <tr><td>Canva MCP</td><td>✅ Connected</td><td>Ad image generation, carousel cards, cover images</td></tr>
+          <tr><td>Canva Pro</td><td>✅ Paid</td><td>Brand Kit, carousel assembly, mockups, PDF export</td></tr>
+          <tr><td>Google Calendar MCP</td><td>✅ Connected</td><td>Schedule launch tasks, reminders</td></tr>
+          <tr><td>Figma MCP</td><td>✅ Connected</td><td>Diagram creation</td></tr>
+          <tr><td>Gamma MCP</td><td>✅ Connected</td><td>Presentations</td></tr>
+          <tr><td>MailerLite MCP</td><td>⏳ Connect Day 1</td><td>Create groups, draft emails. Cannot build automations.</td></tr>
+          <tr><td>Facebook/Meta MCP</td><td>❌ Does not exist</td><td>All Meta Ads work is manual</td></tr>
+          <tr><td>AdCreative.ai</td><td>Manual (paid)</td><td>Static ad images with AI scoring</td></tr>
+          <tr><td>Payhip</td><td>Manual</td><td>No MCP — manual setup. Native MailerLite integration.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="group-label" style="border-color:var(--selenko)"><h3>🎨 Creative Production Stack</h3><p>Which tool for which asset</p></div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>Asset</th><th>Tool</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Static ad images (3-5)</td><td>AdCreative.ai</td><td>AI scoring predicts winners</td></tr>
+          <tr><td>Carousel sets (2×6 cards)</td><td>Canva Pro</td><td>Sequential storytelling, design control</td></tr>
+          <tr><td>Product mockups</td><td>Canva Pro</td><td>Integrated Smartmockups</td></tr>
+          <tr><td>Facebook cover (820×312)</td><td>Canva Pro</td><td>Brand kit auto-applied</td></tr>
+          <tr><td>Lead magnet PDF</td><td>Canva Pro</td><td>Branded templates, PDF export</td></tr>
+          <tr><td>Email header graphics</td><td>Canva Pro</td><td>Consistent brand across emails</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="group-label" style="border-color:var(--ai-digital)"><h3>🎨 Brand Reference</h3><p>Selenko visual identity — locked March 30, 2026</p></div>
+    <div class="section-card">
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#1D4ED8"></div>#1D4ED8 Primary</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#2563EB"></div>#2563EB Accent</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#60A5FA"></div>#60A5FA Light</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0F172A"></div>#0F172A Dark</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F8FAFC;border-color:#ddd"></div>#F8FAFC Light Gray</div>
+      </div>
+      <p><strong>Font:</strong> Space Grotesk (primary), DM Sans (backup)</p>
+      <p><strong>Logo:</strong> Geometric isometric S + wordmark (Gemini-generated)</p>
+      <p><strong>Descriptor:</strong> "Smarter AI Systems"</p>
+    </div>
+
+    <div class="group-label" style="border-color:var(--green)"><h3>📋 Delegation Summary</h3><p>All tasks Claude handles via dedicated chats</p></div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>Task</th><th>Chat Name</th><th>Upload</th><th>Serge Time</th></tr></thead>
+        <tbody>
+          <tr><td>Legal page fills</td><td>"Legal Pages"</td><td><code>legal-pages.md</code></td><td>5 min review</td></tr>
+          <tr><td>Email sequence</td><td>"Email Setup" (MailerLite MCP)</td><td><code>post-purchase-email-sequence.md</code></td><td>10 min + 30 min manual</td></tr>
+          <tr><td>Carousel ad copy</td><td>"Ad Copy"</td><td><code>meta-ad-variations-v2.md</code></td><td>5 min review</td></tr>
+          <tr><td>Lead magnet PDF</td><td>"Lead Magnet Build"</td><td>Scenario Starter Pack</td><td>10 min review</td></tr>
+          <tr><td>Nurture sequence</td><td>"Email Setup" (same chat)</td><td>N/A — prompt only</td><td>5 min verify</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="group-label" style="border-color:var(--amber)"><h3>📁 Files Needed</h3><p>Already produced — verify you have them</p></div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>File</th><th>Purpose</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Product files 1-5 + Notion folder</td><td>The actual product</td><td>✅ QA complete</td></tr>
+          <tr><td><code>payhip-sales-page-copy-v2.md</code></td><td>Payhip listing copy</td><td>✅ Produced</td></tr>
+          <tr><td><code>meta-ad-variations-v2.md</code></td><td>16 ad copy variations</td><td>✅ Produced</td></tr>
+          <tr><td><code>post-purchase-email-sequence.md</code></td><td>7-email buyer sequence</td><td>✅ Produced</td></tr>
+          <tr><td><code>legal-pages.md</code></td><td>ToS, privacy, refund, disclaimers</td><td>✅ Produced</td></tr>
+          <tr><td>Selenko logo PNG (light + dark)</td><td>Brand assets</td><td>✅ Gemini output</td></tr>
+          <tr><td><code>selenko-brand-standards-final.md</code></td><td>Brand kit reference</td><td>✅ Locked</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="group-label" style="border-color:var(--gray-mid)"><h3>📝 Decision Log</h3><p>All locked decisions for Operation First Light</p></div>
+    <div class="ref-table-wrap" style="max-height:400px;overflow-y:auto;">
+      <table class="ref-table">
+        <thead><tr><th>Decision</th><th>Resolution</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td>Logo</td><td>Geometric isometric S wordmark (Gemini)</td><td>Mar 30</td></tr>
+          <tr><td>Brand descriptor</td><td>"Smarter AI Systems"</td><td>Mar 30</td></tr>
+          <tr><td>Colors</td><td>#1D4ED8 / #2563EB / #60A5FA / #0F172A</td><td>Mar 30</td></tr>
+          <tr><td>Font</td><td>Space Grotesk (primary), DM Sans (backup)</td><td>Mar 30</td></tr>
+          <tr><td>Email platform</td><td>MailerLite (free, MCP connected)</td><td>Mar 29</td></tr>
+          <tr><td>Support email</td><td>support@selenko.com via MailerLite + GoDaddy forwarding</td><td>Mar 29</td></tr>
+          <tr><td>Ad creative — static</td><td>AdCreative.ai (AI scoring)</td><td>Mar 30</td></tr>
+          <tr><td>Ad creative — carousel</td><td>Canva Pro (storytelling, mockups)</td><td>Mar 30</td></tr>
+          <tr><td>Primary ad format</td><td>Carousel (30-50% lower CPA)</td><td>Mar 30</td></tr>
+          <tr><td>Facebook Page</td><td>Dedicated "Selenko" page</td><td>Mar 29</td></tr>
+          <tr><td>Social proof</td><td>Skip for launch, add as reviews come in</td><td>Mar 29</td></tr>
+          <tr><td>Video ad</td><td>Phase 2 (Week 2)</td><td>Mar 29</td></tr>
+          <tr><td>Launch date</td><td>Wednesday April 2, 2026</td><td>Mar 30</td></tr>
+          <tr><td>Legal effective date</td><td>April 1, 2026</td><td>Mar 29</td></tr>
+          <tr><td>Physical address</td><td>Everlane Realty (temporary)</td><td>Mar 29</td></tr>
+          <tr><td>N8N</td><td>Phase 2 (Week 2 — CAPI + auto-responder)</td><td>Mar 29</td></tr>
+          <tr><td>Lead magnet</td><td>"AI Negotiation Prep Checklist" — Week 2</td><td>Mar 30</td></tr>
+          <tr><td>Lead magnet format</td><td>Prep Checklist (not scenario giveaway)</td><td>Mar 30</td></tr>
+          <tr><td>Lead magnet vs Product #5</td><td>Separate — P1 lead magnet ≠ Product #5</td><td>Mar 30</td></tr>
+          <tr><td>Organic strategy</td><td>LinkedIn primary, Reddit secondary</td><td>Mar 30</td></tr>
+          <tr><td>Landing page</td><td>Carrd Pro Standard $19/yr or MailerLite free</td><td>Mar 30</td></tr>
+          <tr><td>Carrd tier</td><td>Pro Standard $19/yr minimum</td><td>Mar 30</td></tr>
+          <tr><td>P1b timing</td><td>Days 7-10, consumer sales page</td><td>Mar 30</td></tr>
+          <tr><td>Payhip→MailerLite</td><td>Native integration (Zapier removed)</td><td>Mar 30</td></tr>
+          <tr><td>MailerLite MCP scope</td><td>Groups + drafts only, automation manual</td><td>Mar 30</td></tr>
+          <tr><td>CPA thresholds</td><td>Recalibrated for $67 (break-even ~$55-58)</td><td>Mar 30</td></tr>
+          <tr><td>Launch budget</td><td>$500 min / $750 max validation</td><td>Mar 30</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="group-label" style="border-color:var(--brand-accent)"><h3>💰 Launch Budget</h3><p>Total Day 1-30 cost breakdown</p></div>
+    <div class="section-card">
+      <p><strong>Ad spend:</strong> $500 minimum, $750 maximum (validation budget)</p>
+      <p style="margin-top:6px;"><strong>Non-ad costs:</strong> Payhip Free (5% per txn), MailerLite Free (up to 1K subs), Carrd Pro $19/yr (Phase 1.5), AdCreative.ai (existing), Canva Pro (existing), GoDaddy (existing), GoDaddy forwarding (free)</p>
+      <p style="margin-top:6px;font-weight:700;color:var(--text);">Total: $500-750 ad spend + $0-19 platform costs</p>
+    </div>
+  `;
+}
+
+// ========================================
+// COMMAND PALETTE
+// ========================================
+let searchIndex = [];
+function buildSearchIndex() {
+  searchIndex = [];
+  const tabNames = { 1: 'Day 1', 2: 'Day 2', 3: 'Day 3' };
+  TASKS.forEach(t => {
+    const tab = t.day ? tabNames[t.day] : 'Phase 1.5';
+    searchIndex.push({ text: t.id + ' ' + t.name, tabId: t.day ? 'day-' + t.day : 'phase-15', elementId: 'task-' + t.id, label: tab });
+    t.items.forEach(item => {
+      searchIndex.push({ text: item, tabId: t.day ? 'day-' + t.day : 'phase-15', elementId: 'task-' + t.id, label: tab + ' → ' + t.id });
+    });
+    if (t.delegationPrompt) {
+      searchIndex.push({ text: 'delegation prompt ' + t.name, tabId: t.day ? 'day-' + t.day : 'phase-15', elementId: 'task-' + t.id, label: tab + ' → Prompt' });
+    }
+  });
+  // Add reference items
+  ['Connected Tools','Creative Stack','Brand Reference','Delegation Summary','Files Needed','Decision Log','Launch Budget'].forEach(item => {
+    searchIndex.push({ text: item, tabId: 'reference', elementId: 'tab-reference', label: 'Reference' });
+  });
+  // Post-launch items
+  ['Daily Check','CPA Kill Criteria','Day 7 Optimization','What\'s Normal'].forEach(item => {
+    searchIndex.push({ text: item, tabId: 'post-launch', elementId: 'tab-post-launch', label: 'Post-Launch' });
+  });
+}
+
+const cmdOverlay = document.getElementById('cmdOverlay');
+const cmdInput = document.getElementById('cmdInput');
+const cmdResults = document.getElementById('cmdResults');
+
+document.getElementById('searchBtn').addEventListener('click', openCmd);
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    openCmd();
+  }
+  if (e.key === 'Escape') closeCmd();
+});
+
+function openCmd() {
+  cmdOverlay.classList.add('visible');
+  cmdInput.value = '';
+  cmdInput.focus();
+  cmdResults.innerHTML = '<div class="cmd-empty">Type to search across all tabs</div>';
+}
+function closeCmd() {
+  cmdOverlay.classList.remove('visible');
+}
+cmdOverlay.addEventListener('click', e => { if (e.target === cmdOverlay) closeCmd(); });
+
+cmdInput.addEventListener('input', () => {
+  const q = cmdInput.value.toLowerCase().trim();
+  if (!q) {
+    cmdResults.innerHTML = '<div class="cmd-empty">Type to search across all tabs</div>';
+    return;
+  }
+  const matches = searchIndex.filter(s => s.text.toLowerCase().includes(q)).slice(0, 20);
+  if (!matches.length) {
+    cmdResults.innerHTML = `<div class="cmd-empty">No results for "${cmdInput.value}"</div>`;
+    return;
+  }
+  cmdResults.innerHTML = matches.map(m => `
+    <div class="cmd-result" onclick="navigateTo('${m.tabId}', '${m.elementId}')">
+      <span class="cmd-result-text">${highlight(m.text, q)}</span>
+      <span class="cmd-result-tab">${m.label}</span>
+    </div>
+  `).join('');
+});
+
+function highlight(text, q) {
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx < 0) return escHtml(text);
+  return escHtml(text.slice(0, idx)) + '<strong>' + escHtml(text.slice(idx, idx + q.length)) + '</strong>' + escHtml(text.slice(idx + q.length));
+}
+
+function navigateTo(tabId, elementId) {
+  closeCmd();
+  switchTab(tabId, true);
+  setTimeout(() => {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.transition = 'background 0.3s';
+      el.style.background = 'rgba(230,57,70,0.08)';
+      setTimeout(() => { el.style.background = ''; }, 1500);
+    }
+  }, 200);
+}
+</script>
+</body>
+</html>
