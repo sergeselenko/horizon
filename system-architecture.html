@@ -4,224 +4,2238 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>System Architecture — Selenko</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f5f5f7;--card:#fff;--card-border:#dfe1e6;--text:#111827;--text-sec:#4b5563;--text-muted:#9ca3af;--hover-bg:rgba(109,40,217,0.04);--hover-border:rgba(109,40,217,0.25);--architect:#3b82f6;--operator:#8b5cf6;--activemenus:#e6940a;--ai-digital:#e63946;--selenko:#6d28d9;--everlane:#7c3aed;--title-co:#0d9488;--lead-gen:#16a34a;--couples:#ec4899;--personal:#0891b2;--household:#2563eb;--green:#059669;--amber:#d97706;--gray-mid:#6b7280;--radius:14px;--radius-sm:10px;--font:'Outfit',system-ui,sans-serif;--mono:'SF Mono','Fira Code','Cascadia Code',monospace;--shadow-sm:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 16px rgba(0,0,0,0.1);--shadow-lg:0 12px 40px rgba(0,0,0,0.12);--transition:0.25s cubic-bezier(0.4,0,0.2,1)}
-html{font-size:16px}body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}::selection{background:rgba(109,40,217,0.18)}code{font-family:var(--mono);font-size:12px;background:rgba(109,40,217,0.07);color:var(--selenko);padding:2px 7px;border-radius:5px;font-weight:500}
-#pin-gate{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#eee8ff 0%,#f5f5f7 40%,#e8eeff 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.6s ease,visibility 0.6s ease}#pin-gate.hidden{opacity:0;visibility:hidden;pointer-events:none}.pin-brand{font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--selenko)}.pin-brand::after{content:'';display:block;width:40px;height:2.5px;background:var(--selenko);margin:14px auto 0;border-radius:2px}.pin-container{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:40px}.pin-label{font-size:14px;font-weight:500;color:var(--text-sec)}#pin-input{width:180px;height:54px;border:2.5px solid var(--card-border);border-radius:var(--radius);text-align:center;font-family:var(--font);font-size:24px;font-weight:700;letter-spacing:0.3em;color:var(--text);background:var(--card);outline:none;transition:border-color var(--transition);box-shadow:var(--shadow-sm)}#pin-input:focus{border-color:var(--selenko);box-shadow:0 0 0 4px rgba(109,40,217,0.1)}#pin-input.shake{animation:shake 0.5s ease}@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-6px)}20%,40%,60%,80%{transform:translateX(6px)}}.pin-hint{font-size:12px;margin-top:4px;height:18px}
-#main-content{display:none;opacity:0;transition:opacity 0.6s ease}#main-content.visible{display:flex;flex-direction:column;min-height:100vh;opacity:1}
-.header-bar{background:var(--card);border-bottom:1px solid var(--card-border);padding:0 24px;position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:56px;gap:8px}.header-title{font-size:15px;font-weight:800;color:var(--text);margin-right:20px;white-space:nowrap}.header-title span{color:var(--selenko)}.tab-nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}.tab-nav::-webkit-scrollbar{display:none}.tab-btn{font-family:var(--font);font-size:13px;font-weight:600;color:var(--text-sec);padding:8px 16px;border:none;background:none;cursor:pointer;border-radius:8px;white-space:nowrap;transition:all var(--transition);position:relative}.tab-btn:hover{color:var(--text);background:rgba(0,0,0,0.04)}.tab-btn.active{color:var(--selenko);background:rgba(109,40,217,0.08)}.tab-btn.active::after{content:'';position:absolute;bottom:-1px;left:16px;right:16px;height:2.5px;background:var(--selenko);border-radius:2px}.palette-trigger{font-family:var(--mono);font-size:11px;color:var(--text-muted);padding:4px 10px;border:1px solid var(--card-border);border-radius:6px;background:var(--bg);cursor:pointer;margin-left:auto;white-space:nowrap;transition:all var(--transition)}.palette-trigger:hover{border-color:var(--selenko);color:var(--selenko)}
-.hero-wrap{background:linear-gradient(160deg,#eee8ff 0%,#f5f5f7 40%,#e8eeff 100%);padding:28px 24px 24px;position:relative;overflow:hidden}.hero-wrap::before{content:'';position:absolute;top:-200px;right:-150px;width:500px;height:500px;background:radial-gradient(circle,rgba(109,40,217,0.08) 0%,transparent 70%);pointer-events:none}.hero{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:48px}.hero-text{flex:1}.hero-badge{font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--selenko);padding:5px 14px;background:rgba(109,40,217,0.08);border-radius:16px;display:inline-block;margin-bottom:12px}.hero h1{font-size:clamp(26px,4vw,38px);font-weight:800;line-height:1.1;margin-bottom:8px}.hero h1 span{background:linear-gradient(135deg,var(--selenko),var(--architect));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero p{font-size:14px;color:var(--text-sec);line-height:1.6;max-width:520px}.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex-shrink:0;width:300px}.hero-stat{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;box-shadow:var(--shadow-sm)}.hero-stat-num{font-size:24px;font-weight:800}.hero-stat-label{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
-.tab-content{flex:1;max-width:1200px;margin:0 auto;width:100%;padding:0 24px 60px}.tab-pane{display:none;animation:fadeIn 0.35s ease}.tab-pane.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.tab-header{padding:32px 0 24px;border-bottom:1px solid var(--card-border);margin-bottom:28px}.tab-header-title{font-size:clamp(22px,3.5vw,32px);font-weight:800;margin-bottom:8px}.tab-header-desc{font-size:14px;color:var(--text-sec);line-height:1.7;max-width:720px}
-.group-label{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;padding:10px 0 10px 14px;border-left:4px solid var(--selenko);display:flex;flex-direction:column;gap:2px}.group-subtitle{font-size:12.5px;font-weight:400;color:var(--text-sec);line-height:1.5}.group-wrap{margin-bottom:32px}
-.expand-chevron{margin-left:auto;font-size:11px;color:var(--text-muted);transition:transform 0.25s ease;flex-shrink:0;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(0,0,0,0.04)}.is-expanded>.card-header .expand-chevron,.is-expanded>.cmd-header .expand-chevron,.is-expanded>.infra-header .expand-chevron,.is-expanded>.inv-acc-header .expand-chevron,.is-expanded>.inv-item-header .expand-chevron{transform:rotate(90deg);background:rgba(109,40,217,0.1);color:var(--selenko)}
-.clickable{cursor:pointer;transition:all var(--transition)}.clickable:hover{box-shadow:var(--shadow-md);border-color:var(--hover-border);background:var(--hover-bg)}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:14px}.card-grid.wide{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
-.project-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}.project-card.core{padding:22px 24px}.project-card.core .card-name{font-size:18px}.project-card.ghost{border-style:dashed;border-color:#d1d5db;background:#fafafa;opacity:0.75;cursor:default}.project-card.ghost:hover{box-shadow:none;border-color:#d1d5db;background:#fafafa;opacity:0.85;transform:none}.project-card.retired{opacity:0.5;border-style:dotted;cursor:default}.project-card.retired:hover{box-shadow:none;border-color:var(--card-border);background:var(--card)}.card-color-bar{position:absolute;top:0;left:0;right:0;height:4px}.card-color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}.card-name{font-size:15px;font-weight:700}.card-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;white-space:nowrap;flex-shrink:0}.card-status.active{background:rgba(5,150,105,0.1);color:var(--green)}.card-status.pending{background:rgba(217,119,6,0.1);color:var(--amber)}.card-status.retired{background:rgba(107,114,128,0.1);color:var(--gray-mid)}.card-purpose{font-size:13px;color:var(--text-sec);line-height:1.5}.card-expand{max-height:0;overflow:hidden;transition:max-height 0.5s ease}.project-card.is-expanded .card-expand{max-height:2000px}.card-detail{padding-top:14px;border-top:1px solid #eee;margin-top:14px;font-size:13px;color:var(--text-sec);line-height:1.7}.card-detail strong{color:var(--text);font-weight:700}.card-detail .detail-section{margin-bottom:10px}.card-detail .detail-section:last-child{margin-bottom:0}.card-detail .conn{font-size:12px;padding:8px 12px;background:rgba(109,40,217,0.04);border-radius:8px;margin-top:8px;border-left:3px solid rgba(109,40,217,0.2)}.modes-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.mode-tag{font-size:11px;font-weight:600;padding:4px 11px;border-radius:12px;background:rgba(139,92,246,0.1);color:var(--operator)}
-.ref-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:12px 16px}.ref-card .ref-name{font-weight:700;font-size:13px;margin-bottom:2px}.ref-card .ref-desc{color:var(--text-sec);font-size:12px}
-.lifecycle-flow{display:flex;gap:6px;align-items:stretch;overflow-x:auto;padding-bottom:12px;margin-top:14px;scrollbar-width:thin}.lifecycle-step{flex:0 0 auto;min-width:155px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:18px 14px;text-align:center;position:relative;display:flex;flex-direction:column;align-items:center;gap:6px}.lifecycle-step::after{content:'\2192';position:absolute;right:-16px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:20px;font-weight:300}.lifecycle-step:last-child::after{display:none}.step-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}.step-name{font-size:13px;font-weight:700}.step-desc{font-size:11.5px;color:var(--text-sec);line-height:1.4}
-.command-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:16px 18px}.cmd-header{display:flex;align-items:center;gap:6px}.cmd-name{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--selenko)}.cmd-purpose{font-size:13px;color:var(--text-sec);line-height:1.4;margin-top:6px}.cmd-expand{max-height:0;overflow:hidden;transition:max-height 0.5s ease}.command-card.is-expanded .cmd-expand{max-height:800px}.cmd-detail{padding-top:10px;margin-top:10px;border-top:1px solid #eee;font-size:12.5px;color:var(--text-sec);line-height:1.7}.cmd-detail strong{color:var(--text);font-weight:600}
-.emit-flow{margin-top:14px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}.emit-node{text-align:center;padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600}.emit-node.source{background:rgba(109,40,217,0.08);color:var(--selenko)}.emit-node.target{background:rgba(59,130,246,0.08);color:var(--architect)}.emit-arrow{color:var(--text-muted);font-size:22px;font-weight:300}
-.infra-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:14px 16px}.infra-header{display:flex;align-items:center;gap:8px}.infra-name{font-size:14px;font-weight:600}.infra-type{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:3px 9px;border-radius:8px;flex-shrink:0}.infra-type.page{background:rgba(59,130,246,0.12);color:var(--architect)}.infra-type.db{background:rgba(5,150,105,0.12);color:var(--green)}.infra-type.template{background:rgba(217,119,6,0.12);color:var(--amber)}.infra-type.index{background:rgba(139,92,246,0.12);color:var(--operator)}.infra-desc{font-size:12px;color:var(--text-sec);margin-top:4px}.infra-expand{max-height:0;overflow:hidden;transition:max-height 0.5s ease}.infra-card.is-expanded .infra-expand{max-height:600px}.infra-detail{padding-top:10px;margin-top:10px;border-top:1px solid #eee;font-size:12.5px;color:var(--text-sec);line-height:1.7}.infra-id{font-family:var(--mono);font-size:11px;color:var(--text-muted);word-break:break-all}
-.three-tier{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:0;margin-top:14px;display:flex;overflow:hidden}.tier-item{flex:1;padding:20px;text-align:center}.tier-item:not(:last-child){border-right:1.5px solid var(--card-border)}.tier-num{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--selenko);margin-bottom:4px}.tier-name{font-size:15px;font-weight:800;margin-bottom:6px}.tier-desc{font-size:12px;color:var(--text-sec);line-height:1.5}
-.inv-search{width:100%;max-width:400px;height:42px;border:1.5px solid var(--card-border);border-radius:var(--radius);padding:0 16px;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text);background:var(--card);outline:none;transition:border-color var(--transition);margin-bottom:20px;box-shadow:var(--shadow-sm)}.inv-search:focus{border-color:var(--selenko);box-shadow:0 0 0 4px rgba(109,40,217,0.08)}.inv-search::placeholder{color:var(--text-muted)}.inv-accordion{margin-bottom:16px}.inv-acc-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);cursor:pointer;transition:all var(--transition);user-select:none}.inv-acc-header:hover{box-shadow:var(--shadow-sm);border-color:var(--hover-border)}.inv-acc-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}.inv-acc-title{font-size:15px;font-weight:700}.inv-acc-count{font-size:12px;font-weight:600;color:var(--text-muted)}.inv-acc-body{max-height:0;overflow:hidden;transition:max-height 0.5s ease}.inv-accordion.is-expanded .inv-acc-body{max-height:8000px}.inv-acc-inner{padding:8px 0 0}.inv-item{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;border-left:4px solid transparent}.inv-item.built{border-left-color:var(--green)}.inv-item.designed{border-left-color:var(--amber)}.inv-item.discussed{border-left-color:var(--gray-mid)}.inv-item-header{display:flex;align-items:center;gap:6px}.inv-item-name{font-size:13px;font-weight:700}.inv-item-desc{font-size:12.5px;color:var(--text-sec);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.5s ease,margin-top 0.3s ease;margin-top:0}.inv-item.is-expanded .inv-item-desc{max-height:600px;margin-top:10px}.inv-item.hidden-by-search{display:none}
-.artifact-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;padding:20px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius)}.artifact-flow-step{font-size:13px;font-weight:600;padding:10px 18px;border-radius:var(--radius-sm);background:var(--bg);border:1.5px solid var(--card-border);text-align:center}.artifact-flow-arrow{color:var(--text-muted);font-size:20px}.artifact-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:14px}.artifact-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:20px;transition:all var(--transition)}.artifact-card:hover{box-shadow:var(--shadow-md);border-color:var(--hover-border);transform:translateY(-2px)}.artifact-name{font-size:16px;font-weight:700;margin-bottom:4px}.artifact-desc{font-size:13px;color:var(--text-sec);margin-bottom:10px;line-height:1.4}.artifact-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:11px}.artifact-tag{padding:3px 10px;border-radius:10px;font-weight:600}.artifact-tag.pin{background:rgba(109,40,217,0.08);color:var(--selenko)}.artifact-tag.source{background:rgba(59,130,246,0.08);color:var(--architect)}.artifact-tag.date{background:rgba(107,114,128,0.08);color:var(--gray-mid)}.artifact-link{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:var(--selenko);text-decoration:none}.artifact-link:hover{text-decoration:underline}
-.cmd-palette-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding-top:18vh}.cmd-palette-overlay.open{display:flex}.cmd-palette{width:90%;max-width:520px;background:var(--card);border:1.5px solid var(--card-border);border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden}.cmd-palette-input{width:100%;height:54px;border:none;border-bottom:1px solid var(--card-border);padding:0 20px;font-family:var(--font);font-size:16px;font-weight:500;color:var(--text);outline:none;background:transparent}.cmd-palette-input::placeholder{color:var(--text-muted)}.cmd-palette-results{max-height:300px;overflow-y:auto;padding:8px}.cmd-palette-item{display:block;padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;transition:background 0.1s ease}.cmd-palette-item:hover,.cmd-palette-item.selected{background:rgba(109,40,217,0.06)}.cmd-palette-item-title{font-size:14px;font-weight:700;color:var(--text)}.cmd-palette-item-section{font-size:11px;color:var(--text-muted)}.cmd-palette-hint{padding:10px 16px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--card-border);text-align:center}
-.page-footer{padding:32px 24px;text-align:center;font-size:12px;color:var(--text-muted);border-top:1px solid var(--card-border);background:var(--card);margin-top:auto}
-@media(max-width:768px){.hero{flex-direction:column;gap:24px;text-align:center}.hero-stats{width:100%;grid-template-columns:repeat(2,1fr)}.hero p{max-width:100%}.lifecycle-flow{flex-direction:column}.lifecycle-step{min-width:auto}.lifecycle-step::after{content:'\2193';right:auto;left:50%;top:auto;bottom:-16px;transform:translateX(-50%)}.three-tier{flex-direction:column}.tier-item:not(:last-child){border-right:none;border-bottom:1.5px solid var(--card-border)}.emit-flow{flex-direction:column}.emit-arrow{transform:rotate(90deg)}.card-grid{grid-template-columns:1fr}.card-grid.wide{grid-template-columns:1fr}.header-title{display:none}}
+/* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-border: #dfe1e6;
+  --text: #111827;
+  --text-sec: #4b5563;
+  --text-muted: #9ca3af;
+  --architect: #3b82f6;
+  --operator: #8b5cf6;
+  --activemenus: #e6940a;
+  --ai-digital: #e63946;
+  --selenko: #6d28d9;
+  --everlane: #7c3aed;
+  --title-co: #0d9488;
+  --lead-gen: #16a34a;
+  --couples: #ec4899;
+  --personal: #0891b2;
+  --household: #2563eb;
+  --green: #059669;
+  --amber: #d97706;
+  --gray-mid: #6b7280;
+  --hover-bg: rgba(109,40,217,0.04);
+  --hover-border: rgba(109,40,217,0.25);
+  --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font: 'Outfit', sans-serif;
+}
+
+::selection { background: rgba(109,40,217,0.18); }
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--selenko); text-decoration: none; }
+
+/* ============================================
+   PIN GATE
+   ============================================ */
+#pin-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: linear-gradient(160deg, #eee8ff 0%, #f5f5f7 40%, #e8eeff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+#pin-gate.hidden { opacity: 0; pointer-events: none; }
+.pin-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 20px;
+  padding: 48px 44px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  width: 360px;
+}
+.pin-card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, var(--selenko), var(--architect));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.pin-card p { color: var(--text-sec); font-weight: 400; margin-bottom: 28px; font-size: 14px; }
+.pin-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  font-family: var(--font);
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pin-input:focus {
+  border-color: var(--selenko);
+  box-shadow: 0 0 0 4px rgba(109,40,217,0.08);
+}
+.pin-input.shake {
+  animation: shake 0.4s ease;
+  border-color: #ef4444;
+}
+.pin-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--selenko);
+  color: white;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pin-btn:hover { background: #5b21b6; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+/* ============================================
+   MAIN CONTENT WRAPPER
+   ============================================ */
+#main-content { display: none; }
+#main-content.visible { display: block; }
+
+/* ============================================
+   STICKY HEADER
+   ============================================ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(245,245,247,0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  height: 56px;
+}
+.header-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  white-space: nowrap;
+  margin-right: 32px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+.tab-btn {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sec);
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  white-space: nowrap;
+}
+.tab-btn:hover { background: rgba(109,40,217,0.05); }
+.tab-btn.active {
+  color: var(--selenko);
+  font-weight: 700;
+  background: rgba(109,40,217,0.06);
+}
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2.5px;
+  background: var(--selenko);
+  border-radius: 2px;
+}
+.search-trigger {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.04);
+  border: 1px solid var(--card-border);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-left: 32px;
+}
+.search-trigger:hover {
+  border-color: var(--hover-border);
+  background: var(--hover-bg);
+}
+
+/* ============================================
+   TAB CONTENT AREAS
+   ============================================ */
+.tab-content {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 0 32px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.tab-content.active {
+  display: block;
+  opacity: 1;
+}
+
+/* ============================================
+   HERO SECTION (Tab 1 only)
+   ============================================ */
+.hero {
+  background: linear-gradient(160deg, #eee8ff 0%, #f5f5f7 40%, #e8eeff 100%);
+  border-radius: 20px;
+  padding: 48px 44px;
+  margin: 24px 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -40px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(109,40,217,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-text { flex: 1; position: relative; z-index: 1; }
+.hero-text h1 {
+  font-size: clamp(30px, 4.5vw, 44px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--selenko) 0%, var(--architect) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-text p {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-sec);
+  max-width: 480px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.stat-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  text-align: center;
+  min-width: 130px;
+}
+.stat-card .num {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--selenko);
+  line-height: 1.1;
+}
+.stat-card .label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* ============================================
+   GROUP LABELS
+   ============================================ */
+.group-label {
+  margin: 32px 0 16px;
+  padding-left: 14px;
+  border-left: 4px solid var(--selenko);
+}
+.group-label h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.group-label p {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-top: 2px;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.card-grid.wide {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+.card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.card.clickable { cursor: pointer; }
+.card.clickable:hover {
+  border-color: var(--hover-border);
+  background: var(--hover-bg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.card-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.card-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.card-name.sm { font-size: 15px; }
+.card-desc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-sec);
+  line-height: 1.65;
+}
+.card-detail {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  line-height: 1.65;
+  margin-top: 10px;
+  display: none;
+}
+.card.is-expanded .card-detail { display: block; }
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.badge-green { background: rgba(5,150,105,0.1); color: var(--green); }
+.badge-amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+.badge-gray { background: rgba(107,114,128,0.1); color: var(--gray-mid); }
+.type-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 8px;
+}
+.type-page { background: rgba(59,130,246,0.12); color: var(--architect); }
+.type-db { background: rgba(5,150,105,0.12); color: var(--green); }
+.type-index { background: rgba(217,119,6,0.12); color: var(--amber); }
+
+/* ============================================
+   EXPAND CHEVRON
+   ============================================ */
+.expand-chevron {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-muted);
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, background 0.25s, color 0.25s;
+  flex-shrink: 0;
+}
+.is-expanded > .card-header > .expand-chevron,
+.is-expanded > .accordion-header > .expand-chevron {
+  transform: rotate(90deg);
+  background: rgba(109,40,217,0.1);
+  color: var(--selenko);
+}
+
+/* ============================================
+   INLINE CODE
+   ============================================ */
+code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: rgba(109,40,217,0.07);
+  color: var(--selenko);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+/* ============================================
+   OPERATOR MODE SUB-ITEMS
+   ============================================ */
+.mode-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mode-item {
+  padding: 12px 16px;
+  border-left: 3px solid var(--operator);
+  background: rgba(139,92,246,0.02);
+  border-radius: 0 10px 10px 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mode-item:hover {
+  background: rgba(139,92,246,0.05);
+}
+.mode-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mode-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.mode-trigger {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: rgba(109,40,217,0.07);
+  color: var(--selenko);
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+.mode-purpose {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-top: 4px;
+}
+.mode-detail {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-top: 8px;
+  display: none;
+  line-height: 1.65;
+}
+.mode-item.is-expanded .mode-detail { display: block; }
+
+/* ============================================
+   COMPACT LIST (Not Yet Created)
+   ============================================ */
+.compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.compact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.compact-row .name { font-weight: 600; }
+.compact-row .status {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-left: auto;
+}
+
+/* ============================================
+   SVG DIAGRAMS
+   ============================================ */
+.diagram-container {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  padding: 28px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+.diagram-container svg text {
+  font-family: var(--font);
+}
+
+/* ============================================
+   PIPELINE (Session Flow)
+   ============================================ */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 16px 0;
+}
+.pipeline-step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.pipeline-number {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--selenko);
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.pipeline-body {
+  flex: 1;
+  padding-bottom: 8px;
+}
+.pipeline-body h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.pipeline-body p {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-sec);
+  line-height: 1.65;
+}
+.pipeline-connector {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 4px 0;
+}
+.pipeline-line {
+  width: 44px;
+  display: flex;
+  justify-content: center;
+}
+.pipeline-line-inner {
+  width: 2px;
+  height: 32px;
+  background: linear-gradient(to bottom, var(--selenko), rgba(109,40,217,0.3));
+}
+.pipeline-annotation {
+  font-size: 11px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--selenko);
+  background: rgba(109,40,217,0.05);
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+/* ============================================
+   COMMAND CARDS (Tab 2)
+   ============================================ */
+.cmd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.cmd-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.cmd-card:hover {
+  border-color: var(--hover-border);
+  background: var(--hover-bg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.cmd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cmd-name {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--selenko);
+  background: rgba(109,40,217,0.07);
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+.cmd-source {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.cmd-purpose {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 8px;
+}
+.cmd-detail {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-top: 10px;
+  line-height: 1.65;
+  display: none;
+}
+.cmd-card.is-expanded .cmd-detail { display: block; }
+
+/* ============================================
+   TIER CARDS (Tab 3)
+   ============================================ */
+.tier-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px 0;
+}
+.tier-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.tier-card.emphasis {
+  border-left: 4px solid var(--selenko);
+  background: rgba(109,40,217,0.015);
+  padding: 28px 28px;
+}
+.tier-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(109,40,217,0.08);
+  color: var(--selenko);
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tier-body h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.tier-body p {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-sec);
+  line-height: 1.65;
+}
+
+/* ============================================
+   PAGE/DB CARDS (Tab 3)
+   ============================================ */
+.info-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.info-card-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+.info-card-desc {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  line-height: 1.65;
+}
+.info-card-id {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ============================================
+   ACCORDION (Tab 4)
+   ============================================ */
+.search-bar {
+  margin: 24px 0 20px;
+  position: relative;
+}
+.search-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 12px 18px 12px 42px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--card);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input:focus {
+  border-color: var(--selenko);
+  box-shadow: 0 0 0 4px rgba(109,40,217,0.08);
+}
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.search-count {
+  display: inline-block;
+  margin-left: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+.accordion {
+  margin: 8px 0;
+}
+.accordion-section {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.accordion-header:hover { background: var(--hover-bg); }
+.accordion-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.accordion-title {
+  font-size: 15px;
+  font-weight: 700;
+  flex: 1;
+}
+.accordion-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.04);
+  padding: 2px 10px;
+  border-radius: 8px;
+}
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.accordion-section.is-expanded .accordion-body {
+  max-height: 15000px;
+}
+.inv-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 20px 12px 42px;
+  border-top: 1px solid rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.inv-item:hover { background: rgba(109,40,217,0.02); }
+.inv-item-body { flex: 1; }
+.inv-item-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.inv-item-summary {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-top: 2px;
+}
+.inv-item-detail {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-sec);
+  line-height: 1.65;
+  margin-top: 8px;
+  display: none;
+}
+.inv-item.is-expanded .inv-item-detail { display: block; }
+
+/* ============================================
+   TAB 5 SPECIFIC
+   ============================================ */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.code-block {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  overflow-x: auto;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+
+/* ============================================
+   COMMAND PALETTE
+   ============================================ */
+.palette-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+}
+.palette-overlay.visible {
+  display: flex;
+}
+.palette-modal {
+  background: var(--card);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 16px 64px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.palette-input-wrap {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--card-border);
+}
+.palette-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 500;
+  background: none;
+}
+.palette-results {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.palette-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.palette-item:hover, .palette-item.selected {
+  background: var(--hover-bg);
+}
+.palette-item-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.palette-item-tab {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.palette-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.highlight-pulse {
+  animation: pulse-bg 1.5s ease;
+}
+@keyframes pulse-bg {
+  0% { background: rgba(109,40,217,0.15); }
+  100% { background: transparent; }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.tab-footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   STAGGER ENTRANCE
+   ============================================ */
+.stagger-in {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: staggerEnter 0.35s ease forwards;
+}
+@keyframes staggerEnter {
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
-<div id="pin-gate"><div class="pin-brand">Selenko Systems</div><div class="pin-container"><div class="pin-label">Enter PIN to continue</div><input type="password" id="pin-input" maxlength="8" inputmode="numeric" autocomplete="off" autofocus><div class="pin-hint" id="pin-hint"></div></div></div>
-<div class="cmd-palette-overlay" id="cmd-palette-overlay"><div class="cmd-palette"><input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Jump to section or item..." autocomplete="off"><div class="cmd-palette-results" id="cmd-palette-results"></div><div class="cmd-palette-hint">Press <b>/</b> to open · <b>Esc</b> to close · <b>↵</b> to jump</div></div></div>
+
+<!-- ============================================
+     PIN GATE
+     ============================================ -->
+<div id="pin-gate">
+  <div class="pin-card">
+    <h1>System Architecture</h1>
+    <p>Enter PIN to continue</p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••" autocomplete="off">
+    <button class="pin-btn" id="pin-btn">Unlock</button>
+  </div>
+</div>
+
+<!-- ============================================
+     MAIN CONTENT
+     ============================================ -->
 <div id="main-content">
-<div class="header-bar"><div class="header-inner"><div class="header-title">System <span>Architecture</span></div><div class="tab-nav"><button class="tab-btn active" data-tab="ecosystem">Ecosystem</button><button class="tab-btn" data-tab="lifecycle">Session Lifecycle</button><button class="tab-btn" data-tab="infrastructure">Infrastructure</button><button class="tab-btn" data-tab="inventory">System Inventory</button><button class="tab-btn" data-tab="artifacts">Artifacts</button></div><button class="palette-trigger" onclick="openPalette()">/ Search</button></div></div>
-<div class="hero-wrap"><div class="hero"><div class="hero-text"><div class="hero-badge">Claude Projects + Notion</div><h1>System <span>Architecture</span></h1><p>The complete operating ecosystem. Use the tabs above to explore each layer. Click any card with a ▸ to see full details.</p></div><div class="hero-stats"><div class="hero-stat"><div class="hero-stat-num">6</div><div class="hero-stat-label">Projects</div></div><div class="hero-stat"><div class="hero-stat-num">8</div><div class="hero-stat-label">Commands</div></div><div class="hero-stat"><div class="hero-stat-num">25</div><div class="hero-stat-label">Built</div></div><div class="hero-stat"><div class="hero-stat-num">10</div><div class="hero-stat-label">Pages</div></div></div></div></div>
-<div class="tab-content">
 
-<!-- TAB 1: ECOSYSTEM -->
-<div class="tab-pane active" id="tab-ecosystem">
-<div class="tab-header"><div class="tab-header-title">Ecosystem Map</div><div class="tab-header-desc">The full map of every Claude Project in the system — 2 core projects that run everything, 4 active area projects for deep venture work, 7 pending ventures, and 2 retired projects that were merged. Click any card with a ▸ chevron to see what it does, what Notion pages it reads at startup, and how it connects to the rest of the system.</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--architect)">Core Projects<span class="group-subtitle">These are the two projects you open most often. The Architect designs the system; the Operator runs it. Every other project is an extension of these two.</span></div>
-<div class="card-grid wide">
-<div class="project-card core clickable" onclick="toggleCard(this)"><div class="card-color-bar" style="background:var(--architect)"></div><div class="card-header"><span class="card-color-dot" style="background:var(--architect)"></span><span class="card-name">Architect</span><span class="card-status active">Active</span><span class="expand-chevron">▸</span></div><div class="card-purpose">System design layer. Builds, refines, and evolves the entire Claude Projects ecosystem.</div><div class="card-expand"><div class="card-detail"><div class="detail-section"><strong>What happens here:</strong> Writing and refining Global Instructions, designing new project structures, evolving Notion architecture, planning automation (N8N/MCP), and onboarding new ventures when they graduate from Operator Advisory mode.</div><div class="detail-section"><strong>Default deliverable:</strong> Instructions, prompts, templates, and architectural plans — not direct operational execution. Uses the DDV pattern (Design → Delegate → Verify) for significant Notion changes.</div><div class="detail-section"><strong>Startup reads:</strong> Global Instructions → Architect Instructions → Project Registry (3 pages, ~40K tokens)</div><div class="conn"><strong>Connections:</strong> Produces → Global Instructions updates, project instruction pages, system infrastructure. Consumes → /capture improvement candidates from all projects. Deploys to → all other projects via instruction page updates.</div></div></div></div>
-<div class="project-card core clickable" onclick="toggleCard(this)"><div class="card-color-bar" style="background:var(--operator)"></div><div class="card-header"><span class="card-color-dot" style="background:var(--operator)"></span><span class="card-name">Operator</span><span class="card-status active">Active</span><span class="expand-chevron">▸</span></div><div class="card-purpose">Always-available operations partner. Five modes via auto-detection or slash commands.</div><div class="modes-list"><span class="mode-tag">Note Processing</span><span class="mode-tag">Daily Orchestration</span><span class="mode-tag">Real-time Assistant</span><span class="mode-tag">Business Advisory</span><span class="mode-tag">Venture Mode</span></div><div class="card-expand"><div class="card-detail"><div class="detail-section"><strong>Note Processing</strong> (<code>/process</code>): Takes raw inputs — voice memos, screenshots, photos, pasted text, transcripts — classifies them by area (9 areas), routes them to the correct Notion location (tasks, projects, contacts, decisions), and produces a structured summary.</div><div class="detail-section"><strong>Daily Orchestration</strong> (<code>/daily</code>): Reads Tasks DB + Calendar + Global Operator Profile. Produces a prioritized Daily Outlook: what's due, what's urgent, what's important. Supports mid-day re-planning.</div><div class="detail-section"><strong>Real-time Assistant</strong> (<code>/secretary</code>): Thinking partner and context broker. Reads the Secretary Pad at startup to pick up cross-session state. Handles brain dumps, meeting prep, quick strategic questions, cross-venture thinking.</div><div class="detail-section"><strong>Business Advisory</strong> (<code>/advisory</code>): Structured intake for new ventures using the Intake Framework (Vision, Status, People, Revenue Model, Systems, Blockers, Next Actions). When ready, produces a handoff to the Architect.</div><div class="detail-section"><strong>Venture Mode</strong> (<code>/activemenus</code>, <code>/selenko</code>, etc.): Deep context loading for one venture — reads snapshot, Knowledge Digest, and Key Person Profiles on top of standard startup reads.</div><div class="detail-section"><strong>Mode detection:</strong> Auto-detects from the first message. Paste raw text → Note Processing. Ask about your day → Daily Orchestration. Brain dump → Real-time Assistant. Override anytime with a slash command.</div><div class="conn"><strong>Connections:</strong> Reads → Global Instructions, Global Operator Profile, Secretary Pad, venture snapshots/digests. Writes → Tasks DB, Secretary Pad, Session Log. Hands off to → Architect (system design), area projects (deep work).</div></div></div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--activemenus)">Active Area Projects<span class="group-subtitle">When a venture needs sustained, deep work — multi-session negotiation docs, strategy memos, production — it gets its own Claude Project with specialized instructions and context files.</span></div>
-<div class="card-grid">
-<div class="project-card clickable" onclick="toggleCard(this)"><div class="card-color-bar" style="background:var(--activemenus)"></div><div class="card-header"><span class="card-color-dot" style="background:var(--activemenus)"></span><span class="card-name">ActiveMenus</span><span class="card-status active">Active</span><span class="expand-chevron">▸</span></div><div class="card-purpose">AI voice ordering for restaurants. Negotiation, sales, expo prep.</div><div class="card-expand"><div class="card-detail"><div class="detail-section"><strong>Special features:</strong> Circuit breakers N1-N4 (negotiation-specific rules), Sales Contacts DB (44 Pizza Expo contacts), Knowledge Digest (competitive landscape, field-validated sales frameworks), Convention Sales Log.</div><div class="detail-section"><strong>Key people:</strong> Anthony Murgio (owner, Voss Accommodator), Phil DeConti (Merchant Gateway), Mike Wick (reseller), Matt Hanley (Support Director)</div><div class="conn"><strong>Connections:</strong> Reads → Key Person Profiles (Anthony). /emit → Global Operator Profile. Knowledge Digest updated via /digest.</div></div></div></div>
-<div class="project-card clickable" onclick="toggleCard(this)"><div class="card-color-bar" style="background:var(--ai-digital)"></div><div class="card-header"><span class="card-color-dot" style="background:var(--ai-digital)"></span><span class="card-name">AI Digital Products</span><span class="card-status active">Active</span><span class="expand-chevron">▸</span></div><div class="card-purpose">Product portfolio under the Selenko brand. Strategy and market research.</div><div class="card-expand"><div class="card-detail"><div class="detail-section"><strong>What it does:</strong> Product strategy, build planning, market research for a 29-product roadmap with Evolution Ladder (Notion templates → AI-enhanced → full SaaS). 10 research documents migrated to Notion.</div></div></div></div>
-<div class="project-card clickable" onclick="toggleCard(this)"><div class="card-color-bar" style="background:var(--title-co)"></div><div class="card-header"><span class="card-color-dot" style="background:var(--title-co)"></span><span class="card-name">Title Company</span><span class="card-status active">Active</span><span class="expand-chevron">▸</span></div><div class="card-purpose">Startup formation, licensing, operations.</div><div class="card-expand"><div class="card-detail"><div class="detail-section"><strong>Status:</strong> Agent equity model defined. 15-domain knowledge base prompts prepared. Key people: Meg (partner), John (title industry veteran).</div></div></div></div>
-<div class="project-card clickable" onclick="toggleCard(this)"><div class="card-color-bar" style="background:var(--selenko)"></div><div class="card-header"><span class="card-color-dot" style="background:var(--selenko)"></span><span class="card-name">Selenko — Brand</span><span class="card-status active">Active</span><span class="expand-chevron">▸</span></div><div class="card-purpose">Overarching brand strategy and positioning for the Selenko portfolio.</div><div class="card-expand"><div class="card-detail"><div class="detail-section">Strategic positioning connecting AI Digital Products, Lead Gen, AI Voice Module, and Claude + Notion Systems under one umbrella.</div></div></div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--amber)">Not Yet Created<span class="group-subtitle">These ventures have varying levels of planning done. Some have completed intake in the Operator's Advisory mode; others are still waiting. Each will become its own Claude Project when it's ready for deep operational work.</span></div>
-<div class="card-grid">
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--lead-gen)"></span><span class="card-name">Lead Gen System</span><span class="card-status pending">Ready</span></div><div class="card-purpose">Intake complete. With Alex.</div></div>
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--selenko)"></span><span class="card-name">AI Voice Module</span><span class="card-status pending">Pending</span></div></div>
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--everlane)"></span><span class="card-name">Everlane Realty</span><span class="card-status pending">Review</span></div></div>
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--couples)"></span><span class="card-name">Couple's Center</span><span class="card-status pending">Pending</span></div></div>
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--household)"></span><span class="card-name">Household</span><span class="card-status pending">Pending</span></div></div>
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--personal)"></span><span class="card-name">Personal</span><span class="card-status pending">Captured</span></div></div>
-<div class="project-card ghost"><div class="card-header"><span class="card-color-dot" style="background:var(--text-muted)"></span><span class="card-name">RE Transactions</span><span class="card-status pending">Pending</span></div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--gray-mid)">Retired<span class="group-subtitle">These projects were merged into the Operator in March 2026. Their historical chats are still accessible in the archived projects.</span></div>
-<div class="card-grid">
-<div class="project-card retired"><div class="card-header"><span class="card-color-dot" style="background:var(--gray-mid)"></span><span class="card-name">Advisor</span><span class="card-status retired">Merged</span></div><div class="card-purpose">Now Business Advisory mode in the Operator.</div></div>
-<div class="project-card retired"><div class="card-header"><span class="card-color-dot" style="background:var(--gray-mid)"></span><span class="card-name">Chief of Staff</span><span class="card-status retired">Merged</span></div><div class="card-purpose">Now Real-time Assistant + Note Processing + Daily Orchestration.</div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--operator)">Startup Reading Chain<span class="group-subtitle">Before Claude says anything in an area-specific project, it reads these 5–6 Notion pages via MCP. This takes about 20-40K tokens of the context window and gives Claude full awareness of the rules, the operator's priorities, the venture's current state, and relevant domain knowledge.</span></div>
-<div class="card-grid">
-<div class="ref-card"><div class="ref-name">❶ Global Instructions</div><div class="ref-desc">~55 behavioral rules. Loaded first, always.</div></div>
-<div class="ref-card"><div class="ref-name">❷ Global Operator Profile</div><div class="ref-desc">Venture Posture Table, decision patterns, priorities.</div></div>
-<div class="ref-card"><div class="ref-name">❸ Project Instructions</div><div class="ref-desc">Venture-specific rules, chat map, circuit breakers.</div></div>
-<div class="ref-card"><div class="ref-name">❹ Project Snapshot</div><div class="ref-desc">Latest session + comprehensive state.</div></div>
-<div class="ref-card"><div class="ref-name">❺ Knowledge Digest</div><div class="ref-desc">Domain knowledge: competitors, pricing, people, patterns.</div></div>
-<div class="ref-card"><div class="ref-name">❻ Optional Page</div><div class="ref-desc">User-specified for additional context.</div></div>
-</div></div>
-</div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-title">System Architecture</div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="ecosystem">Ecosystem Map</button>
+      <button class="tab-btn" data-tab="lifecycle">Session Lifecycle</button>
+      <button class="tab-btn" data-tab="infra">Infrastructure</button>
+      <button class="tab-btn" data-tab="inventory">System Inventory</button>
+      <button class="tab-btn" data-tab="artifacts">GitHub Pages</button>
+    </div>
+    <button class="search-trigger" id="palette-trigger">/ Search</button>
+  </div>
 
-<!-- TAB 2: LIFECYCLE -->
-<div class="tab-pane" id="tab-lifecycle">
-<div class="tab-header"><div class="tab-header-title">Session Lifecycle</div><div class="tab-header-desc">Every Claude chat follows the same lifecycle: startup reads load context from Notion, auto-registration marks the session as active, work happens with approval gates, and the session closes with /closeout → /tasks → /capture. Eight slash commands control different parts of this flow — each one is a text trigger that makes Claude read a procedure from Notion and follow it step by step with mandatory approval stops.</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--architect)">Session Flow<span class="group-subtitle">Every session progresses through these five stages, from the first message you send to the final /capture. The approval gate (Plan → Approve → Execute → Confirm) sits in the middle of the "Work" stage and prevents Claude from doing anything substantive without your explicit go-ahead.</span></div>
-<div class="lifecycle-flow">
-<div class="lifecycle-step"><div class="step-icon" style="background:rgba(59,130,246,0.12)">📖</div><div class="step-name">Startup Reads</div><div class="step-desc">5-6 Notion pages via MCP. ~20-40K tokens.</div></div>
-<div class="lifecycle-step"><div class="step-icon" style="background:rgba(5,150,105,0.12)">📋</div><div class="step-name">Auto-Register</div><div class="step-desc">Session Log entry as "In Progress."</div></div>
-<div class="lifecycle-step"><div class="step-icon" style="background:rgba(139,92,246,0.12)">⚡</div><div class="step-name">Work</div><div class="step-desc">Plan → Approve → Execute → Confirm.</div></div>
-<div class="lifecycle-step"><div class="step-icon" style="background:rgba(217,119,6,0.12)">📦</div><div class="step-name">/closeout</div><div class="step-desc">Keep/delete, Session Log, Continuity Check.</div></div>
-<div class="lifecycle-step"><div class="step-icon" style="background:rgba(230,57,70,0.12)">✅</div><div class="step-name">/tasks → /capture</div><div class="step-desc">Capture tasks, harvest improvements.</div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--selenko)">Slash Commands<span class="group-subtitle">These are not platform features — they're a text convention. You type /closeout (or any command below) in any chat, Claude recognizes the text, reads a step-by-step procedure from a Notion page, and follows it with mandatory approval stops. Each command does one specific job. They never auto-chain — you trigger each one separately.</span></div>
-<div class="card-grid">
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/closeout</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">Closes out a session — recommends keep or delete, creates a Session Log entry, checks that snapshots and digests are current.</div><div class="cmd-expand"><div class="cmd-detail"><strong>What it does:</strong> Recommends keep or delete for the chat. Creates/updates a Session Log database entry with summary, key outputs, pending items, handoff prompt, tags, and cross-venture connections. Runs a Continuity Check: is the project snapshot current? Is the Knowledge Digest current? Are engagement documents up to date?<br><br><strong>Approval gates:</strong> Multiple mandatory stops — Claude presents the Session Log entry for approval before writing, and the keep/delete recommendation before acting.<br><br><strong>When:</strong> End of any substantive session. Always run before leaving a chat you want to preserve.<br><br><div class="conn"><strong>Reads:</strong> /closeout prompt page. <strong>Writes:</strong> Session Log DB, Chat Map. <strong>Triggers:</strong> /tasks and /capture suggestions (never auto-chains).</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/tasks</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">Scans the entire conversation for action items, to-dos, and commitments, then creates task entries in Notion.</div><div class="cmd-expand"><div class="cmd-detail"><strong>What it does:</strong> Scans the conversation for tasks. Presents each as a proposed entry with Project, Area, Status, Context, and Due Date. Creates entries in Tasks DB after approval. Every task must link to a project.<br><br><strong>When:</strong> After /closeout, before /capture.<br><br><div class="conn"><strong>Writes:</strong> Tasks DB.</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/capture</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">The learning loop — harvests behavioral improvements, decision records, and workflow documentation from the session.</div><div class="cmd-expand"><div class="cmd-detail"><strong>Three categories with approval gates between each:</strong><br><br><strong>Category 1 — Instruction Improvements:</strong> Scans for behavioral failures, /flag markers, and moments where Claude went off-track. Each becomes an Improvement Log entry with Evidence, Suggestion, Success Criterion, and Effectiveness tracking.<br><br><strong>Category 2 — Decision Records:</strong> Identifies significant decisions that should be formally documented.<br><br><strong>Category 3 — Workflow Documentation:</strong> Captures new processes that emerged and should be formalized.<br><br><div class="conn"><strong>Reads:</strong> /capture prompt page, searches for /flag markers. <strong>Writes:</strong> Improvement Log DB. <strong>Downstream:</strong> Approved improvements → Global Instructions (via Architect).</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/emit</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">A cross-project broadcasting command. Scans the conversation for important decisions and writes them to shared surfaces so every future session picks them up.</div><div class="cmd-expand"><div class="cmd-detail"><strong>How it works:</strong> Scans the current conversation for decisions, actions, new information, and status changes. Writes to two Notion pages:<br><br><strong>Target 1 — Global Operator Profile:</strong> "Recent Cross-Venture Activity" section. Every project reads this at startup, so information propagates automatically to all future sessions.<br><br><strong>Target 2 — Secretary Pad:</strong> Activity Log section. The Real-time Assistant reads this, maintaining cross-session awareness.<br><br><strong>Optional:</strong> Updates the Venture Posture Table if a venture's posture changed (going active, pausing, restructuring).<br><br><strong>When:</strong> Mid-session, whenever something happens that other projects should know about.<br><br><div class="conn"><strong>Reads:</strong> Current conversation. <strong>Writes:</strong> Global Operator Profile + Secretary Pad. <strong>Consumed by:</strong> All future sessions across all projects.</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/digest</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">Updates a venture's Knowledge Digest — the domain knowledge page that captures competitive data, pricing, people observations, and strategic patterns.</div><div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> After a session that surfaced significant domain knowledge. Can run mid-session or after /closeout flags a gap.<br><br><div class="conn"><strong>Reads:</strong> /digest prompt page + current Knowledge Digest. <strong>Writes:</strong> Venture's Knowledge Digest page. <strong>Read by:</strong> All future sessions in that venture (startup read #5).</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/snapshot</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">A lightweight, mid-session save. Updates the Project Snapshot page — the two-part document (Latest Session + Comprehensive State) that captures where a venture stands.</div><div class="cmd-expand"><div class="cmd-detail"><strong>When:</strong> You want to save progress without the full /closeout sequence. Useful when switching contexts.<br><br><div class="conn"><strong>Scoped to:</strong> Project Snapshot page only. Does not touch Session Log or Chat Map.</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/flag</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">A mid-session bookmark for when Claude goes off-track. Type it, Claude acknowledges in one line and continues working. The flag gets harvested later by /capture.</div><div class="cmd-expand"><div class="cmd-detail"><strong>Example:</strong> <code>/flag — ran 5 searches before reading the obvious page</code><br><br>During /capture, Category 1 searches for all /flag markers and evaluates each as a potential instruction improvement.<br><br><strong>Note:</strong> Unlike other commands, /flag runs inline — no Notion prompt page to read.</div></div></div></div>
-<div class="command-card clickable" onclick="toggleCard(this)"><div class="cmd-header"><span class="cmd-name">/scope</span><span class="expand-chevron">▸</span></div><div class="cmd-purpose">Declares a boundary for what this session will cover. After declaration, if the conversation drifts outside scope, Claude flags it and asks whether to expand or save for another chat.</div><div class="cmd-expand"><div class="cmd-detail"><strong>Expand scope:</strong> Say "add [X] to scope" at any time. No formal syntax needed.<br><br><strong>Optional:</strong> Sessions without /scope work normally. Scope constrains what the session <em>produces</em>, not what it <em>references</em> — Claude can still read any Notion page for context.</div></div></div></div>
-</div></div>
-</div>
+  <!-- ==========================================
+       TAB 1: ECOSYSTEM MAP
+       ========================================== -->
+  <div class="tab-content active" id="tab-ecosystem">
 
-<!-- TAB 3: INFRASTRUCTURE -->
-<div class="tab-pane" id="tab-infrastructure">
-<div class="tab-header"><div class="tab-header-title">System Infrastructure</div><div class="tab-header-desc">Everything lives in Notion under the Claude System Hub. This tab shows every page, database, index, and template that powers the system — organized by type and by when they get loaded. "Startup" pages are read automatically at the beginning of every session via MCP. "On-demand" pages are consulted when a specific topic or person comes up. Click any card to see what it contains, its Notion page ID, and which parts of the system read from or write to it.</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--selenko)">Three-Tier Architecture<span class="group-subtitle">The system uses three layers of instructions. Tier 1 is pasted into Claude's project settings and rarely changes. Tier 2 lives in Notion and gets updated constantly — this is the living heart of the system. Tier 3 is static reference files loaded into the context window. If Tier 2 and Tier 3 ever conflict, Tier 2 wins.</span></div>
-<div class="three-tier"><div class="tier-item"><div class="tier-num">Tier 1</div><div class="tier-name">Custom Instructions</div><div class="tier-desc">Thin pointers in Claude Project settings. Circuit breakers + Notion URLs. ~3-5K tokens. Rarely changes.</div></div><div class="tier-item"><div class="tier-num">Tier 2</div><div class="tier-name">Notion Living Layer</div><div class="tier-desc">Instructions, snapshots, digests, profiles. Updated frequently. Read via MCP at startup. This is where anything that changes lives.</div></div><div class="tier-item"><div class="tier-num">Tier 3</div><div class="tier-name">Project Files</div><div class="tier-desc">Static reference. PDFs, research docs. Loaded into context window. Supplementary — Notion overrides conflicts.</div></div></div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--architect)">System Pages<span class="group-subtitle">These are the core configuration pages. The badge on each card shows whether it's loaded at startup (automatically, every session) or on-demand (only when the relevant topic comes up).</span></div>
-<div class="card-grid">
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">Startup</span><span class="infra-name">Global Instructions</span><span class="expand-chevron">▸</span></div><div class="infra-desc">~55 behavioral rules for ALL projects</div><div class="infra-expand"><div class="infra-detail"><strong>Loaded:</strong> First page read in every session, always.<br><br><strong>Contains:</strong> Communication preferences (batch questions, lead with action), action guardrails (Plan → Approve → Execute → Confirm, DDV thresholds), quality standards for external deliverables, counterparty &amp; negotiation operations, chat naming conventions, session management commands, Full Stack Thinking protocol, and ~20 more rules. Size: ~15-20K tokens.<br><br><div class="conn"><strong>Updated by:</strong> /capture → Improvement Log → Architect. <strong>Read by:</strong> Every session in every project.</div><br><div class="infra-id">314b40429ab681259e89faec7f4609a9</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">Startup</span><span class="infra-name">Global Operator Profile</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Decision patterns, venture overview, priorities</div><div class="infra-expand"><div class="infra-detail"><strong>Loaded:</strong> At startup for area-specific projects (read #2).<br><br><strong>Contains:</strong> Venture Posture Table (9 ventures with Posture, Time Allocation, Constraints), decision-making patterns, strategic priorities, and the Recent Cross-Venture Activity section where /emit writes.<br><br><strong>Commitment Gate:</strong> Before any draft that commits time or work, Claude checks the Posture Table. If the venture is paused, the draft must decline.<br><br><div class="conn"><strong>Written by:</strong> /emit (Activity section), Architect (structural). <strong>Read by:</strong> All area-specific startups.</div><br><div class="infra-id">32bb40429ab6810885aecb1618387422</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">Startup</span><span class="infra-name">Project Registry</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Master list of all Claude Projects</div><div class="infra-expand"><div class="infra-detail"><strong>Loaded:</strong> At startup for core projects.<br><br><strong>Contains:</strong> Active and area-specific project tables, intake statuses, project instruction template, System Evolution Log.<br><br><div class="infra-id">314b40429ab681278d07fee24c4f2487</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">Startup</span><span class="infra-name">Secretary Pad</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Persistent cross-session memory for Real-time Assistant</div><div class="infra-expand"><div class="infra-detail"><strong>Loaded:</strong> At startup for Real-time Assistant mode.<br><br><strong>Contains:</strong> Current Focus (what's active now), Parking Lot (ideas to revisit), Activity Log (receives /emit updates from all projects — this is how the Secretary knows what happened in other chats), Strategic Assessments.<br><br><strong>Why it matters:</strong> Chat history is lost between sessions. The Secretary Pad is the cross-session memory layer — Claude reads it to pick up where you left off without re-explaining.<br><br><div class="conn"><strong>Read by:</strong> Real-time Assistant at startup. <strong>Written by:</strong> /emit (Activity Log), Real-time Assistant (Current Focus).</div><br><div class="infra-id">329b40429ab68199b0fdc4252af76b4e</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">On-demand</span><span class="infra-name">Knowledge Registry</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Cross-venture knowledge map</div><div class="infra-expand"><div class="infra-detail"><strong>Two-tier:</strong> Cross-Venture Business Knowledge (domains A-K: negotiation, financial modeling, legal, sales) and Venture-Specific Knowledge (per-venture pages). Consulted when a session needs domain expertise.<br><br><div class="infra-id">331b40429ab681308d3dc05f7c24fa6e</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">On-demand</span><span class="infra-name">Key Person Profiles</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Communication styles, behavioral patterns for key people</div><div class="infra-expand"><div class="infra-detail"><strong>Searched:</strong> Before any task involving a named individual (drafting messages, meeting prep, negotiation).<br><br><strong>6 entries:</strong> 1 Full (Anthony Murgio — Voss Accommodator typology, behavioral patterns, recommended approaches), 1 Partial, 4 Stubs.<br><br><div class="infra-id">3cd677df-ecb4-4591-849b-faefe2a966fb</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">On-demand</span><span class="infra-name">Tech Stack</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Authoritative list of all tools, devices, integrations</div><div class="infra-expand"><div class="infra-detail">Required read before any proposal involving tools (Full Stack Thinking protocol). Contains every tool across all ventures.<br><br><div class="infra-id">31ab40429ab681a0950dff132b580193</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">Reference</span><span class="infra-name">System Operating Guide</span><span class="expand-chevron">▸</span></div><div class="infra-desc">10-section operator cheat sheet — this visual's source</div><div class="infra-expand"><div class="infra-detail">Sections: System Map, Decision Tree, Daily Workflow, Slash Commands, Startup, Infrastructure, Inventory, GitHub Pages, Principles, Cleanup.<br><br><div class="infra-id">331b40429ab6811588d7f723b5895723</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">On-demand</span><span class="infra-name">Artifact Registry</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Catalog of GitHub Pages HTML artifacts</div><div class="infra-expand"><div class="infra-detail">Tracks: name, filename, URL, source project, PIN status, dates. Currently 3 artifacts.<br><br><div class="infra-id">332b40429ab681dc88a1fea8411b028c</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type page">On-demand</span><span class="infra-name">GTD Reference</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Getting Things Done methodology</div><div class="infra-expand"><div class="infra-detail">Decision trees for item classification, calendar rules, task contexts, Weekly Review protocol.<br><br><div class="infra-id">331b40429ab681af9a8dd710a8b0e23d</div></div></div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--green)">Databases<span class="group-subtitle">These are Notion databases with structured properties — not plain pages. Each one tracks a specific operational dimension with typed fields, filters, and relations to other databases.</span></div>
-<div class="card-grid">
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Session Log</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Every closed-out chat session</div><div class="infra-expand"><div class="infra-detail"><strong>Properties:</strong> Chat Name, Project, Area, Chat Status, Date, Summary, Key Outputs, Pending Items, Handoff Prompt, Tags, Cross-Venture Connections.<br><br><strong>Lifecycle:</strong> Auto-registration creates "In Progress" at startup. /closeout fills all fields and changes to Active or Deleted.<br><br><div class="infra-id">76be6a90-f890-40ec-b8ca-68448c042a37</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Improvement Log</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Behavioral improvement candidates</div><div class="infra-expand"><div class="infra-detail"><strong>Properties:</strong> Evidence, Suggestion, Success Criterion, Effectiveness (Untested / Confirmed / Recurred), Source Session, Status.<br><br><strong>The loop:</strong> /flag → /capture → entry here → Architect reviews → Global Instructions update → effectiveness tracked.<br><br><div class="infra-id">696cbf60-e295-40d7-b3fd-78c72295e2f4</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Tasks</span><span class="expand-chevron">▸</span></div><div class="infra-desc">All tasks across all ventures</div><div class="infra-expand"><div class="infra-detail"><strong>Properties:</strong> Task Name, Project (relation), Area, Status (Inbox/Next/Waiting/Someday/Done), Context, Energy, Due Date.<br><br>Every task links to a project. GTD methodology governs classification.<br><br><div class="infra-id">30bb4042-9ab6-8078-8b54-000b310dbffe</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Sales Contacts</span><span class="expand-chevron">▸</span></div><div class="infra-desc">44 ActiveMenus expo contacts</div><div class="infra-expand"><div class="infra-detail">ActiveMenus-specific. IP boundary: restaurant contacts shared, partner/competitor contacts Serge-only.<br><br><div class="infra-id">fa62945d-0b88-4666-a983-6672e4b4c906</div></div></div></div>
-<div class="infra-card clickable" onclick="toggleCard(this)"><div class="infra-header"><span class="infra-type db">DB</span><span class="infra-name">Convention Sales Log</span><span class="expand-chevron">▸</span></div><div class="infra-desc">Cross-session expo persistence</div><div class="infra-expand"><div class="infra-detail">Maintains continuity across ActiveMenus sessions during convention activity.<br><br><div class="infra-id">32db40429ab681a49d2feea057f7870e</div></div></div></div>
-</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--operator)">N8N Index Pages<span class="group-subtitle">Notion's MCP integration caps search results at 10 rows — which means Claude can't see the full picture. N8N (an automation platform) works around this by querying Notion with full pagination and writing the complete results to these index pages. Claude reads the index page instead of searching directly.</span></div>
-<div class="card-grid"><div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Session Log</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Tasks</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Projects</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type index">Index</span><span class="infra-name">Improvement Log</span></div></div></div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--amber)">Templates &amp; Prompts<span class="group-subtitle">Standardized templates for common outputs (decision records, workflow documentation) and reference protocols that Claude consults for specific scenarios (complex deliverable reviews, advisory completeness auditing).</span></div>
-<div class="card-grid"><div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Decision Record</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Project Instructions</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Close-Out Summary</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type template">Tmpl</span><span class="infra-name">Workflow Doc</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type template">Ref</span><span class="infra-name">Completeness-First Advisory</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type template">Ref</span><span class="infra-name">Expert Analysis Review</span></div></div><div class="infra-card"><div class="infra-header"><span class="infra-type template">Ref</span><span class="infra-name">Known MCP Limitations</span></div></div></div></div>
-</div>
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-text">
+        <h1>System Architecture</h1>
+        <p>How the Claude Projects + Notion ecosystem connects. The visual companion to the System Operating Guide — same information, explorable and interactive.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="num">6</div><div class="label">Active Projects</div></div>
+        <div class="stat-card"><div class="num">5</div><div class="label">Operator Modes</div></div>
+        <div class="stat-card"><div class="num">~55</div><div class="label">Behavioral Rules</div></div>
+        <div class="stat-card"><div class="num">8</div><div class="label">Slash Commands</div></div>
+      </div>
+    </div>
 
-<!-- TAB 4: INVENTORY -->
-<div class="tab-pane" id="tab-inventory">
-<div class="tab-header"><div class="tab-header-title">System Inventory</div><div class="tab-header-desc">A complete inventory of every component in the system, sorted by status. "Built & Working" means it's live and operational today — you can use it right now. "Designed, Not Built" means the architecture exists but hasn't been implemented. "Discussed Only" means it came up in conversation but no formal design work has been done. Click any item with a ▸ to see what it does and how it works.</div></div>
-<input type="text" class="inv-search" id="inv-search" placeholder="Filter inventory items...">
-<div class="inv-accordion is-expanded" id="acc-built"><div class="inv-acc-header" onclick="toggleAcc(this.parentElement)"><span class="inv-acc-dot" style="background:var(--green)"></span><span class="inv-acc-title">Built &amp; Working</span><span class="inv-acc-count" id="built-count">25</span><span class="expand-chevron">▸</span></div><div class="inv-acc-body"><div class="inv-acc-inner">
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Operator Project (5-mode)</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc"><strong>What:</strong> Single project with 5 auto-detected modes replacing the former Advisor + Chief of Staff.<br><strong>Modes:</strong> Note Processing (raw input → Notion), Daily Orchestration (prioritized daily plan), Real-time Assistant (thinking partner via Secretary Pad), Business Advisory (venture intake), Venture Mode (deep context for one venture).<br><strong>Detection:</strong> Auto-detects from first message. Override with slash commands.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Secretary Pad</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc"><strong>What:</strong> Persistent Notion page that maintains cross-session state so you never re-explain context.<br><strong>Contains:</strong> Current Focus, Parking Lot, Activity Log (receives /emit from all projects), Strategic Assessments.<br><strong>Why it matters:</strong> Chat history is lost between sessions. The Pad persists.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Global Instructions</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc"><strong>What:</strong> ~55 behavioral rules loaded into every session. The DNA of how Claude behaves.<br><strong>Key sections:</strong> Communication preferences, action guardrails, quality standards, counterparty operations, session commands, context window monitoring.<br><strong>Updated by:</strong> /capture → Improvement Log → Architect codifies.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Global Operator Profile</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">v3.0. Decision-making patterns, venture portfolio, strategic priorities. Includes Venture Posture Table and Recent Cross-Venture Activity (written by /emit).</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Venture Posture Table</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">9 ventures with Posture (active/paused/maintenance), Time Allocation, Constraints. Claude checks this before any draft that commits time — if paused, the draft must decline.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Session Management Commands</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">8 text-based triggers (/closeout, /tasks, /capture, /emit, /digest, /snapshot, /flag, /scope). Each reads a Notion prompt page. Commands never auto-chain.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">DDV Workflow Pattern</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Design → Delegate → Verify. For significant Notion changes: Claude designs + produces Notion AI prompts, you run them, Claude verifies. Triggers: >3 pages, instruction pages, >2K words.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Three-Tier Architecture</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Tier 1: thin Custom Instructions (~3-5K tokens, rarely changes). Tier 2: Notion living layer (everything that changes). Tier 3: static project files (supplementary, Notion overrides).</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Instruction Improvement Loop</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">The system gets smarter every session: /flag → /capture → Improvement Log (with Success Criterion) → Architect reviews → Global Instructions update → all future sessions enforce the rule → Effectiveness tracked.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Completeness-First Advisory</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">When Claude is the primary knowledge source on a complex topic, it generates a complete topic map, audits gaps proactively, and applies the "Unsophisticated Client Test." Two-tier: trigger in Global Instructions + full reference page.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Expert Analysis Review</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Mandatory quality gate for complex deliverables. Claude produces the work, then produces a handoff prompt for a dedicated review chat that cross-references against source material independently.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Standardized Snapshot Format</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Two parts: (1) Latest Session — what just happened. (2) Comprehensive State — the full cumulative picture. Information is never dropped between snapshots. Archive-before-replace workflow.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Thinking Mode Declarations</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Claude declares its cognitive mode (Evaluation, Solution Design, Synthesis, Critique, Brainstorm) at the start of responses + confirms in footer. Makes reasoning visible so you can redirect.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Cognitive Phase Labeling</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Four phases for complex deliverables: Analyze → Design → Build → Verify. The approval gate sits between Design and Build. Prevents premature execution.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Context Window Footer</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Every response ends with: ~XK tokens used | what's consuming it | compaction risk + thinking mode. Always-on ambient awareness of context health.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Cross-project State (/emit)</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">/emit scans the conversation → writes to Global Operator Profile (Recent Cross-Venture Activity) + Secretary Pad (Activity Log) → every future session reads these at startup. One command broadcasts to the entire system.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Key Person Profiles</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">System-wide database. 6 entries (Anthony Murgio is Full depth with Voss Accommodator typology). Searched on-demand before drafting communications or prepping for calls with named individuals.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Knowledge Registry</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Cross-venture knowledge map. Two tiers: Cross-Venture Business Knowledge (domains A-K) and Venture-Specific Knowledge. Consulted when a session needs domain expertise beyond general knowledge.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">ActiveMenus Sales Secretary</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Operating Instructions page, Knowledge Digest (competitive landscape, field-validated sales frameworks, booth operations), Convention Sales Log for cross-session expo persistence.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Sales Contacts DB</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">44 contacts from Pizza Expo 2026. IP boundary enforced: restaurant contacts shared, partner/competitor contacts Serge-only.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">N8N Index Pages</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Workaround for Notion MCP's 10-result search cap. N8N queries with full pagination, writes complete lists to Index pages. 4 indexes: Tasks, Projects, Session Log, Improvement Log.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">GitHub Pages Hosting</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Repo: sergeselenko/apps. Two push methods: <code>dailypush</code> terminal alias and CoWork project folder. SHA-256 PIN gate (1930). Obscurity-level security.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Artifact Registry</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Notion page cataloging all hosted HTML artifacts with name, filename, URL, source project, PIN status, dates. Manually maintained (Phase 1).</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">System Operating Guide</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">10-section comprehensive operator cheat sheet. Covers: System Map, Decision Tree, Daily Workflow, Slash Commands, Startup, Infrastructure, Inventory, GitHub Pages, Principles, Cleanup. This visual's source of truth.</div></div>
-<div class="inv-item built clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Snapshot &amp; Digest Maintenance</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">/closeout runs a Continuity Check: Is the snapshot current? Is the Knowledge Digest current? Flags gaps and offers to run /snapshot or /digest immediately.</div></div>
-</div></div></div>
-<div class="inv-accordion" id="acc-designed"><div class="inv-acc-header" onclick="toggleAcc(this.parentElement)"><span class="inv-acc-dot" style="background:var(--amber)"></span><span class="inv-acc-title">Designed, Not Built</span><span class="inv-acc-count" id="designed-count">4</span><span class="expand-chevron">▸</span></div><div class="inv-acc-body"><div class="inv-acc-inner">
-<div class="inv-item designed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">CRM + AI Automation</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">High-level architecture for AI-powered CRM with lead profiling. Captured in Notion but not designed in detail.</div></div>
-<div class="inv-item designed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">AI Sales System</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">10-question architecture assessment. 7 answered, 3 parked for hands-on verification.</div></div>
-<div class="inv-item designed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Knowledge File Migration</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">In progress. Knowledge Registry scaffolding built. Static project files being migrated to Notion as individual pages.</div></div>
-<div class="inv-item designed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Command Center Dashboard</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc"><strong>Priority: High.</strong> 4-layer architecture: (1) Chat sessions with /open command, (2) GitHub Pages dashboard via Notion API, (3) Claude Code + Anthropic API for fast closeout processing, (4) Future Claude in Chrome auto-extraction.</div></div>
-</div></div></div>
-<div class="inv-accordion" id="acc-discussed"><div class="inv-acc-header" onclick="toggleAcc(this.parentElement)"><span class="inv-acc-dot" style="background:var(--gray-mid)"></span><span class="inv-acc-title">Discussed Only</span><span class="inv-acc-count" id="discussed-count">5</span><span class="expand-chevron">▸</span></div><div class="inv-acc-body"><div class="inv-acc-inner">
-<div class="inv-item discussed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Dual Phone Number</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Work number for prospects, personal stays personal. OpenPhone as immediate solution.</div></div>
-<div class="inv-item discussed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">System Visualization</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Visual map of the system. This page is a step toward solving it.</div></div>
-<div class="inv-item discussed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Monthly Knowledge Refresh</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">N8N automation to keep Knowledge Digests current with market changes on a schedule.</div></div>
-<div class="inv-item discussed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Morning Brief (N8N)</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">Architecture spec produced. Pre-compiles Tasks + Calendar + Gmail (4 accounts) + system health at 6am daily. Not built.</div></div>
-<div class="inv-item discussed clickable" onclick="toggleCard(this)"><div class="inv-item-header"><span class="inv-item-name">Multi-Inbox Email</span><span class="expand-chevron">▸</span></div><div class="inv-item-desc">4-account Gmail integration via N8N. Dependency for Morning Brief.</div></div>
-</div></div></div>
-</div>
+    <!-- Core Projects -->
+    <div class="group-label" style="border-left-color: var(--architect)">
+      <h3>Core Projects</h3>
+      <p>The two projects that run the entire system</p>
+    </div>
+    <div class="card-grid wide">
+      <!-- Architect -->
+      <div class="card" data-search="Architect system design layer DDV instructions prompts templates frameworks">
+        <div class="card-bar" style="background: var(--architect)"></div>
+        <div class="card-header">
+          <div class="card-name">Architect</div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="card-desc">The system design layer. Builds, refines, and evolves the entire Claude Projects ecosystem and its integration with Notion. Open this when you need to write or update instructions, design a new project structure, evolve Notion architecture, plan automation, or onboard a new venture area. Primary outputs are instructions, prompts, templates, frameworks, and architectural plans. Uses DDV pattern for significant Notion operations.</div>
+      </div>
+      <!-- Operator -->
+      <div class="card" data-search="Operator operations partner five modes Note Processing Daily Orchestration Real-time Assistant Business Advisory Venture Mode Secretary Pad">
+        <div class="card-bar" style="background: var(--operator)"></div>
+        <div class="card-header">
+          <div class="card-name">Operator</div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="card-desc">Always-available operations partner with five modes that auto-detect or activate via slash commands. This is the hub project — open it for daily planning, note processing, brain dumps, quick strategic questions, cross-venture thinking, meeting prep, and deep venture work via Venture Mode. Replaced the former Advisor and Chief of Staff projects (both archived, not deleted).</div>
+        <div class="mode-list">
+          <div class="mode-item" onclick="this.classList.toggle('is-expanded')">
+            <div class="mode-item-header">
+              <div><span class="mode-name">Note Processing</span> <span class="mode-trigger">/process</span></div>
+              <span class="expand-chevron">▸</span>
+            </div>
+            <div class="mode-purpose">Classifies and routes raw inputs into Notion</div>
+            <div class="mode-detail">Paste raw inputs — text, photos, screenshots, transcripts — and Claude classifies and routes them into the correct Notion pages. Handles brain dumps, meeting notes, random thoughts. Trigger with <code>/process</code> or just paste raw content.</div>
+          </div>
+          <div class="mode-item" onclick="this.classList.toggle('is-expanded')">
+            <div class="mode-item-header">
+              <div><span class="mode-name">Daily Orchestration</span> <span class="mode-trigger">/daily</span></div>
+              <span class="expand-chevron">▸</span>
+            </div>
+            <div class="mode-purpose">Synthesizes tasks + calendar into a prioritized daily plan</div>
+            <div class="mode-detail">Morning kickoff, mid-day reprioritization, end-of-day review. Claude pulls tasks and calendar data to create a prioritized daily plan. Trigger with <code>/daily</code> or ask about your day.</div>
+          </div>
+          <div class="mode-item" onclick="this.classList.toggle('is-expanded')">
+            <div class="mode-item-header">
+              <div><span class="mode-name">Real-time Assistant</span> <span class="mode-trigger">/secretary</span></div>
+              <span class="expand-chevron">▸</span>
+            </div>
+            <div class="mode-purpose">Thinking partner, context broker, cross-venture state keeper</div>
+            <div class="mode-detail">Uses the Secretary Pad as persistent memory across sessions. Thinking partner for quick strategic questions, context broker who knows what's happening across ventures, and cross-venture state keeper. Trigger with <code>/secretary</code> or "what's on my plate?"</div>
+          </div>
+          <div class="mode-item" onclick="this.classList.toggle('is-expanded')">
+            <div class="mode-item-header">
+              <div><span class="mode-name">Business Advisory</span> <span class="mode-trigger">/advisory</span></div>
+              <span class="expand-chevron">▸</span>
+            </div>
+            <div class="mode-purpose">Venture intake, strategic guidance, high-level consulting</div>
+            <div class="mode-detail">Where new ventures get their initial assessment before getting their own project. Venture intake, strategic guidance, and high-level consulting. Trigger with <code>/advisory</code> or a high-level strategic question.</div>
+          </div>
+          <div class="mode-item" onclick="this.classList.toggle('is-expanded')">
+            <div class="mode-item-header">
+              <div><span class="mode-name">Venture Mode</span> <span class="mode-trigger">/activemenus</span></div>
+              <span class="expand-chevron">▸</span>
+            </div>
+            <div class="mode-purpose">Deep context loading for one venture at a time</div>
+            <div class="mode-detail">Reads the full snapshot + Knowledge Digest + project instructions for a specific venture. Use when you need sustained work on one venture without opening a separate project. Trigger with the venture name as a slash command: <code>/activemenus</code>, <code>/selenko</code>, <code>/title</code>, etc.</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<!-- TAB 5: ARTIFACTS -->
-<div class="tab-pane" id="tab-artifacts">
-<div class="tab-header"><div class="tab-header-title">Published Artifacts</div><div class="tab-header-desc">HTML artifacts built in Claude and hosted on GitHub Pages as permanent, shareable URLs. Each artifact is protected by a client-side PIN gate (SHA-256 hashed, not stored in plaintext). The workflow is simple: Claude produces an HTML file, you download it and run one terminal command, and it's live in under 60 seconds.</div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--selenko)">Push Workflow<span class="group-subtitle">Claude builds an HTML file → you download it to ~/Downloads → run <code>dailypush</code> in Terminal (or let CoWork push automatically) → it's live on GitHub Pages at sergeselenko.github.io/apps/</span></div>
-<div class="artifact-flow"><div class="artifact-flow-step">Claude produces<br><small>HTML in any project</small></div><div class="artifact-flow-arrow">→</div><div class="artifact-flow-step">Download<br><small>~/Downloads/</small></div><div class="artifact-flow-arrow">→</div><div class="artifact-flow-step"><code>dailypush</code> or CoWork<br><small>git add/commit/push</small></div><div class="artifact-flow-arrow">→</div><div class="artifact-flow-step">Live on GitHub Pages<br><small>sergeselenko.github.io/apps/</small></div></div></div>
-<div class="group-wrap"><div class="group-label" style="border-left-color:var(--architect)">Hosted Artifacts<span class="group-subtitle">All currently deployed HTML artifacts. Each card links directly to the live page (you'll need the PIN to view).</span></div>
-<div class="artifact-cards">
-<div class="artifact-card"><div class="artifact-name">Daily Dashboard</div><div class="artifact-desc">Daily Outlook + Horizon Snapshot with venture-colored tags and tab navigation.</div><div class="artifact-meta"><span class="artifact-tag source">Operator</span><span class="artifact-tag pin">PIN Gated</span><span class="artifact-tag date">Mar 28</span></div><a href="https://sergeselenko.github.io/apps/daily-dashboard.html" target="_blank" class="artifact-link">Open →</a></div>
-<div class="artifact-card"><div class="artifact-name">Portfolio Map</div><div class="artifact-desc">29-product portfolio map. Views: Evolution Ladder, Phase Roadmap, P1 Product Overview.</div><div class="artifact-meta"><span class="artifact-tag source">AI Digital Products</span><span class="artifact-tag pin">PIN Gated</span><span class="artifact-tag date">Mar 28</span></div><a href="https://sergeselenko.github.io/apps/portfolio-map.html" target="_blank" class="artifact-link">Open →</a></div>
-<div class="artifact-card"><div class="artifact-name">System Architecture Visual</div><div class="artifact-desc">This page. Interactive map of the complete ecosystem.</div><div class="artifact-meta"><span class="artifact-tag source">Architect</span><span class="artifact-tag pin">PIN Gated</span><span class="artifact-tag date">Mar 29</span></div><a href="https://sergeselenko.github.io/apps/system-architecture.html" target="_blank" class="artifact-link">Open →</a></div>
-</div></div>
-</div>
+    <!-- Area-Specific Active -->
+    <div class="group-label" style="border-left-color: var(--selenko)">
+      <h3>Area-Specific Projects — Active</h3>
+      <p>Ventures with dedicated Claude Projects</p>
+    </div>
+    <div class="card-grid">
+      <div class="card" data-search="ActiveMenus AI voice ordering restaurants negotiation sales expo competitive analysis">
+        <div class="card-bar" style="background: var(--activemenus)"></div>
+        <div class="card-header"><div class="card-name sm">ActiveMenus</div><span class="badge badge-green">Active</span></div>
+        <div class="card-desc">AI voice ordering for restaurants. Deep operational work: negotiation documents, sales strategy, expo preparation, competitive analysis. Has specialized circuit breakers (N1-N4) for negotiation with Anthony Murgio. Serge operates as a reseller/distributor. Key context: Pizza Expo sales contacts (44 entries), competitive landscape data, and commission structure analysis.</div>
+      </div>
+      <div class="card" data-search="AI Digital Products portfolio Selenko brand Negotiation Coach Sales System launch">
+        <div class="card-bar" style="background: var(--ai-digital)"></div>
+        <div class="card-header"><div class="card-name sm">AI Digital Products</div><span class="badge badge-green">Active</span></div>
+        <div class="card-desc">Product portfolio under the Selenko brand. 30-product catalog across 4 categories. Strategy, build planning, market research, product launches. P1 product: Negotiation Coach. P2: Sales System. Current focus on launch readiness.</div>
+      </div>
+      <div class="card" data-search="Title Company startup formation licensing agent equity model">
+        <div class="card-bar" style="background: var(--title-co)"></div>
+        <div class="card-header"><div class="card-name sm">Title Company</div><span class="badge badge-green">Active</span></div>
+        <div class="card-desc">Startup formation, licensing, operations planning. Agent equity model defined. 15-domain knowledge base with deep research. Early stage — formation and licensing work.</div>
+      </div>
+      <div class="card" data-search="Selenko Brand Strategy positioning portfolio Lead Gen infrastructure">
+        <div class="card-bar" style="background: var(--selenko)"></div>
+        <div class="card-header"><div class="card-name sm">Selenko — Brand & Strategy</div><span class="badge badge-green">Active</span></div>
+        <div class="card-desc">Overarching brand strategy and positioning for the Selenko portfolio. Ties together the AI Digital Products, Lead Gen, and infrastructure work under one brand identity.</div>
+      </div>
+    </div>
 
-</div><!-- /tab-content -->
-<div class="page-footer"><p>System Architecture Visual — Selenko · March 29, 2026 · Press <b>/</b> for quick find</p></div>
+    <!-- Not Yet Created -->
+    <div class="group-label" style="border-left-color: var(--gray-mid)">
+      <h3>Area-Specific Projects — Not Yet Created</h3>
+      <p>Ventures awaiting project creation</p>
+    </div>
+    <div class="compact-list">
+      <div class="compact-row"><span class="name">Lead Gen System With Alex</span><span class="badge badge-amber">Ready to Create</span><span class="status">Intake complete</span></div>
+      <div class="compact-row"><span class="name">AI Voice Module</span><span class="badge badge-gray">Pending</span><span class="status">Intake pending</span></div>
+      <div class="compact-row"><span class="name">Everlane Realty</span><span class="badge badge-gray">Pending</span><span class="status">Disposition review needed</span></div>
+      <div class="compact-row"><span class="name">Couple's Center</span><span class="badge badge-gray">Pending</span><span class="status">Full intake pending</span></div>
+      <div class="compact-row"><span class="name">Household</span><span class="badge badge-gray">Pending</span><span class="status">Pending</span></div>
+      <div class="compact-row"><span class="name">Personal</span><span class="badge badge-gray">Pending</span><span class="status">Pending</span></div>
+      <div class="compact-row"><span class="name">RE Transactions</span><span class="badge badge-gray">Pending</span><span class="status">Pending</span></div>
+    </div>
+
+    <!-- How Projects Connect -->
+    <div class="group-label" style="border-left-color: var(--selenko)">
+      <h3>How Projects Connect</h3>
+      <p>How data flows between projects</p>
+    </div>
+    <div class="diagram-container">
+      <svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:820px;display:block;margin:0 auto;">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6d28d9"/>
+          </marker>
+          <marker id="arrow-blue" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+          </marker>
+          <marker id="arrow-violet" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6"/>
+          </marker>
+        </defs>
+        <!-- Global Instructions node -->
+        <rect x="280" y="10" width="260" height="44" rx="10" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <rect x="280" y="10" width="260" height="4" rx="2" fill="#6d28d9"/>
+        <text x="410" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">Global Instructions</text>
+        <!-- Arrow down from GI -->
+        <line x1="410" y1="54" x2="410" y2="90" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="460" y="77" font-size="10" fill="#6d28d9" font-weight="500" font-style="italic">read at startup</text>
+        <!-- Architect node (left) -->
+        <rect x="40" y="120" width="160" height="44" rx="10" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <rect x="40" y="120" width="160" height="4" rx="2" fill="#3b82f6"/>
+        <text x="120" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">Architect</text>
+        <!-- Operator node (center) -->
+        <rect x="290" y="110" width="240" height="54" rx="12" fill="white" stroke="#8b5cf6" stroke-width="2"/>
+        <rect x="290" y="110" width="240" height="4" rx="2" fill="#8b5cf6"/>
+        <text x="410" y="143" text-anchor="middle" font-size="14" font-weight="700" fill="#111827">Operator (Hub)</text>
+        <!-- Area project nodes (right cluster) -->
+        <rect x="620" y="100" width="170" height="34" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <rect x="620" y="100" width="170" height="3" rx="2" fill="#e6940a"/>
+        <text x="705" y="122" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">ActiveMenus</text>
+        <rect x="620" y="142" width="170" height="34" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <rect x="620" y="142" width="170" height="3" rx="2" fill="#e63946"/>
+        <text x="705" y="164" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">AI Digital Products</text>
+        <rect x="620" y="184" width="170" height="34" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <rect x="620" y="184" width="170" height="3" rx="2" fill="#0d9488"/>
+        <text x="705" y="206" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">Title Company</text>
+        <rect x="620" y="226" width="170" height="34" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <rect x="620" y="226" width="170" height="3" rx="2" fill="#6d28d9"/>
+        <text x="705" y="248" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">Selenko Brand</text>
+        <!-- GI arrows to all projects -->
+        <line x1="330" y1="54" x2="120" y2="120" stroke="#6d28d9" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="490" y1="54" x2="705" y2="100" stroke="#6d28d9" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- Architect dashed line: designs & evolves -->
+        <line x1="200" y1="142" x2="290" y2="137" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-blue)"/>
+        <text x="240" y="128" font-size="9" fill="#3b82f6" font-weight="500" text-anchor="middle">designs &amp; evolves</text>
+        <!-- Operator to area projects -->
+        <line x1="530" y1="130" x2="620" y2="117" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <line x1="530" y1="140" x2="620" y2="159" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <line x1="530" y1="145" x2="620" y2="201" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <line x1="530" y1="150" x2="620" y2="243" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <text x="575" y="112" font-size="9" fill="#8b5cf6" font-weight="500" text-anchor="middle">dispatches</text>
+        <!-- /emit propagation section -->
+        <rect x="40" y="300" width="740" height="140" rx="14" fill="rgba(109,40,217,0.03)" stroke="rgba(109,40,217,0.15)" stroke-width="1.5"/>
+        <text x="60" y="326" font-size="12" font-weight="700" fill="#6d28d9">/emit — Cross-Project State Propagation</text>
+        <!-- Flow: Any Session -> /emit -> GOP+SP -> All Future Sessions -->
+        <rect x="70" y="345" width="130" height="36" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="135" y="368" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">Any Session</text>
+        <line x1="200" y1="363" x2="245" y2="363" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="222" y="356" font-size="9" fill="#6d28d9" font-weight="500" text-anchor="middle">/emit</text>
+        <rect x="250" y="340" width="100" height="46" rx="8" fill="white" stroke="#6d28d9" stroke-width="1.5"/>
+        <text x="300" y="361" text-anchor="middle" font-size="10" font-weight="600" fill="#111827">Claude</text>
+        <text x="300" y="375" text-anchor="middle" font-size="9" font-weight="400" fill="#4b5563">scans chat</text>
+        <line x1="350" y1="363" x2="400" y2="350" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="350" y1="363" x2="400" y2="376" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="405" y="335" width="170" height="30" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="490" y="355" text-anchor="middle" font-size="10" font-weight="600" fill="#111827">Global Operator Profile</text>
+        <rect x="405" y="372" width="170" height="30" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="490" y="392" text-anchor="middle" font-size="10" font-weight="600" fill="#111827">Secretary Pad</text>
+        <line x1="575" y1="363" x2="620" y2="363" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="597" y="356" font-size="9" fill="#6d28d9" font-weight="500" text-anchor="middle">next startup</text>
+        <rect x="625" y="345" width="140" height="36" rx="8" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="695" y="368" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">All Future Sessions</text>
+        <text x="410" y="425" font-size="10" font-weight="400" fill="#4b5563" text-anchor="middle">State changes propagate automatically — every project reads the Global Operator Profile at startup</text>
+      </svg>
+    </div>
+
+    <div class="tab-footer">Last Updated: March 30, 2026 · Source: System Operating Guide, Project Registry, Global Instructions</div>
+  </div>
+
+  <!-- ==========================================
+       TAB 2: SESSION LIFECYCLE
+       ========================================== -->
+  <div class="tab-content" id="tab-lifecycle">
+
+    <div class="group-label" style="border-left-color: var(--selenko); margin-top: 24px;">
+      <h3>The Session Flow</h3>
+      <p>From startup to knowledge capture — how every session runs</p>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-number">1</div>
+        <div class="pipeline-body">
+          <h4>Startup Reads</h4>
+          <p>Claude reads Notion pages via MCP before its first substantive response. Core projects have their own reading order defined in their instructions. Area-specific projects read: Global Instructions → Global Operator Profile → Project Instructions → Project Snapshot → Knowledge Digest → optional 6th page. Context budget: approximately 20-40K tokens.</p>
+        </div>
+      </div>
+      <div class="pipeline-connector">
+        <div class="pipeline-line"><div class="pipeline-line-inner"></div></div>
+        <div class="pipeline-annotation">~20-40K tokens of context loaded</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-number">2</div>
+        <div class="pipeline-body">
+          <h4>Auto-Registration</h4>
+          <p>After startup reads, Claude creates a lightweight Session Log entry with status "In Progress." This marks the session as active in the Session Tracker. Entry includes: chat name, project, area, date, timestamp. All other fields left blank for /closeout to fill.</p>
+        </div>
+      </div>
+      <div class="pipeline-connector">
+        <div class="pipeline-line"><div class="pipeline-line-inner"></div></div>
+        <div class="pipeline-annotation">Session Log entry created (In Progress)</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-number">3</div>
+        <div class="pipeline-body">
+          <h4>Work</h4>
+          <p>The substantive session. Claude follows Global Instructions behavioral rules throughout. Plan → Approve → Execute → Confirm cycle for all substantive work. DDV pattern for significant Notion operations. Thinking mode declarations and cognitive phase labeling for complex deliverables.</p>
+        </div>
+      </div>
+      <div class="pipeline-connector">
+        <div class="pipeline-line"><div class="pipeline-line-inner"></div></div>
+        <div class="pipeline-annotation">Substantive outputs produced</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-number">4</div>
+        <div class="pipeline-body">
+          <h4>/closeout</h4>
+          <p>End-of-session ritual. Claude reads the /closeout prompt page and follows it step by step. Recommends keep/delete. Creates or updates Session Log entry (fills in Summary, Key Outputs, Pending Items, Handoff Prompt). Runs Continuity Check: is the snapshot current? Is the Knowledge Digest current? Are engagement documents up to date? Registers the session on the Chat Map.</p>
+        </div>
+      </div>
+      <div class="pipeline-connector">
+        <div class="pipeline-line"><div class="pipeline-line-inner"></div></div>
+        <div class="pipeline-annotation">Session Log filled, Chat Map updated</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-number">5</div>
+        <div class="pipeline-body">
+          <h4>/tasks</h4>
+          <p>Scans the conversation for future tasks to capture to Notion. Run separately after /closeout. Each task links to a project — no orphaned tasks. Creates entries in the Tasks database.</p>
+        </div>
+      </div>
+      <div class="pipeline-connector">
+        <div class="pipeline-line"><div class="pipeline-line-inner"></div></div>
+        <div class="pipeline-annotation">Tasks captured to Notion</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-number">6</div>
+        <div class="pipeline-body">
+          <h4>/capture</h4>
+          <p>Harvests instruction improvements, decision records, and workflow documentation. The learning loop — flags from the session become candidates for Global Instructions updates. Presents each category with approval gates between them.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slash Commands -->
+    <div class="group-label" style="border-left-color: var(--selenko)">
+      <h3>Slash Commands</h3>
+      <p>8 commands available across all projects</p>
+    </div>
+    <div class="cmd-grid">
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/closeout close session log chat map continuity check">
+        <div class="cmd-header">
+          <span class="cmd-name">/closeout</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Prompt page in Notion</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Close out a session — log, map, and continuity check</div>
+        <div class="cmd-detail">Recommends keep/delete for the chat. Creates or updates Session Log entry with Summary, Key Outputs, Pending Items, and Handoff Prompt. Runs Continuity Check: is the snapshot current? Is the Knowledge Digest current? Are engagement documents up to date? Registers the session on the Chat Map. Has mandatory approval stops — Claude must wait for confirmation at each gate.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/tasks scan conversation future tasks Notion database">
+        <div class="cmd-header">
+          <span class="cmd-name">/tasks</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Prompt page in Notion</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Scan conversation for tasks to capture to Notion</div>
+        <div class="cmd-detail">Scans the entire conversation for future tasks that should be tracked. Creates entries in the Tasks database with project links. Run separately after /closeout. Every task must link to a project — no orphaned tasks.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/capture instruction improvements decision records workflow documentation learning loop">
+        <div class="cmd-header">
+          <span class="cmd-name">/capture</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Prompt page in Notion</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Knowledge capture — improvements, decisions, workflows</div>
+        <div class="cmd-detail">Harvests instruction improvements, decision records, and workflow documentation. Presents each category with approval gates between them. Searches for /flag markers from the session and evaluates each as a potential instruction improvement candidate. The learning loop that makes Global Instructions better over time.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/digest knowledge digest competitive data pricing people observations strategic patterns venture">
+        <div class="cmd-header">
+          <span class="cmd-name">/digest</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Prompt page in Notion</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Update a venture's Knowledge Digest with new domain intelligence</div>
+        <div class="cmd-detail">Updates a venture's Knowledge Digest with new domain intelligence — competitive data, pricing, people observations, strategic patterns. Standalone command — can run mid-session or after /closeout flags a gap. Presents plan before executing.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/emit cross-project state propagation Global Operator Profile Secretary Pad venture posture">
+        <div class="cmd-header">
+          <span class="cmd-name">/emit</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Prompt page in Notion</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Mid-session cross-project state propagation</div>
+        <div class="cmd-detail">Scans conversation for decisions, actions, new information, cross-venture implications, and status changes. Writes to Global Operator Profile (cross-project broadcast) and Secretary Pad (Secretary awareness). Optionally updates Venture Posture Table if venture posture changed. Every future session reads these at startup — state changes propagate automatically.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/flag mid-session course correction bookmark inline">
+        <div class="cmd-header">
+          <span class="cmd-name">/flag</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Inline — no prompt page</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Mid-session course correction bookmark</div>
+        <div class="cmd-detail">User types <code>/flag — [description]</code>. Claude acknowledges in one line and continues working. The flag is a bookmark for later extraction — not an invitation to debug. During /capture, flags are harvested and evaluated as instruction improvement candidates.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/scope session scope lock drift boundary">
+        <div class="cmd-header">
+          <span class="cmd-name">/scope</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">Inline — no prompt page</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Session scope lock — prevent drift</div>
+        <div class="cmd-detail">User types <code>/scope — [description]</code>. Claude flags drift outside declared scope: "That's outside our declared scope. Want to add it, or save for a separate chat?" Can be expanded mid-session with natural language. Scope constrains what the session produces, not what it references.</div>
+      </div>
+      <div class="cmd-card" onclick="this.classList.toggle('is-expanded')" data-search="/snapshot mid-session project snapshot update MCP-native lightweight">
+        <div class="cmd-header">
+          <span class="cmd-name">/snapshot</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="cmd-source">MCP-native</span><span class="expand-chevron">▸</span></div>
+        </div>
+        <div class="cmd-purpose">Lightweight mid-session snapshot update</div>
+        <div class="cmd-detail">Quick save of current project state without full closeout. MCP-native — no prompt page needed. Updates the project snapshot page in Notion with current state. Use when you want to preserve progress mid-session without going through the full /closeout ritual.</div>
+      </div>
+    </div>
+
+    <!-- /emit Propagation -->
+    <div class="group-label" style="border-left-color: var(--selenko)">
+      <h3>How /emit Propagates State</h3>
+      <p>Cross-project state propagation in 7 steps</p>
+    </div>
+    <div class="diagram-container">
+      <svg viewBox="0 0 900 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;display:block;margin:0 auto;">
+        <defs><marker id="arrow2" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#6d28d9"/></marker></defs>
+        <!-- 7 step circles -->
+        <circle cx="60" cy="40" r="18" fill="#6d28d9"/><text x="60" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">1</text>
+        <line x1="78" y1="40" x2="108" y2="40" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <circle cx="130" cy="40" r="18" fill="#6d28d9"/><text x="130" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">2</text>
+        <line x1="148" y1="40" x2="228" y2="40" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <circle cx="250" cy="40" r="18" fill="#6d28d9"/><text x="250" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">3</text>
+        <line x1="268" y1="40" x2="348" y2="40" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <circle cx="370" cy="40" r="18" fill="#6d28d9"/><text x="370" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">4</text>
+        <line x1="388" y1="40" x2="468" y2="40" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <circle cx="490" cy="40" r="18" fill="#6d28d9"/><text x="490" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">5</text>
+        <line x1="508" y1="40" x2="588" y2="40" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <circle cx="610" cy="40" r="18" fill="#6d28d9"/><text x="610" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">6</text>
+        <line x1="628" y1="40" x2="708" y2="40" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <circle cx="730" cy="40" r="18" fill="#6d28d9"/><text x="730" y="45" text-anchor="middle" font-size="13" font-weight="800" fill="white">7</text>
+        <!-- Labels below -->
+        <text x="60" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Event</text>
+        <text x="60" y="90" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">happens</text>
+        <text x="130" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">User types</text>
+        <text x="130" y="90" text-anchor="middle" font-size="9.5" fill="#6d28d9" font-weight="600">/emit</text>
+        <text x="250" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Claude scans</text>
+        <text x="250" y="90" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">conversation</text>
+        <text x="370" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Writes to</text>
+        <text x="370" y="90" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Operator Profile</text>
+        <text x="490" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Writes to</text>
+        <text x="490" y="90" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Secretary Pad</text>
+        <text x="610" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Updates</text>
+        <text x="610" y="90" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">Posture (opt.)</text>
+        <text x="730" y="78" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">All sessions</text>
+        <text x="730" y="90" text-anchor="middle" font-size="9.5" fill="#4b5563" font-weight="500">read updates</text>
+      </svg>
+    </div>
+
+    <div class="tab-footer">Last Updated: March 30, 2026 · Source: System Operating Guide, Global Instructions</div>
+  </div>
+
+  <!-- ==========================================
+       TAB 3: SYSTEM INFRASTRUCTURE
+       ========================================== -->
+  <div class="tab-content" id="tab-infra">
+
+    <div class="group-label" style="border-left-color: var(--selenko); margin-top: 24px;">
+      <h3>The Three-Tier Architecture</h3>
+      <p>How instructions reach Claude — from static to living to reference</p>
+    </div>
+    <div class="tier-stack">
+      <div class="tier-card">
+        <div class="tier-num">1</div>
+        <div class="tier-body">
+          <h4>Custom Instructions</h4>
+          <p>Thin text pasted into each Claude Project's settings. Points Claude to the Notion pages it needs to read. Contains circuit breaker rules — the highest-damage failure mode protections that must always be active. Rarely changes. Approximately 3-5K tokens per project. This is the lightest layer: it exists to bootstrap the Notion connection, not to carry content.</p>
+        </div>
+      </div>
+      <div class="tier-card emphasis">
+        <div class="tier-num">2</div>
+        <div class="tier-body">
+          <h4>Notion Living Layer</h4>
+          <p>The source of truth. Global Instructions, project instruction pages, operator profile, snapshots, digests — all live here. Updated frequently. Read by Claude via MCP at startup. This is where anything that changes lives. The principle: update once in Notion, every project picks it up automatically. This tier contains the vast majority of the system's intelligence — behavioral rules, operational procedures, strategic context, and domain knowledge.</p>
+        </div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-num">3</div>
+        <div class="tier-body">
+          <h4>Project Files</h4>
+          <p>Static reference files attached to Claude Projects. PDFs, research reports, markdown files. Used for content that rarely changes and provides deep reference context. Must stay aligned with Notion — if they conflict, Notion wins. Checked for staleness when instructions update. These are supplementary, not authoritative.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Pages -->
+    <div class="group-label" style="border-left-color: var(--architect)">
+      <h3>Key Pages</h3>
+      <p>The Notion pages that power the system</p>
+    </div>
+    <div class="card-grid" data-search-scope="pages">
+      <div class="info-card" data-search="Global Instructions behavioral rules communication preferences action guardrails quality standards">
+        <div class="info-card-header"><div class="info-card-name">Global Instructions</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">Behavioral rules for ALL Claude Projects. Approximately 55 rules across communication preferences, action guardrails, quality standards, negotiation operations, and more. Living document updated frequently. Every session in every project loads this page. The single most important page in the system.</div>
+        <div class="info-card-id">314b40429ab681259e89faec7f4609a9</div>
+      </div>
+      <div class="info-card" data-search="Global Operator Profile decision patterns venture posture strategic priorities">
+        <div class="info-card-header"><div class="info-card-name">Global Operator Profile</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">The operator's decision-making patterns, venture portfolio overview, and strategic priorities. Contains the Venture Posture Table (9 ventures with posture, time allocation, constraints). Read during startup by all projects. Updated via /emit when cross-venture state changes.</div>
+        <div class="info-card-id">32bb40429ab6810885aecb1618387422</div>
+      </div>
+      <div class="info-card" data-search="Project Registry master list Claude Projects statuses intake">
+        <div class="info-card-header"><div class="info-card-name">Project Registry</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">Master list of all Claude Projects and their statuses. Shows intake status, project status, and links to instruction pages. The source of truth for what projects exist and their current state.</div>
+        <div class="info-card-id">314b40429ab681278d07fee24c4f2487</div>
+      </div>
+      <div class="info-card" data-search="Secretary Pad persistent working state Real-time Assistant cross-session memory">
+        <div class="info-card-header"><div class="info-card-name">Secretary Pad</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">Persistent working state for the Real-time Assistant mode. Claude reads it at startup, writes throughout the session. Contains Current Focus, Activity Log, and a Parking Lot for deferred items. The cross-session memory layer for the Operator.</div>
+        <div class="info-card-id">329b40429ab68199b0fdc4252af76b4e</div>
+      </div>
+      <div class="info-card" data-search="System Operating Guide cheat sheet daily workflow startup sequences Notion page map">
+        <div class="info-card-header"><div class="info-card-name">System Operating Guide</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">The operator's cheat sheet — comprehensive reference covering all active projects, slash commands, daily workflow, startup sequences, Notion page map, built vs. parked inventory, and GitHub Pages hosting. This visual artifact is the interactive companion to that document.</div>
+        <div class="info-card-id">331b40429ab6811588d7f723b5895723</div>
+      </div>
+      <div class="info-card" data-search="Knowledge Registry cross-venture knowledge map domains venture-specific">
+        <div class="info-card-header"><div class="info-card-name">Knowledge Registry</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">Cross-venture knowledge map. Catalogs all knowledge and reference pages across all ventures. Two tiers: Cross-Venture Business Knowledge (foundational business domains) and Venture-Specific Knowledge (per-venture reference pages). Claude checks this when a session touches a business domain.</div>
+      </div>
+      <div class="info-card" data-search="Selenko Artifact Design System typography Outfit venture colors component patterns">
+        <div class="info-card-header"><div class="info-card-name">Selenko Artifact Design System</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">Visual design specification for all HTML artifacts. Typography (Outfit font family), venture color system (11 colors), component patterns (cards, badges, chevrons), layout patterns (tabs, hero, grids, accordions), interaction patterns (command palette, PIN gate, search/filter).</div>
+        <div class="info-card-id">333b40429ab68127ab29dab6c2dcb624</div>
+      </div>
+      <div class="info-card" data-search="HTML Artifact Build Workflow standard process two-chat pattern hub build handoff template">
+        <div class="info-card-header"><div class="info-card-name">HTML Artifact Build Workflow</div><span class="type-badge type-page">Page</span></div>
+        <div class="info-card-desc">Standard process for producing HTML artifacts via the two-chat pattern. Hub chat designs and delegates; build chat produces. Includes phased build process, 10-criteria self-review checklist, and a reusable handoff template.</div>
+        <div class="info-card-id">333b40429ab681babca3c647d4ee14f8</div>
+      </div>
+    </div>
+
+    <!-- Key Databases -->
+    <div class="group-label" style="border-left-color: var(--green)">
+      <h3>Key Databases</h3>
+      <p>Structured data across all ventures</p>
+    </div>
+    <div class="card-grid">
+      <div class="info-card" data-search="Session Log closed chat sessions summary key outputs pending items handoff prompt">
+        <div class="info-card-header"><div class="info-card-name">Session Log</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">Every closed-out chat session. Tracks: chat name, project, area, date, summary, key outputs, pending items, handoff prompt, tags, cross-venture connections, chat status (In Progress → Active — Chat Exists → Deleted — Log Only). Powers the Session Tracker dashboard.</div>
+        <div class="info-card-id">76be6a90-f890-40ec-b8ca-68448c042a37</div>
+      </div>
+      <div class="info-card" data-search="Instruction Improvement Log behavioral improvement candidates /capture feedback loop">
+        <div class="info-card-header"><div class="info-card-name">Instruction Improvement Log</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">Behavioral improvement candidates harvested via /capture. Tracks: description, source session, status, resolution. The feedback loop that makes Global Instructions better over time.</div>
+        <div class="info-card-id">696cbf60-e295-40d7-b3fd-78c72295e2f4</div>
+      </div>
+      <div class="info-card" data-search="Tasks database ventures linked projects operational task layer">
+        <div class="info-card-header"><div class="info-card-name">Tasks</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">All tasks across all ventures. Linked to projects. The operational task layer.</div>
+        <div class="info-card-id">30bb4042-9ab6-8078-8b54-000b310dbffe</div>
+      </div>
+      <div class="info-card" data-search="ActiveMenus Sales Contacts Pizza Expo restaurant contacts IP boundary">
+        <div class="info-card-header"><div class="info-card-name">ActiveMenus Sales Contacts</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">44 contacts from the Pizza Expo. IP boundary enforced: restaurant contacts are shared, partner/competitor intelligence is Serge only.</div>
+        <div class="info-card-id">fa62945d-0b88-4666-a983-6672e4b4c906</div>
+      </div>
+      <div class="info-card" data-search="Key Person Profiles system-wide database communication typology behavioral patterns Voss negotiation">
+        <div class="info-card-header"><div class="info-card-name">Key Person Profiles</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">System-wide database for key people across all ventures. 12 properties including communication typology, behavioral patterns, Voss negotiation frameworks, and Connected People self-relation. 6 entries (1 Full, 1 Partial, 4 Stubs). Searched on-demand from any project.</div>
+      </div>
+      <div class="info-card" data-search="Artifact Registry HTML artifacts GitHub Pages catalog filename live URL">
+        <div class="info-card-header"><div class="info-card-name">Artifact Registry</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">Central catalog of all HTML artifacts hosted on GitHub Pages. Tracks: artifact name, filename, live URL, source project, description, created/updated dates, PIN gate status.</div>
+        <div class="info-card-id">332b40429ab681dc88a1fea8411b028c</div>
+      </div>
+      <div class="info-card" data-search="Convention Sales Log cross-session persistence ActiveMenus convention expo sales activity">
+        <div class="info-card-header"><div class="info-card-name">Convention Sales Log</div><span class="type-badge type-db">Database</span></div>
+        <div class="info-card-desc">Cross-session persistence for ActiveMenus convention and expo sales activity.</div>
+      </div>
+    </div>
+
+    <!-- Index Pages -->
+    <div class="group-label" style="border-left-color: var(--amber)">
+      <h3>Index Pages</h3>
+      <p>N8N-populated pages that bypass the 10-result MCP search cap</p>
+    </div>
+    <div class="compact-list">
+      <div class="compact-row" data-search="Session Log Index N8N"><span class="name">Session Log Index</span><span class="type-badge type-index">Index</span><span class="status">Full session log coverage via N8N automation</span></div>
+      <div class="compact-row" data-search="Tasks Index N8N"><span class="name">Tasks Index</span><span class="type-badge type-index">Index</span><span class="status">Complete task list across all ventures</span></div>
+      <div class="compact-row" data-search="Projects Index N8N"><span class="name">Projects Index</span><span class="type-badge type-index">Index</span><span class="status">All projects with current statuses</span></div>
+      <div class="compact-row" data-search="Improvement Log Index N8N"><span class="name">Improvement Log Index</span><span class="type-badge type-index">Index</span><span class="status">All improvement candidates for review</span></div>
+    </div>
+
+    <div class="tab-footer">Last Updated: March 30, 2026 · Source: System Operating Guide, Global Instructions</div>
+  </div>
+
+  <!-- ==========================================
+       TAB 4: SYSTEM INVENTORY
+       ========================================== -->
+  <div class="tab-content" id="tab-inventory">
+
+    <div class="search-bar" style="margin-top:24px;">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="inv-search" placeholder="Filter inventory items...">
+      <span class="search-count" id="inv-count"></span>
+    </div>
+
+    <div class="accordion" id="inv-accordion">
+      <!-- Built and Working -->
+      <div class="accordion-section is-expanded" data-status="built">
+        <div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+          <div class="accordion-dot" style="background:var(--green)"></div>
+          <div class="accordion-title">Built and Working</div>
+          <div class="accordion-count" data-count-target="built">23</div>
+          <span class="expand-chevron">▸</span>
+        </div>
+        <div class="accordion-body">
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Operator Project (5-mode router)</div>
+              <div class="inv-item-summary">Live. Replaced Advisor + Chief of Staff. All modes auto-detect or activate via slash command.</div>
+              <div class="inv-item-detail">The unified operations hub with 5 modes: Note Processing, Daily Orchestration, Real-time Assistant, Business Advisory, and Venture Mode. Modes auto-detect from context or activate via slash commands. Router page in Notion with 5 sub-pages. Replaced the former separate Advisor and Chief of Staff projects (both archived, not deleted).</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Secretary Pad</div>
+              <div class="inv-item-summary">Live. Persistent working state for Real-time Assistant. Cross-session memory layer.</div>
+              <div class="inv-item-detail">Notion page that Claude reads at startup and writes throughout sessions. Contains Current Focus, Activity Log, and a Parking Lot for deferred items. This is the cross-session continuity mechanism — the Secretary Pad is the ground truth, not the chat history.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Global Instructions</div>
+              <div class="inv-item-summary">Live. ~55 behavioral rules. Updated frequently.</div>
+              <div class="inv-item-detail">The behavioral backbone of the entire system. Loaded into every session in every project via MCP. Covers communication preferences, action guardrails, quality standards, negotiation operations, context window management, and more. Living document — updated frequently as new behavioral patterns are identified.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Global Operator Profile</div>
+              <div class="inv-item-summary">Live. v3.0. Decision patterns, venture posture, strategic priorities.</div>
+              <div class="inv-item-detail">Documents the operator's decision-making patterns, communication preferences, venture portfolio overview, and strategic priorities. Contains the Venture Posture Table. Updated via /emit when cross-venture state changes.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Venture Posture Table</div>
+              <div class="inv-item-summary">Live. v1.1. 9 ventures with posture, time allocation, constraints.</div>
+              <div class="inv-item-detail">Located in the Global Operator Profile. Shows each venture's current posture (active, maintenance, paused), time allocation, and key constraints. Used by drafting rules to prevent committing the operator's time to paused ventures.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Completeness-First Advisory Protocol</div>
+              <div class="inv-item-summary">Live. Two-tier: compact trigger in Global Instructions + full reference page.</div>
+              <div class="inv-item-detail">Ensures Claude proactively covers all material subtopics when operating as primary knowledge source on complex topics. Two-tier implementation: a compact trigger rule in Global Instructions and a full reference page in Notion with domain-specific guidance. Triggered by M&A, entity formation, capital raising, regulatory compliance, and similar complex domains.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Session Management Commands</div>
+              <div class="inv-item-summary">Live. /closeout, /tasks, /capture, /flag, /scope, /snapshot, /digest, /emit all operational.</div>
+              <div class="inv-item-detail">Eight slash commands available across all projects. Each (except /flag, /scope, and /snapshot) has a dedicated Notion prompt page that Claude reads and follows step by step. Commands are never chained — each runs independently when triggered by the user.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Standardized Snapshot Format</div>
+              <div class="inv-item-summary">Live. Two-part format with archive-before-replace workflow.</div>
+              <div class="inv-item-detail">Every project maintains a snapshot on its Notion project page. Two parts: Latest Session (what just happened) and Comprehensive Project State (cumulative full picture). Archive-before-replace workflow ensures no information loss between snapshots.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">DDV Workflow Pattern</div>
+              <div class="inv-item-summary">Live. Design → Delegate → Verify for significant Notion operations.</div>
+              <div class="inv-item-detail">Separates thinking (Claude designs the plan) from execution (Notion AI performs the changes) from verification (Claude checks results via MCP). Used for operations affecting more than 3 pages, instruction page edits, or pages exceeding ~2,000 words. Claude produces self-contained Notion AI prompts; Serge feeds them to Notion AI; Claude verifies.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Three-Tier Architecture</div>
+              <div class="inv-item-summary">Live. Custom Instructions → Notion → Project Files.</div>
+              <div class="inv-item-detail">The layered architecture that keeps the system maintainable. Tier 1 (Custom Instructions) bootstraps the Notion connection. Tier 2 (Notion) is the living source of truth. Tier 3 (Project Files) provides static deep reference. Update once in Notion, every project picks it up.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Instruction Improvement Loop</div>
+              <div class="inv-item-summary">Live. Flags → /capture → Improvement Log → Global Instructions.</div>
+              <div class="inv-item-detail">The self-improvement feedback loop. /flag markers during sessions → /capture harvests them → Improvement Log tracks candidates → approved improvements get added to Global Instructions. No equivalent in any reviewed external system — strongest differentiator of the Life OS.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">ActiveMenus Sales Secretary</div>
+              <div class="inv-item-summary">Live. Operating instructions, Knowledge Digest, Convention Sales Log.</div>
+              <div class="inv-item-detail">Full operational infrastructure for ActiveMenus sales operations. Includes operating instructions for the Real-time Assistant mode when handling ActiveMenus, the venture Knowledge Digest with competitive landscape and pricing data, and the Convention Sales Log for cross-session expo persistence.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">ActiveMenus Sales Contacts DB</div>
+              <div class="inv-item-summary">Live. 44 expo contacts with IP boundary.</div>
+              <div class="inv-item-detail">Notion database with 44 contacts from the Pizza Expo. IP boundary enforced: restaurant contacts are shared with the ActiveMenus team, but partner and competitor intelligence is Serge's only.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">N8N Index Pages</div>
+              <div class="inv-item-summary">Live. Tasks, Projects, Session Log, Improvement Log indexes.</div>
+              <div class="inv-item-detail">Four Notion pages populated by N8N automation to bypass the 10-result MCP search cap. Give Claude full database coverage when the standard search would truncate results. N8N runs on a schedule to keep them current.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">GitHub Pages Artifact Hosting</div>
+              <div class="inv-item-summary">Live. Repo, PIN gate, push workflow, artifact registry.</div>
+              <div class="inv-item-detail">Public GitHub repo (sergeselenko/apps) with GitHub Pages enabled. PIN gate provides obscurity-level protection. Two push methods: CoWork project (automatic on new files) and Terminal alias (dailypush one-word command). All artifacts tracked in the Artifact Registry.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Context Window Status Footer</div>
+              <div class="inv-item-summary">Live. Token estimate + compaction risk on every response.</div>
+              <div class="inv-item-detail">One-line footer on every Claude response showing estimated token usage, what's consuming context, and compaction risk assessment. Includes thinking mode label. Always-on ambient awareness — not a warning, but a passive status indicator.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Knowledge Registry</div>
+              <div class="inv-item-summary">Live. Cross-venture knowledge map.</div>
+              <div class="inv-item-detail">Catalogs all knowledge and reference pages across all ventures. Two tiers: Cross-Venture Business Knowledge (foundational business domains that apply to all ventures) and Venture-Specific Knowledge (per-venture reference pages). Claude checks this when a session touches a business domain that may have existing reference material.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Expert Analysis Review</div>
+              <div class="inv-item-summary">Live. Mandatory quality gate for complex deliverables.</div>
+              <div class="inv-item-detail">When Claude produces a substantive deliverable that informs downstream decisions, the plan must include a review step. Claude produces a self-contained handoff prompt for a dedicated review chat that cross-references the deliverable against source material independently. Catches what the producing chat's context window may have crowded out.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Thinking Mode Declarations + Footer Labels</div>
+              <div class="inv-item-summary">Live. Cognitive mode visibility for steering.</div>
+              <div class="inv-item-detail">Claude declares its current thinking mode (Evaluation, Solution Design, Synthesis, Critique, Brainstorm, etc.) at the start of substantive responses. The footer label confirms what mode was actually used. Makes Claude's reasoning stance visible so the user can redirect if the mode doesn't match what's needed.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Cognitive Phase Labeling</div>
+              <div class="inv-item-summary">Live. Analyze → Design → Build → Verify for complex deliverables.</div>
+              <div class="inv-item-detail">For complex deliverables, Claude declares the cognitive phase before entering it: Analyze (reading, understanding), Design (proposing approaches), Build (producing), Verify (checking). The approval cycle gates between Design and Build. Phase labels add visibility to thinking that precedes the plan.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Key Person Profiles</div>
+              <div class="inv-item-summary">Live. System-wide database, 6 entries.</div>
+              <div class="inv-item-detail">Notion database for key people across all ventures. 12 properties including communication typology, behavioral patterns, Voss negotiation frameworks, and Connected People self-relation. 6 entries seeded (1 Full, 1 Partial, 4 Stubs). Searched on-demand before producing any output involving a named individual.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Selenko Artifact Design System</div>
+              <div class="inv-item-summary">Live. Visual spec for all HTML artifacts.</div>
+              <div class="inv-item-detail">Extracted from the System Architecture Visual v3. Defines typography (Outfit font family), venture color system (11 colors), component patterns (cards, badges, chevrons), layout patterns (tabs, hero, grids, accordions), interaction patterns (command palette, PIN gate, search/filter), and responsive rules. Binding constraints for all HTML artifacts.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">HTML Artifact Build Workflow</div>
+              <div class="inv-item-summary">Live. Standard process with handoff template.</div>
+              <div class="inv-item-detail">The standard workflow for producing HTML artifacts hosted on GitHub Pages. Defines the two-chat pattern (hub designs + delegates, build chat produces), phased build process (Design Spec → Build → Self-Review → User Review → Iterate), 10-criteria self-review checklist, and a reusable handoff template with all three Delegation Prompt Quality Standard elements.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Designed but Not Yet Built -->
+      <div class="accordion-section" data-status="designed">
+        <div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+          <div class="accordion-dot" style="background:var(--amber)"></div>
+          <div class="accordion-title">Designed but Not Yet Built</div>
+          <div class="accordion-count" data-count-target="designed">4</div>
+          <span class="expand-chevron">▸</span>
+        </div>
+        <div class="accordion-body">
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">CRM + AI Automation + Lead Profile Architecture</div>
+              <div class="inv-item-summary">High-level architecture captured. Not designed in detail.</div>
+              <div class="inv-item-detail">Cross-venture CRM architecture that would unify lead and contact management across ActiveMenus, Lead Gen, and other ventures. High-level design exists but detailed interaction model and Notion database schema not yet designed.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">AI Sales System Architecture</div>
+              <div class="inv-item-summary">10-question assessment, 7 of 10 answered, 3 parked.</div>
+              <div class="inv-item-detail">Architecture assessment for an AI-powered sales system. 10 key architectural questions defined; 7 have been answered through Architect sessions, 3 remain parked for future work. Applies the Secretary pattern to sales lead management.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Knowledge File Migration to Notion</div>
+              <div class="inv-item-summary">In progress. Registry scaffolded, A-K domains pending migration.</div>
+              <div class="inv-item-detail">Migrating knowledge from static Claude Project files into the Notion Knowledge Registry. Registry page is scaffolded; individual domain knowledge pages (A through K) are pending creation and population.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Command Center Dashboard</div>
+              <div class="inv-item-summary">Architecture designed. 4-layer approach with GitHub Pages dashboard.</div>
+              <div class="inv-item-detail">A visual dashboard for cross-venture operational awareness. 4-layer architecture designed: GitHub Pages dashboard + Claude Code API processing. High priority. Would provide real-time visibility into tasks, sessions, and venture health from a single page.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discussed but Not Designed -->
+      <div class="accordion-section" data-status="discussed">
+        <div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+          <div class="accordion-dot" style="background:var(--gray-mid)"></div>
+          <div class="accordion-title">Discussed but Not Designed</div>
+          <div class="accordion-count" data-count-target="discussed">5</div>
+          <span class="expand-chevron">▸</span>
+        </div>
+        <div class="accordion-body">
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Dual Phone Number System</div>
+              <div class="inv-item-summary">OpenPhone as immediate solution, custom gateway as future item. Parked.</div>
+              <div class="inv-item-detail">Two-track approach for business communications: adopt OpenPhone immediately for personal number protection, build a custom communications gateway app as a formal AI Digital Products roadmap item. Currently parked.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">System Visualization Tool</div>
+              <div class="inv-item-summary">Visual map of how everything connects. No design work done.</div>
+              <div class="inv-item-detail">A tool for creating and maintaining visual maps of the system architecture. Explored Figma MCP and FigJam (generate-only limitation). Eraser.io selected as primary diagramming tool. The System Architecture Visual (this page) partially fulfills this need.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Monthly Knowledge Base Refresh via N8N</div>
+              <div class="inv-item-summary">Automation for keeping digests current. Not started.</div>
+              <div class="inv-item-detail">N8N automation that would trigger monthly reviews of Knowledge Digests across all ventures, ensuring domain intelligence stays current. Would complement the /digest command with scheduled refresh cycles.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Morning Brief (N8N)</div>
+              <div class="inv-item-summary">Full v3 architecture spec produced. Pre-compiles Tasks + Calendar + Gmail at 6am. Not built.</div>
+              <div class="inv-item-detail">An overnight digest compiled by N8N at 6am daily. Pre-compiles Tasks, Calendar, Gmail (4 accounts), and system health into a single Notion page. Full 9-section architecture spec with Phase A-G build sequence (7-11 hours). Dependency: Multi-Inbox Email Strategy.</div>
+            </div>
+          </div>
+          <div class="inv-item" onclick="this.classList.toggle('is-expanded')">
+            <span class="expand-chevron">▸</span>
+            <div class="inv-item-body">
+              <div class="inv-item-name">Multi-Inbox Email Strategy</div>
+              <div class="inv-item-summary">4-account Gmail architecture designed. Dependency for Morning Brief. Not built.</div>
+              <div class="inv-item-detail">Complete 4-account Gmail integration architecture for the Life OS. Full N8N workflow specs for all four accounts. Resources Vault entry and Tech Stack update completed. This is a declared dependency for Morning Brief Phases C-E.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-footer">Last Updated: March 30, 2026 · Source: System Operating Guide</div>
+  </div>
+
+  <!-- ==========================================
+       TAB 5: GITHUB PAGES ARTIFACTS
+       ========================================== -->
+  <div class="tab-content" id="tab-artifacts">
+
+    <div class="group-label" style="border-left-color: var(--selenko); margin-top: 24px;">
+      <h3>Hosting Infrastructure</h3>
+      <p>Where artifacts live and how they're secured</p>
+    </div>
+    <div class="card" data-search="GitHub Pages repository sergeselenko apps PIN gate security">
+      <div class="card-bar" style="background: var(--selenko)"></div>
+      <div class="card-desc" style="margin-top:12px;">
+        <strong>Repository:</strong> <code>github.com/sergeselenko/apps</code> — public repo, GitHub Pages enabled<br>
+        <strong>Live URL base:</strong> <code>sergeselenko.github.io/apps/</code><br>
+        <strong>Authentication:</strong> GitHub Personal Access Token embedded in git remote URL<br>
+        <strong>Security:</strong> PIN gate (SHA-256, PIN 1930) — obscurity-level, not encryption. Fine for dashboards, not for PII.
+      </div>
+    </div>
+
+    <div class="group-label" style="border-left-color: var(--selenko)">
+      <h3>Push Workflow</h3>
+      <p>From Claude to live page</p>
+    </div>
+    <div class="two-col">
+      <div class="card" data-search="CoWork project apps folder instruction git push automatic">
+        <div class="card-bar" style="background: var(--selenko)"></div>
+        <div class="card-header"><div class="card-name sm">Primary — CoWork Project</div></div>
+        <div class="card-desc">"apps" project in Claude Desktop. Folder instruction triggers git add/commit/push on new files. Only runs while Mac is awake. Automatic deployment when files land in the folder.</div>
+      </div>
+      <div class="card" data-search="Terminal alias dailypush zshrc backup manual push">
+        <div class="card-bar" style="background: var(--selenko)"></div>
+        <div class="card-header"><div class="card-name sm">Backup — Terminal Alias</div></div>
+        <div class="card-desc"><code>dailypush</code> alias in ~/.zshrc. One-word command. Manual fallback when CoWork isn't running.</div>
+        <div class="code-block">cd ~/Documents/apps && git add -A && git commit -m "update" && git push</div>
+      </div>
+    </div>
+
+    <!-- Push Flow -->
+    <div class="diagram-container" style="margin-top:16px;">
+      <svg viewBox="0 0 740 70" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:740px;display:block;margin:0 auto;">
+        <defs><marker id="arrow3" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#6d28d9"/></marker></defs>
+        <rect x="0" y="15" width="160" height="40" rx="10" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="80" y="40" text-anchor="middle" font-size="12" font-weight="600" fill="#111827">Claude produces HTML</text>
+        <line x1="160" y1="35" x2="195" y2="35" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow3)"/>
+        <rect x="200" y="15" width="140" height="40" rx="10" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="270" y="40" text-anchor="middle" font-size="12" font-weight="600" fill="#111827">User downloads</text>
+        <line x1="340" y1="35" x2="395" y2="35" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow3)"/>
+        <rect x="400" y="15" width="140" height="40" rx="10" fill="white" stroke="#dfe1e6" stroke-width="1.5"/>
+        <text x="470" y="40" text-anchor="middle" font-size="12" font-weight="600" fill="#111827">Push to GitHub</text>
+        <line x1="540" y1="35" x2="575" y2="35" stroke="#6d28d9" stroke-width="1.5" marker-end="url(#arrow3)"/>
+        <rect x="580" y="15" width="150" height="40" rx="10" fill="white" stroke="#6d28d9" stroke-width="1.5"/>
+        <text x="655" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">Live on GitHub Pages</text>
+      </svg>
+    </div>
+
+    <div class="group-label" style="border-left-color: var(--selenko)">
+      <h3>Artifact Registry & Design Consistency</h3>
+      <p>Tracking and standards for all hosted artifacts</p>
+    </div>
+    <div class="two-col">
+      <div class="card" data-search="Artifact Registry catalog filename URL source project dates PIN gate status">
+        <div class="card-bar" style="background: var(--green)"></div>
+        <div class="card-header"><div class="card-name sm">Artifact Registry</div></div>
+        <div class="card-desc">All hosted artifacts are cataloged in the Artifact Registry Notion database. Tracks: artifact name, filename, live URL, source project, description, dates, PIN gate status. Manually maintained after each push.</div>
+      </div>
+      <div class="card" data-search="Design Consistency Selenko Artifact Design System Build Workflow handoff template">
+        <div class="card-bar" style="background: var(--selenko)"></div>
+        <div class="card-header"><div class="card-name sm">Design Consistency</div></div>
+        <div class="card-desc">All HTML artifacts follow the Selenko Artifact Design System (Notion page). Hub chats producing delegation prompts use the HTML Artifact Build Workflow and its handoff template. This ensures visual consistency across all hosted artifacts — same fonts, colors, components, and interactions.</div>
+      </div>
+    </div>
+
+    <div class="tab-footer">Last Updated: March 30, 2026 · Source: System Operating Guide</div>
+  </div>
+
+  <!-- ==========================================
+       COMMAND PALETTE
+       ========================================== -->
+  <div class="palette-overlay" id="palette-overlay">
+    <div class="palette-modal">
+      <div class="palette-input-wrap">
+        <input type="text" class="palette-input" id="palette-input" placeholder="Search everything...">
+      </div>
+      <div class="palette-results" id="palette-results"></div>
+    </div>
+  </div>
+
 </div><!-- /main-content -->
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
 <script>
-const PIN_HASH='70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
-const pinInput=document.getElementById('pin-input'),pinGate=document.getElementById('pin-gate'),mainContent=document.getElementById('main-content'),pinHint=document.getElementById('pin-hint');
-async function sha256(m){const b=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('')}
-pinInput.addEventListener('input',async function(){if(this.value.length>=4){const h=await sha256(this.value);if(h===PIN_HASH){pinGate.classList.add('hidden');mainContent.classList.add('visible')}else{this.classList.add('shake');pinHint.textContent='Incorrect PIN';pinHint.style.color='#ef4444';setTimeout(()=>{this.classList.remove('shake');this.value='';pinHint.textContent=''},600)}}});
-document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('tab-'+btn.dataset.tab).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})})});
-function toggleCard(el){el.classList.toggle('is-expanded')}
-function toggleAcc(el){el.classList.toggle('is-expanded')}
-const invSearch=document.getElementById('inv-search');
-invSearch&&invSearch.addEventListener('input',function(){const q=this.value.toLowerCase().trim();document.querySelectorAll('.inv-item').forEach(item=>{const n=(item.querySelector('.inv-item-name')||{}).textContent||'';const d=(item.querySelector('.inv-item-desc')||{}).textContent||'';item.classList.toggle('hidden-by-search',q&&!n.toLowerCase().includes(q)&&!d.toLowerCase().includes(q))});['built','designed','discussed'].forEach(t=>{const acc=document.getElementById('acc-'+t);if(!acc)return;const v=acc.querySelectorAll('.inv-item:not(.hidden-by-search)').length;const ct=document.getElementById(t+'-count');if(ct)ct.textContent=v})});
-const po=document.getElementById('cmd-palette-overlay'),pi=document.getElementById('cmd-palette-input'),pr=document.getElementById('cmd-palette-results');
-const items=[{t:'Ecosystem',s:'Tab 1',tab:'ecosystem'},{t:'Core Projects',s:'Ecosystem',tab:'ecosystem'},{t:'Architect',s:'Core Project',tab:'ecosystem'},{t:'Operator',s:'Core · 5 modes',tab:'ecosystem'},{t:'ActiveMenus',s:'Area Project',tab:'ecosystem'},{t:'Session Lifecycle',s:'Tab 2',tab:'lifecycle'},{t:'Slash Commands',s:'Lifecycle',tab:'lifecycle'},{t:'/closeout',s:'Command',tab:'lifecycle'},{t:'/tasks',s:'Command',tab:'lifecycle'},{t:'/capture',s:'Command',tab:'lifecycle'},{t:'/emit',s:'Command',tab:'lifecycle'},{t:'/digest',s:'Command',tab:'lifecycle'},{t:'/snapshot',s:'Command',tab:'lifecycle'},{t:'/flag',s:'Command',tab:'lifecycle'},{t:'/scope',s:'Command',tab:'lifecycle'},{t:'Infrastructure',s:'Tab 3',tab:'infrastructure'},{t:'Three-Tier Architecture',s:'Infrastructure',tab:'infrastructure'},{t:'Global Instructions',s:'System Page',tab:'infrastructure'},{t:'Secretary Pad',s:'System Page',tab:'infrastructure'},{t:'Global Operator Profile',s:'System Page',tab:'infrastructure'},{t:'Databases',s:'Infrastructure',tab:'infrastructure'},{t:'System Inventory',s:'Tab 4',tab:'inventory'},{t:'Built & Working',s:'25 items',tab:'inventory'},{t:'DDV Workflow',s:'Built',tab:'inventory'},{t:'Instruction Improvement Loop',s:'Built',tab:'inventory'},{t:'Command Center Dashboard',s:'Designed',tab:'inventory'},{t:'Morning Brief',s:'Discussed',tab:'inventory'},{t:'Artifacts',s:'Tab 5',tab:'artifacts'}];
-let si=0;
-function rp(q){const f=q?items.filter(i=>i.t.toLowerCase().includes(q)||i.s.toLowerCase().includes(q)):items.slice(0,10);si=0;pr.innerHTML=f.map((i,x)=>'<div class="cmd-palette-item'+(x===0?' selected':'')+'" data-tab="'+i.tab+'" data-i="'+x+'"><div class="cmd-palette-item-title">'+i.t+'</div><div class="cmd-palette-item-section">'+i.s+'</div></div>').join('');pr.querySelectorAll('.cmd-palette-item').forEach(el=>{el.onclick=()=>{switchTab(el.dataset.tab);cp()};el.onmouseenter=()=>{pr.querySelectorAll('.cmd-palette-item').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');si=+el.dataset.i}})}
-function switchTab(tab){document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.toggle('active',b.dataset.tab===tab)});document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));var pane=document.getElementById('tab-'+tab);if(pane)pane.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
-function openPalette(){po.classList.add('open');pi.value='';rp('');setTimeout(()=>pi.focus(),50)}
-function cp(){po.classList.remove('open')}
-document.addEventListener('keydown',e=>{if(pinGate&&!pinGate.classList.contains('hidden'))return;if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();openPalette()}if(e.key==='Escape')cp();if(po.classList.contains('open')){var its=pr.querySelectorAll('.cmd-palette-item');if(e.key==='ArrowDown'){e.preventDefault();si=Math.min(si+1,its.length-1);its.forEach((x,i)=>x.classList.toggle('selected',i===si))}if(e.key==='ArrowUp'){e.preventDefault();si=Math.max(si-1,0);its.forEach((x,i)=>x.classList.toggle('selected',i===si))}if(e.key==='Enter'){e.preventDefault();var s=its[si];if(s){switchTab(s.dataset.tab);cp()}}}});
-pi&&pi.addEventListener('input',function(){rp(this.value.toLowerCase().trim())});
-po.addEventListener('click',e=>{if(e.target===po)cp()});
-window.addEventListener('load',()=>pinInput.focus());
+(function() {
+  'use strict';
+
+  // ==========================================
+  // PIN GATE
+  // ==========================================
+  const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+
+  async function sha256(msg) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  const pinGate = document.getElementById('pin-gate');
+  const pinInput = document.getElementById('pin-input');
+  const pinBtn = document.getElementById('pin-btn');
+  const mainContent = document.getElementById('main-content');
+
+  // Check sessionStorage
+  if (sessionStorage.getItem('sa-unlocked') === '1') {
+    pinGate.style.display = 'none';
+    mainContent.classList.add('visible');
+  }
+
+  async function tryUnlock() {
+    const val = pinInput.value.trim();
+    const hash = await sha256(val);
+    if (hash === PIN_HASH) {
+      sessionStorage.setItem('sa-unlocked', '1');
+      pinGate.classList.add('hidden');
+      setTimeout(() => { pinGate.style.display = 'none'; mainContent.classList.add('visible'); }, 300);
+    } else {
+      pinInput.classList.add('shake');
+      pinInput.value = '';
+      setTimeout(() => pinInput.classList.remove('shake'), 400);
+    }
+  }
+
+  pinBtn.addEventListener('click', tryUnlock);
+  pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+  pinInput.focus();
+
+  // ==========================================
+  // TAB SWITCHING
+  // ==========================================
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+  const tabMap = {
+    'ecosystem': 'tab-ecosystem',
+    'lifecycle': 'tab-lifecycle',
+    'infra': 'tab-infra',
+    'inventory': 'tab-inventory',
+    'artifacts': 'tab-artifacts'
+  };
+
+  function switchTab(tabName) {
+    tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+    tabContents.forEach(tc => {
+      if (tc.id === tabMap[tabName]) {
+        tc.style.display = 'block';
+        requestAnimationFrame(() => { tc.classList.add('active'); });
+      } else {
+        tc.classList.remove('active');
+        setTimeout(() => { if (!tc.classList.contains('active')) tc.style.display = 'none'; }, 200);
+      }
+    });
+  }
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // ==========================================
+  // ACCORDION
+  // ==========================================
+  window.toggleAccordion = function(section) {
+    section.classList.toggle('is-expanded');
+  };
+
+  // ==========================================
+  // INVENTORY SEARCH
+  // ==========================================
+  const invSearch = document.getElementById('inv-search');
+  const invCount = document.getElementById('inv-count');
+  const allInvItems = document.querySelectorAll('#inv-accordion .inv-item');
+  const accordionSections = document.querySelectorAll('#inv-accordion .accordion-section');
+
+  invSearch.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    let total = 0;
+    let shown = 0;
+
+    allInvItems.forEach(item => {
+      total++;
+      const name = item.querySelector('.inv-item-name').textContent.toLowerCase();
+      const summary = item.querySelector('.inv-item-summary').textContent.toLowerCase();
+      const detail = item.querySelector('.inv-item-detail') ? item.querySelector('.inv-item-detail').textContent.toLowerCase() : '';
+      const match = !q || name.includes(q) || summary.includes(q) || detail.includes(q);
+      item.style.display = match ? '' : 'none';
+      if (match) shown++;
+    });
+
+    // Update counts per section
+    accordionSections.forEach(sec => {
+      const items = sec.querySelectorAll('.inv-item');
+      let secCount = 0;
+      items.forEach(i => { if (i.style.display !== 'none') secCount++; });
+      const countEl = sec.querySelector('.accordion-count');
+      countEl.textContent = secCount;
+      // Force expand when searching
+      if (q) {
+        sec.classList.add('is-expanded');
+      }
+    });
+
+    // Restore default state when cleared
+    if (!q) {
+      accordionSections.forEach((sec, i) => {
+        sec.classList.toggle('is-expanded', i === 0);
+      });
+    }
+
+    invCount.textContent = q ? `Showing ${shown} of ${total} items` : '';
+  });
+
+  // ==========================================
+  // COMMAND PALETTE
+  // ==========================================
+  const paletteOverlay = document.getElementById('palette-overlay');
+  const paletteInput = document.getElementById('palette-input');
+  const paletteResults = document.getElementById('palette-results');
+  const paletteTrigger = document.getElementById('palette-trigger');
+
+  // Build search index
+  const searchIndex = [];
+  function addToIndex(title, tab, tabName, elementId) {
+    searchIndex.push({ title, tab, tabName, elementId });
+  }
+
+  // Index cards with data-search
+  document.querySelectorAll('[data-search]').forEach(el => {
+    const title = el.querySelector('.card-name, .info-card-name, .cmd-name, .inv-item-name, .name');
+    if (!title) return;
+    const titleText = title.textContent;
+    const tabContent = el.closest('.tab-content');
+    let tabName = 'Unknown';
+    if (tabContent) {
+      const id = tabContent.id;
+      if (id === 'tab-ecosystem') tabName = 'Ecosystem Map';
+      else if (id === 'tab-lifecycle') tabName = 'Session Lifecycle';
+      else if (id === 'tab-infra') tabName = 'Infrastructure';
+      else if (id === 'tab-inventory') tabName = 'System Inventory';
+      else if (id === 'tab-artifacts') tabName = 'GitHub Pages';
+    }
+    const tab = tabContent ? tabContent.id.replace('tab-', '') : '';
+    el.id = el.id || 'si-' + searchIndex.length;
+    addToIndex(titleText, tab, tabName, el.id);
+  });
+
+  // Also index by mode names
+  document.querySelectorAll('.mode-item').forEach((el, i) => {
+    const name = el.querySelector('.mode-name').textContent;
+    el.id = el.id || 'mode-' + i;
+    addToIndex(name, 'ecosystem', 'Ecosystem Map', el.id);
+  });
+
+  let selectedIdx = -1;
+
+  function openPalette() {
+    paletteOverlay.classList.add('visible');
+    paletteInput.value = '';
+    paletteInput.focus();
+    renderPaletteResults('');
+    selectedIdx = -1;
+  }
+
+  function closePalette() {
+    paletteOverlay.classList.remove('visible');
+  }
+
+  function renderPaletteResults(q) {
+    const lq = q.toLowerCase();
+    const matches = lq ? searchIndex.filter(item =>
+      item.title.toLowerCase().includes(lq)
+    ).slice(0, 20) : searchIndex.slice(0, 15);
+
+    if (matches.length === 0) {
+      paletteResults.innerHTML = '<div class="palette-empty">No results found</div>';
+      return;
+    }
+
+    paletteResults.innerHTML = matches.map((m, i) =>
+      `<div class="palette-item${i === selectedIdx ? ' selected' : ''}" data-idx="${i}" data-tab="${m.tab}" data-el="${m.elementId}">
+        <span class="palette-item-title">${m.title}</span>
+        <span class="palette-item-tab">${m.tabName}</span>
+      </div>`
+    ).join('');
+
+    paletteResults.querySelectorAll('.palette-item').forEach(item => {
+      item.addEventListener('click', () => selectPaletteItem(item));
+    });
+  }
+
+  function selectPaletteItem(item) {
+    const tab = item.dataset.tab;
+    const elId = item.dataset.el;
+    closePalette();
+    switchTab(tab);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const target = document.getElementById(elId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.classList.add('highlight-pulse');
+          setTimeout(() => target.classList.remove('highlight-pulse'), 1500);
+        }
+      });
+    });
+  }
+
+  paletteInput.addEventListener('input', () => {
+    selectedIdx = -1;
+    renderPaletteResults(paletteInput.value);
+  });
+
+  paletteInput.addEventListener('keydown', e => {
+    const items = paletteResults.querySelectorAll('.palette-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIdx = Math.min(selectedIdx + 1, items.length - 1);
+      items.forEach((it, i) => it.classList.toggle('selected', i === selectedIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIdx = Math.max(selectedIdx - 1, 0);
+      items.forEach((it, i) => it.classList.toggle('selected', i === selectedIdx));
+    } else if (e.key === 'Enter' && selectedIdx >= 0 && items[selectedIdx]) {
+      selectPaletteItem(items[selectedIdx]);
+    } else if (e.key === 'Escape') {
+      closePalette();
+    }
+  });
+
+  paletteTrigger.addEventListener('click', openPalette);
+  paletteOverlay.addEventListener('click', e => {
+    if (e.target === paletteOverlay) closePalette();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      openPalette();
+    }
+    if (e.key === 'Escape') closePalette();
+  });
+
+})();
 </script>
+
 </body>
 </html>
