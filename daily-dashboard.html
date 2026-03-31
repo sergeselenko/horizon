@@ -3,188 +3,820 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Combined Dashboard — Monday March 30, 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Daily Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#f0f2f7;--card:rgba(255,255,255,0.65);--card-hover:rgba(255,255,255,0.82);--border:rgba(0,0,0,0.06);--text:#1a1d2b;--text2:#4a5068;--muted:#8891a5;--red:#e63946;--amber:#e6940a;--blue:#2563eb;--green:#16a34a;--slate:#64748b;--section-bg:rgba(30,35,55,0.07)}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;position:relative;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 20% 20%,rgba(37,99,235,0.08),transparent 50%),radial-gradient(ellipse at 80% 30%,rgba(124,58,237,0.06),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(230,148,10,0.06),transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(22,163,74,0.05),transparent 50%);pointer-events:none}
-.container{max-width:820px;margin:0 auto;padding:20px 16px;position:relative;z-index:1}
-h1{font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;margin-bottom:4px}
-.subtitle{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:16px}
-.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.4);backdrop-filter:blur(8px);border-radius:12px;padding:4px;border:1px solid var(--border)}
-.tab{flex:1;padding:10px 16px;border-radius:10px;border:none;background:transparent;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.25s ease;color:var(--muted)}
-.tab.active{background:white;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-.tab:hover:not(.active){color:var(--text2)}
-.tab-content{display:none;animation:fadeIn 0.35s ease}
-.tab-content.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.card{background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:all 0.2s ease}
-.card:hover{background:var(--card-hover);box-shadow:0 4px 16px rgba(0,0,0,0.04)}
-.section{margin-bottom:16px}
-.section-header{background:var(--section-bg);padding:10px 14px;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
-.section-header h3{font-weight:700;font-size:0.95rem;flex:1}
-.section-header .count{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted);background:rgba(0,0,0,0.04);padding:2px 8px;border-radius:6px}
-.section-body{border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;padding:12px 14px}
-.section-body.collapsed{display:none}
-.chevron{transition:transform 0.25s ease;font-size:0.8rem}
-.section.open .chevron{transform:rotate(180deg)}
-.card.urgent{border-left:3px solid var(--red)}
-.card.input{border-left:3px solid var(--blue)}
-.card.next{border-left:3px solid var(--amber)}
-.card.done{border-left:3px solid var(--green)}
-.card.parked{border-left:3px solid var(--slate)}
-.vtag{font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:600;padding:2px 7px;border-radius:5px;display:inline-block;letter-spacing:0.04em;vertical-align:middle;margin-right:4px}
-.vtag-household{background:rgba(37,99,235,0.12);color:#2563eb}
-.vtag-activemenus{background:rgba(230,148,10,0.12);color:#b87308}
-.vtag-everlane{background:rgba(124,58,237,0.12);color:#7c3aed}
-.vtag-aidigiproducts{background:rgba(230,57,70,0.12);color:#e63946}
-.vtag-selenko{background:rgba(109,40,217,0.12);color:#6d28d9}
-.vtag-personal{background:rgba(8,145,178,0.12);color:#0891b2}
-.vtag-titleco{background:rgba(13,148,136,0.12);color:#0d9488}
-.vtag-leadgen{background:rgba(22,163,74,0.12);color:#16a34a}
-.vtag-couples{background:rgba(236,72,153,0.12);color:#ec4899}
-.phase{margin-bottom:16px}
-.phase-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.phase-icon{font-size:1.1rem}
-.phase-title{font-weight:700;font-size:0.95rem}
-.phase-time{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted)}
-.step{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:4px;font-size:0.85rem;line-height:1.45}
-.step:hover{background:rgba(0,0,0,0.02)}
-.step-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:0.75rem;flex-shrink:0}
-.step-text{flex:1}
-.step-text strong{font-weight:600}
-.timeline{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding:4px 0}
-.tday{flex:1;min-width:90px;background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center;font-size:0.72rem;transition:all 0.2s ease}
-.tday.today{border-color:var(--blue);background:rgba(37,99,235,0.06)}
-.tday-name{font-weight:700;font-size:0.75rem;margin-bottom:2px}
-.tday-date{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:4px}
-.tday-event{font-size:0.65rem;color:var(--text2);line-height:1.3}
-.audit-badge{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;padding:3px 8px;border-radius:6px;margin-left:4px}
-.audit-stale{background:rgba(230,148,10,0.12);color:#b87308}
-.audit-alert{background:rgba(230,57,70,0.12);color:#e63946}
-.footer{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);padding:20px 0 10px;border-top:1px solid var(--border);margin-top:24px}
-.focus-banner{background:linear-gradient(135deg,rgba(230,57,70,0.08),rgba(109,40,217,0.06));border:1px solid rgba(230,57,70,0.15);border-radius:14px;padding:14px 18px;margin-bottom:16px}
-.focus-banner h3{font-weight:700;font-size:0.9rem;margin-bottom:6px;color:var(--red)}
-.focus-banner p{font-size:0.82rem;color:var(--text2);line-height:1.45}
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-border: #dfe1e6;
+  --text: #111827;
+  --text-sec: #4b5563;
+  --text-muted: #9ca3af;
+  --selenko: #6d28d9;
+  --hover-bg: rgba(109,40,217,0.04);
+  --hover-border: rgba(109,40,217,0.25);
+  --mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+  --activemenus: #e6940a;
+  --ai-digital: #e63946;
+  --everlane: #7c3aed;
+  --title-co: #0d9488;
+  --lead-gen: #16a34a;
+  --couples: #ec4899;
+  --personal: #0891b2;
+  --household: #2563eb;
+  --red: #dc2626;
+  --blue: #3b82f6;
+  --amber: #d97706;
+  --green: #059669;
+  --gray: #6b7280;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
+::selection{background:rgba(109,40,217,0.18);}
+
+/* ═══ PIN GATE ═══ */
+#pin-gate{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(160deg,#eee8ff 0%,#f5f5f7 40%,#e8eeff 100%);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 0.45s ease;
+}
+#pin-gate.hidden{opacity:0;pointer-events:none;}
+.pin-card{
+  background:var(--card);border:1.5px solid var(--card-border);border-radius:20px;
+  padding:48px 40px;text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,0.08);
+  max-width:340px;width:90%;
+}
+.pin-card h1{font-size:24px;font-weight:800;margin-bottom:4px;color:var(--text);}
+.pin-card .pin-sub{font-size:13px;font-weight:400;color:var(--text-muted);margin-bottom:28px;}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:24px;}
+.pin-dot{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid var(--card-border);background:var(--card);
+  transition:all 0.2s ease;
+}
+.pin-dot.filled{background:var(--selenko);border-color:var(--selenko);transform:scale(1.1);}
+#pin-input{
+  position:absolute;opacity:0;width:1px;height:1px;
+}
+.pin-error{
+  font-size:12px;font-weight:500;color:var(--red);
+  height:18px;margin-top:4px;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  15%,45%,75%{transform:translateX(-8px);}
+  30%,60%,90%{transform:translateX(8px);}
+}
+.shake{animation:shake 0.5s ease;}
+
+/* ═══ DASHBOARD CONTENT ═══ */
+#dashboard{display:none;}
+#dashboard.visible{display:block;}
+
+/* ═══ STICKY HEADER ═══ */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(245,245,247,0.88);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1.5px solid var(--card-border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;
+}
+.header-title{font-size:17px;font-weight:700;color:var(--text);white-space:nowrap;}
+.header-tabs{display:flex;gap:4px;}
+.tab-btn{
+  padding:8px 18px;font-size:13px;font-weight:600;
+  border-radius:8px;border:none;cursor:pointer;
+  font-family:'Outfit',sans-serif;
+  background:transparent;color:var(--text-sec);
+  transition:all 0.2s ease;position:relative;
+}
+.tab-btn:hover{background:var(--hover-bg);color:var(--selenko);}
+.tab-btn.active{background:rgba(109,40,217,0.08);color:var(--selenko);}
+.tab-btn.active::after{
+  content:'';position:absolute;bottom:-1px;left:12px;right:12px;
+  height:2.5px;background:var(--selenko);border-radius:2px;
+}
+.header-date{font-size:13px;font-weight:500;color:var(--text-sec);white-space:nowrap;}
+
+/* ═══ TAB CONTENT ═══ */
+.tab-content{display:none;padding:24px;max-width:800px;margin:0 auto;}
+.tab-content.active{display:block;}
+
+/* ═══ STAGGERED ENTRANCE ═══ */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(14px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.tab-content.active .anim-item{
+  opacity:0;
+  animation:fadeInUp 0.4s ease-out forwards;
+}
+
+/* ═══ PRIORITY BANNER ═══ */
+.priority-banner{
+  background:linear-gradient(160deg,#eee8ff 0%,#f8f8fa 50%,#e8eeff 100%);
+  border:1.5px solid var(--card-border);border-radius:14px;
+  padding:20px 22px 20px 26px;position:relative;overflow:hidden;
+  margin-bottom:24px;
+}
+.priority-banner::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:var(--selenko);border-radius:14px 0 0 14px;
+}
+.priority-banner h2{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.priority-banner p{font-size:13px;font-weight:400;color:var(--text-sec);line-height:1.6;}
+
+/* ═══ GROUP LABEL ═══ */
+.group-label{
+  display:flex;align-items:center;gap:10px;
+  padding:0 0 0 0;margin-top:20px;margin-bottom:4px;
+  cursor:pointer;user-select:none;
+}
+.group-bar{width:4px;height:22px;border-radius:2px;flex-shrink:0;}
+.group-name{font-size:14px;font-weight:700;color:var(--text);flex:1;}
+.group-count{font-size:12px;font-weight:600;color:var(--text-muted);}
+.group-subtitle{
+  font-size:12.5px;font-weight:400;color:var(--text-sec);
+  padding-left:14px;margin-bottom:12px;
+}
+
+/* ═══ EXPAND CHEVRON ═══ */
+.chevron{
+  width:24px;height:24px;border-radius:6px;
+  background:rgba(0,0,0,0.04);color:var(--text-muted);
+  font-size:11px;display:inline-flex;align-items:center;justify-content:center;
+  transition:transform 0.25s ease,background 0.15s ease,color 0.15s ease;
+  flex-shrink:0;
+}
+.group-label.expanded .chevron{
+  transform:rotate(90deg);
+  background:rgba(109,40,217,0.1);color:var(--selenko);
+}
+
+/* ═══ COLLAPSIBLE BODY ═══ */
+.group-body{
+  max-height:0;overflow:hidden;
+  transition:max-height 0.35s ease;
+}
+.group-body.open{max-height:3000px;}
+
+/* ═══ CARDS ═══ */
+.card{
+  background:var(--card);border:1.5px solid var(--card-border);
+  border-radius:14px;padding:16px 18px;margin-bottom:10px;
+  transition:border-color 0.2s ease,box-shadow 0.2s ease,background 0.2s ease;
+}
+.card:hover{
+  border-color:var(--hover-border);
+  background:var(--hover-bg);
+  box-shadow:0 4px 16px rgba(0,0,0,0.07);
+}
+
+/* ═══ ITEM ROW ═══ */
+.item{display:flex;align-items:flex-start;gap:14px;}
+.item-emoji{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;
+}
+.item-body{flex:1;min-width:0;}
+.item-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.item-detail{font-size:12px;font-weight:400;color:var(--text-sec);line-height:1.5;}
+
+/* ═══ VENTURE TAG ═══ */
+.vtag{
+  display:inline-block;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.06em;
+  padding:3px 9px;border-radius:10px;margin-bottom:5px;margin-right:4px;
+}
+
+/* ═══ TOMORROW PREVIEW ═══ */
+.tomorrow{
+  border:1.5px dashed var(--card-border);border-radius:14px;
+  padding:18px 20px;margin-top:24px;
+  background:rgba(245,245,247,0.5);
+}
+.tomorrow-title{
+  font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.06em;color:var(--text-muted);margin-bottom:12px;
+}
+.tomorrow-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04);
+}
+.tomorrow-item:last-child{border-bottom:none;}
+.tomorrow-emoji{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.tomorrow-text{flex:1;min-width:0;}
+.tomorrow-text .item-title{font-size:13px;}
+
+/* ═══ WEEK TIMELINE ═══ */
+.week-timeline{
+  display:flex;background:var(--card);
+  border:1.5px solid var(--card-border);border-radius:14px;
+  overflow:hidden;margin-bottom:24px;
+}
+.week-day{
+  flex:1;padding:14px 10px;
+  border-right:1px solid rgba(0,0,0,0.05);
+  min-width:0;
+}
+.week-day:last-child{border-right:none;}
+.week-day.today{
+  background:rgba(109,40,217,0.04);
+  border-bottom:3px solid var(--selenko);
+}
+.week-day-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.06em;color:var(--text-muted);margin-bottom:1px;
+}
+.week-day.today .week-day-label{color:var(--selenko);}
+.week-day-num{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.week-day.today .week-day-num{color:var(--selenko);}
+.week-event{
+  font-size:10.5px;font-weight:500;color:var(--text-sec);
+  padding:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.week-day.today .week-event{color:var(--selenko);font-weight:600;}
+.today-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--selenko);margin-right:3px;vertical-align:middle;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.5;transform:scale(0.85);}
+}
+
+/* ═══ HORIZON ACCORDION ═══ */
+.hz-header{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;background:var(--card);
+  border:1.5px solid var(--card-border);border-radius:12px;
+  cursor:pointer;margin-bottom:6px;user-select:none;
+  transition:all 0.2s ease;
+}
+.hz-header:hover{
+  border-color:var(--hover-border);background:var(--hover-bg);
+  box-shadow:0 4px 16px rgba(0,0,0,0.07);
+}
+.hz-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.hz-title{font-size:14px;font-weight:700;color:var(--text);flex:1;}
+.hz-count{font-size:12px;font-weight:600;color:var(--text-muted);}
+.hz-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease;padding-left:0;}
+.hz-body.open{max-height:5000px;}
+
+/* ═══ HORIZON ITEMS ═══ */
+.hz-item{
+  background:var(--card);border:1.5px solid var(--card-border);
+  border-radius:12px;padding:14px 16px;margin-bottom:6px;
+  transition:border-color 0.2s ease,box-shadow 0.2s ease,background 0.2s ease;
+}
+.hz-item:hover{
+  border-color:var(--hover-border);background:var(--hover-bg);
+  box-shadow:0 4px 16px rgba(0,0,0,0.07);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .header-title{display:none;}
+  .header{padding:0 12px;justify-content:center;gap:8px;}
+  .header-tabs{flex:1;justify-content:center;}
+  .header-date{display:none;}
+  .tab-content{padding:16px;}
+  .week-timeline{flex-direction:column;}
+  .week-day{border-right:none;border-bottom:1px solid rgba(0,0,0,0.05);padding:10px 14px;}
+  .week-day:last-child{border-bottom:none;}
+  .week-day.today{border-bottom:3px solid var(--selenko);}
+  .week-event{white-space:normal;}
+}
+@media(max-width:480px){
+  .pin-card{padding:32px 24px;}
+  .item{gap:10px;}
+  .item-emoji{width:32px;height:32px;font-size:15px;}
+}
 </style>
 </head>
 <body>
-<div class="container">
-<h1>📋 Combined Dashboard</h1>
-<p class="subtitle">Secretary v14 · Monday March 30, 2026</p>
-<div class="tabs">
-<button class="tab active" onclick="switchTab('today')">📅 Today</button>
-<button class="tab" onclick="switchTab('horizon')">🧭 Horizon</button>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- PIN GATE -->
+<!-- ═══════════════════════════════════════ -->
+<div id="pin-gate">
+  <div class="pin-card" id="pin-card">
+    <h1>Daily Dashboard</h1>
+    <p class="pin-sub">Enter PIN to continue</p>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <input type="tel" id="pin-input" maxlength="4" autocomplete="off" autofocus inputmode="numeric">
+    <div class="pin-error" id="pin-error"></div>
+  </div>
 </div>
 
-<div id="today" class="tab-content active">
-<div class="focus-banner">
-<h3>🎯 Today's Priority: Negotiation Kit Launch</h3>
-<p>Max output on the Negotiations Kit. Two work blocks: after dentist → 12:30 PM, then after Sage Infusion → evening. Clean up, finish, ship.</p>
-</div>
+<!-- ═══════════════════════════════════════ -->
+<!-- DASHBOARD -->
+<!-- ═══════════════════════════════════════ -->
+<div id="dashboard">
 
-<div class="phase">
-<div class="phase-header"><span class="phase-icon">☀️</span><span class="phase-title">Morning</span><span class="phase-time">Early</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(37,99,235,0.12)">🦷</span>
-<span class="step-text"><span class="vtag vtag-household">HOUSEHOLD</span> <strong>Kids dentist.</strong> Apple Calendar. Take kids, head home after.</span></div>
-</div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-title">Daily Dashboard</div>
+    <div class="header-tabs">
+      <button class="tab-btn active" data-tab="today" onclick="switchTab('today')">📅 Today</button>
+      <button class="tab-btn" data-tab="horizon" onclick="switchTab('horizon')">🧭 Horizon</button>
+    </div>
+    <div class="header-date">Tue, Mar 31</div>
+  </div>
 
-<div class="phase">
-<div class="phase-header"><span class="phase-icon">💻</span><span class="phase-title">Work Block 1</span><span class="phase-time">Post-dentist → 12:30 PM</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(230,57,70,0.12)">🚀</span>
-<span class="step-text"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> <strong>Negotiation Kit launch.</strong> Primary focus — build, clean up, finish.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(230,148,10,0.12)">📝</span>
-<span class="step-text"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> <strong>ISR Agreement → Anthony</strong> if Meg reviewed. Unblocks Boostly email + tomorrow's calls.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(124,58,237,0.12)">📋</span>
-<span class="step-text"><span class="vtag vtag-everlane">EVERLANE</span> <strong>Send Craig McClure buyer's agent agreement.</strong> Quick close — pending since Friday.</span></div>
-</div>
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TODAY TAB -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-today" class="tab-content active">
 
-<div class="phase">
-<div class="phase-header"><span class="phase-icon">💉</span><span class="phase-title">Sage Infusion</span><span class="phase-time">1:30 PM</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(8,145,178,0.12)">📍</span>
-<span class="step-text"><span class="vtag vtag-personal">PERSONAL</span> <strong>Sage Infusion.</strong> (727) 977-8836. Hydrate beforehand.</span></div>
-</div>
+    <!-- Priority Banner -->
+    <div class="priority-banner anim-item" style="animation-delay:0ms;">
+      <h2>🎯 Today's Priority</h2>
+      <p>ISR Agreement sent, Boostly call at 1 PM, Expo Debrief at 4 PM. Transition point for ActiveMenus — if these calls land clean, shift to monitoring.</p>
+    </div>
 
-<div class="phase">
-<div class="phase-header"><span class="phase-icon">💻</span><span class="phase-title">Work Block 2</span><span class="phase-time">After infusion → evening</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(230,57,70,0.12)">🚀</span>
-<span class="step-text"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> <strong>Continue Negotiation Kit.</strong> Push to finish.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(109,40,217,0.12)">🔧</span>
-<span class="step-text"><span class="vtag vtag-selenko">SELENKO</span> <strong>Clean up & updates.</strong> Close loose ends, system housekeeping.</span></div>
-<div class="step"><span class="step-icon" style="background:rgba(230,148,10,0.12)">📧</span>
-<span class="step-text"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> <strong>Send Boostly heads-up to Anthony.</strong> Gmail draft ready. Call is tomorrow 1 PM.</span></div>
-</div>
+    <!-- ── MORNING ── -->
+    <div class="group-label expanded anim-item" style="animation-delay:50ms;" onclick="toggleGroup(this)">
+      <div class="group-bar" style="background:var(--amber);"></div>
+      <span class="group-name">🌅 Morning</span>
+      <span class="group-count">2 items</span>
+      <span class="chevron">▸</span>
+    </div>
+    <div class="group-subtitle">Before noon</div>
+    <div class="group-body open">
+      <div class="card anim-item" style="animation-delay:100ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(8,145,178,0.1);">🏥</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);">PERSONAL</div>
+            <div class="item-title">Gala's Dr El-Jabali appointment 9:45 AM</div>
+            <div class="item-detail">Dad handling, 4178 N Armenia Ave</div>
+          </div>
+        </div>
+      </div>
+      <div class="card anim-item" style="animation-delay:150ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(8,145,178,0.1);">🩸</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);">PERSONAL</div>
+            <div class="item-title">Dad blood work for kidney doctor</div>
+            <div class="item-detail">All-day — can be done anytime</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="card" style="background:rgba(37,99,235,0.04);border:1px solid rgba(37,99,235,0.12)">
-<strong style="font-size:0.85rem">🏠 Tomorrow Preview</strong>
-<div style="font-size:0.8rem;margin-top:6px;color:var(--text2)">
-Tue: Boostly call 1p, Expo Debrief 4p — prep tonight if needed. Dad blood work (all-day). Gala Dr 9:45a. Jim's broken MoH invite → decline it today.
-</div>
-</div>
-</div>
+    <!-- ── MIDDAY ── -->
+    <div class="group-label expanded anim-item" style="animation-delay:200ms;" onclick="toggleGroup(this)">
+      <div class="group-bar" style="background:var(--amber);"></div>
+      <span class="group-name">☀️ Midday</span>
+      <span class="group-count">3 items</span>
+      <span class="chevron">▸</span>
+    </div>
+    <div class="group-subtitle">Noon – 1:00 PM</div>
+    <div class="group-body open">
+      <div class="card anim-item" style="animation-delay:250ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(8,145,178,0.1);">💊</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);">PERSONAL</div>
+            <div class="item-title">Pick up Praluent from CVS</div>
+            <div class="item-detail">Give Dad injection this afternoon</div>
+          </div>
+        </div>
+      </div>
+      <div class="card anim-item" style="animation-delay:300ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(230,57,70,0.1);">🚀</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(230,57,70,0.1);color:var(--ai-digital);">AI DIGI PRODUCTS</div>
+            <div class="item-title">Operation First Light</div>
+            <div class="item-detail">Continue Negotiation Kit build work</div>
+          </div>
+        </div>
+      </div>
+      <div class="card anim-item" style="animation-delay:350ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(109,40,217,0.1);">🔧</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+            <div class="item-title">Set up Otter.ai for call transcription</div>
+            <div class="item-detail">Before 1 PM — needed for Boostly call</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div id="horizon" class="tab-content">
-<div class="timeline">
-<div class="tday today"><div class="tday-name">MON</div><div class="tday-date">Mar 30</div><div class="tday-event">🦷 Dentist<br>💉 Sage 1:30p<br>🚀 Neg Kit</div></div>
-<div class="tday"><div class="tday-name">TUE</div><div class="tday-date">Mar 31</div><div class="tday-event">🩸 Dad blood<br>👁️ Gala 9:45a<br>📞 Boostly 1p<br>📞 Debrief 4p</div></div>
-<div class="tday"><div class="tday-name">WED</div><div class="tday-date">Apr 1</div><div class="tday-event">📋 Roles 9a<br>🚀 Artemis 2p→</div></div>
-<div class="tday"><div class="tday-name">THU</div><div class="tday-date">Apr 2</div><div class="tday-event">—</div></div>
-<div class="tday"><div class="tday-name">FRI</div><div class="tday-date">Apr 3</div><div class="tday-event">🍻 ABC HH?</div></div>
-</div>
+    <!-- ── AFTERNOON CALLS ── -->
+    <div class="group-label expanded anim-item" style="animation-delay:400ms;" onclick="toggleGroup(this)">
+      <div class="group-bar" style="background:var(--red);"></div>
+      <span class="group-name">📞 Afternoon Calls</span>
+      <span class="group-count">2 items</span>
+      <span class="chevron">▸</span>
+    </div>
+    <div class="group-subtitle">Hard-scheduled calls — 1:00 PM and 4:00 PM</div>
+    <div class="group-body open">
+      <div class="card anim-item" style="animation-delay:450ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(230,148,10,0.1);">📞</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+            <div class="item-title">Boostly Call 1:00 PM</div>
+            <div class="item-detail">Travisse + Anthony confirmed, collateral sent, fully prepped</div>
+          </div>
+        </div>
+      </div>
+      <div class="card anim-item" style="animation-delay:500ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(230,148,10,0.1);">📞</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+            <div class="item-title">Expo Debrief 4:00 PM</div>
+            <div class="item-detail">Mike Wick, Jim, Anthony — spreadsheet sent, someone else sends link, confirm Wednesday call on this call</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="section open" id="sec-urgent">
-<div class="section-header" onclick="toggleSection('sec-urgent')" style="background:rgba(230,57,70,0.08)"><span>⚡</span><h3>Blocked / Urgent</h3><span class="count">3</span><span class="chevron">▼</span></div>
-<div class="section-body">
-<div class="card urgent"><strong>ISR Agreement — Meg review last gate</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Monday morning latest. Blocks all downstream comms.</div></div>
-<div class="card urgent"><strong>Boostly — Travisse hasn't confirmed</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Call tomorrow 1 PM. No reply since Saturday. <span class="audit-badge audit-alert">⚠ UNCONFIRMED</span></div></div>
-<div class="card urgent"><strong>Jim's MoH Planning invite → DECLINE</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Duplicate of Wed 9 AM ET Roles Call. Wrong timezone.</div></div>
-</div></div>
+    <!-- ── EVENING ── -->
+    <div class="group-label expanded anim-item" style="animation-delay:550ms;" onclick="toggleGroup(this)">
+      <div class="group-bar" style="background:var(--blue);"></div>
+      <span class="group-name">🌙 Evening</span>
+      <span class="group-count">1 item</span>
+      <span class="chevron">▸</span>
+    </div>
+    <div class="group-subtitle">After 5:00 PM</div>
+    <div class="group-body open">
+      <div class="card anim-item" style="animation-delay:600ms;">
+        <div class="item">
+          <div class="item-emoji" style="background:rgba(37,99,235,0.1);">⚽</div>
+          <div class="item-body">
+            <div class="vtag" style="background:rgba(37,99,235,0.1);color:var(--household);">HOUSEHOLD</div>
+            <div class="item-title">Hunter soccer practice</div>
+            <div class="item-detail">Dad picks up Hunter ~4:30, meet at YMCA 5:45, practice 6 PM. Meg picks up baby.</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="section open" id="sec-input">
-<div class="section-header" onclick="toggleSection('sec-input')" style="background:rgba(37,99,235,0.06)"><span>💬</span><h3>Input Needed</h3><span class="count">2</span><span class="chevron">▼</span></div>
-<div class="section-body">
-<div class="card input"><strong>Negotiation Kit — launch readiness</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-aidigiproducts">AI DIGI PRODUCTS</span> P1 product. $67 → ads early April. Today's #1 focus.</div></div>
-<div class="card input"><strong>ActiveMenus — Strategic Posture</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Tue/Wed calls inform. No lock-in yet.</div></div>
-</div></div>
+    <!-- ── TOMORROW PREVIEW ── -->
+    <div class="tomorrow anim-item" style="animation-delay:650ms;">
+      <div class="tomorrow-title">👁️ Tomorrow Preview</div>
+      <div class="tomorrow-item">
+        <div class="tomorrow-emoji" style="background:rgba(230,148,10,0.08);">📋</div>
+        <div class="tomorrow-text">
+          <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);font-size:9px;">ACTIVEMENUS</div>
+          <div class="item-title">Roles & Process Call 9 AM (if confirmed tonight)</div>
+        </div>
+      </div>
+      <div class="tomorrow-item">
+        <div class="tomorrow-emoji" style="background:rgba(8,145,178,0.08);">🚀</div>
+        <div class="tomorrow-text">
+          <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);font-size:9px;">PERSONAL</div>
+          <div class="item-title">Artemis II trip — depart 2 PM, launch 6:24 PM, Manatee Hammock Campground H143</div>
+        </div>
+      </div>
+      <div class="tomorrow-item">
+        <div class="tomorrow-emoji" style="background:rgba(8,145,178,0.08);">🍻</div>
+        <div class="tomorrow-text">
+          <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);font-size:9px;">PERSONAL</div>
+          <div class="item-title">Schedule ABC Happy Hour (April 3, Copper Shaker)</div>
+        </div>
+      </div>
+    </div>
 
-<div class="section open" id="sec-next">
-<div class="section-header" onclick="toggleSection('sec-next')" style="background:rgba(230,148,10,0.06)"><span>🔥</span><h3>Next Up</h3><span class="count">5</span><span class="chevron">▼</span></div>
-<div class="section-body">
-<div class="card next"><strong>Craig McClure agreement</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> Send today. Pending since Friday.</div></div>
-<div class="card next"><strong>ABC Happy Hour — schedule April 3</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-personal">PERSONAL</span> Copper Shaker Bar.</div></div>
-<div class="card next"><strong>BoldTrail / Mark follow-up</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> May renewal. <span class="audit-badge audit-stale">5+ DAYS</span></div></div>
-<div class="card next"><strong>Restaurant prospects v2 → Jim/Mike</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> After ISR. Before Tuesday call.</div></div>
-<div class="card next"><strong>8 /flags pending /capture (v9–v11)</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Instruction improvements.</div></div>
-</div></div>
+  </div><!-- /tab-today -->
 
-<div class="section" id="sec-done">
-<div class="section-header" onclick="toggleSection('sec-done')" style="background:rgba(22,163,74,0.06)"><span>✨</span><h3>Recently Completed</h3><span class="count">4</span><span class="chevron">▼</span></div>
-<div class="section-body collapsed">
-<div class="card done"><strong>Key Person Profiles — LIVE</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> 6 entries. Cross-project lookup deployed.</div></div>
-<div class="card done"><strong>ActiveMenus Advisor v2 deliverables</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-activemenus">ACTIVEMENUS</span> Prospects v2, Boostly draft, sequence locked.</div></div>
-<div class="card done"><strong>SOG + /emit + /digest</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> All live.</div></div>
-<div class="card done"><strong>Command Center — Architect v6 handoff ready</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span> Paste when ready.</div></div>
-</div></div>
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HORIZON TAB -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="tab-horizon" class="tab-content">
 
-<div class="section" id="sec-parked">
-<div class="section-header" onclick="toggleSection('sec-parked')" style="background:rgba(100,116,139,0.06)"><span>💤</span><h3>Parked</h3><span class="count">5</span><span class="chevron">▼</span></div>
-<div class="section-body collapsed">
-<div class="card parked"><strong>Everlane — Referral engine restructuring</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-everlane">EVERLANE</span> BoldTrail renewal May.</div></div>
-<div class="card parked"><strong>Title Company — gated on $20K/mo</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-titleco">TITLE CO</span></div></div>
-<div class="card parked"><strong>Command Center Dashboard build</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span></div></div>
-<div class="card parked"><strong>Apple Reminders/Notes migration</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-selenko">SELENKO</span></div></div>
-<div class="card parked"><strong>Lead Gen commission split</strong><div style="font-size:0.82rem;color:var(--text2);margin-top:4px"><span class="vtag vtag-leadgen">LEAD GEN</span></div></div>
-</div></div>
-</div>
+    <!-- WEEK AHEAD TIMELINE -->
+    <div class="week-timeline anim-item" style="animation-delay:0ms;">
+      <div class="week-day today">
+        <div class="week-day-label"><span class="today-dot"></span>TUE</div>
+        <div class="week-day-num">Mar 31</div>
+        <div class="week-event">Boostly 1p</div>
+        <div class="week-event">Debrief 4p</div>
+        <div class="week-event">Soccer 6p</div>
+      </div>
+      <div class="week-day">
+        <div class="week-day-label">WED</div>
+        <div class="week-day-num">Apr 1</div>
+        <div class="week-event">Roles Call 9a(?)</div>
+        <div class="week-event">Artemis II 2p→</div>
+      </div>
+      <div class="week-day">
+        <div class="week-day-label">THU</div>
+        <div class="week-day-num">Apr 2</div>
+        <div class="week-event">Dad blood work f/u</div>
+      </div>
+      <div class="week-day">
+        <div class="week-day-label">FRI</div>
+        <div class="week-day-num">Apr 3</div>
+        <div class="week-event">YMCA w/ Meg</div>
+        <div class="week-event">Happy Hour?</div>
+      </div>
+      <div class="week-day">
+        <div class="week-day-label">SAT</div>
+        <div class="week-day-num">Apr 4</div>
+        <div class="week-event" style="color:var(--text-muted);">Open</div>
+      </div>
+    </div>
 
-<div class="footer">Secretary v14 · Monday March 30, 2026 · Priority: Negotiation Kit launch</div>
-</div>
+    <!-- ══ BLOCKED / URGENT ══ -->
+    <div class="hz-header anim-item" style="animation-delay:50ms;" onclick="toggleHz(this)">
+      <div class="hz-dot" style="background:var(--red);"></div>
+      <div class="hz-title">🔴 Blocked / Urgent</div>
+      <div class="hz-count">2 items</div>
+      <span class="chevron" style="transform:rotate(90deg);background:rgba(109,40,217,0.1);color:var(--selenko);">▸</span>
+    </div>
+    <div class="hz-body open">
+      <div class="hz-item" style="border-left:3px solid var(--red);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">Boostly — Travisse confirmed but no meeting link yet</div>
+        <div class="item-detail">Call is today 1 PM.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--red);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">Wednesday Roles Call — unconfirmed</div>
+        <div class="item-detail">Depends on tonight's 4 PM debrief outcome.</div>
+      </div>
+    </div>
+
+    <!-- ══ INPUT NEEDED ══ -->
+    <div class="hz-header anim-item" style="animation-delay:100ms;" onclick="toggleHz(this)">
+      <div class="hz-dot" style="background:var(--blue);"></div>
+      <div class="hz-title">🔵 Input Needed</div>
+      <div class="hz-count">3 items</div>
+      <span class="chevron" style="transform:rotate(90deg);background:rgba(109,40,217,0.1);color:var(--selenko);">▸</span>
+    </div>
+    <div class="hz-body open">
+      <div class="hz-item" style="border-left:3px solid var(--blue);">
+        <div class="vtag" style="background:rgba(230,57,70,0.1);color:var(--ai-digital);">AI DIGI PRODUCTS</div>
+        <div class="item-title">Operation First Light — Negotiation Kit launch</div>
+        <div class="item-detail">Working through build items. $67 product, ads early April. End-of-April checkpoint: $200/day signal.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--blue);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">ActiveMenus Strategic Posture — today's calls inform</div>
+        <div class="item-detail">Sprint model: if ISR + Boostly + MOH debrief go clean, shift to monitoring.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--blue);">
+        <div class="vtag" style="background:rgba(124,58,237,0.1);color:var(--everlane);">EVERLANE</div>
+        <div class="item-title">Everlane /everlane session — Operator venture mode</div>
+        <div class="item-detail">CRM deep research file ready. BoldTrail/Mark emails to feed in. Dalton Wade path identified.</div>
+      </div>
+    </div>
+
+    <!-- ══ NEXT UP ══ -->
+    <div class="hz-header anim-item" style="animation-delay:150ms;" onclick="toggleHz(this)">
+      <div class="hz-dot" style="background:var(--amber);"></div>
+      <div class="hz-title">🟡 Next Up</div>
+      <div class="hz-count">7 items</div>
+      <span class="chevron" style="transform:rotate(90deg);background:rgba(109,40,217,0.1);color:var(--selenko);">▸</span>
+    </div>
+    <div class="hz-body open">
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Set up Otter.ai</div>
+        <div class="item-detail">Call transcription tool. Before 1 PM.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);">PERSONAL</div>
+        <div class="item-title">ABC Happy Hour — scheduling tomorrow</div>
+        <div class="item-detail">April 3, Copper Shaker Bar.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(124,58,237,0.1);color:var(--everlane);">EVERLANE</div>
+        <div class="item-title">BoldTrail / Mark follow-up</div>
+        <div class="item-detail">Text from March 25. May renewal. 6+ days stale.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(8,145,178,0.1);color:var(--personal);">PERSONAL</div>
+        <div class="item-title">Your blood work — next week</div>
+        <div class="item-detail">No specific day yet.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(37,99,235,0.1);color:var(--household);">HOUSEHOLD</div>
+        <div class="item-title">YMCA summer camp refund</div>
+        <div class="item-detail">Friday, revisit with Meg.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Architect cleanup</div>
+        <div class="item-detail">Migrate reference docs to Notion, retire Advisor/CoS projects. Weekend/next week.</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--amber);">
+        <div class="vtag" style="background:rgba(22,163,74,0.1);color:var(--lead-gen);">LEAD GEN</div>
+        <div class="item-title">Lead Gen / Alex — transition checklist needed</div>
+        <div class="item-detail">Detach phone number, redirect Facebook ads, clean separation.</div>
+      </div>
+    </div>
+
+    <!-- ══ RECENTLY COMPLETED ══ -->
+    <div class="hz-header anim-item" style="animation-delay:200ms;" onclick="toggleHz(this)">
+      <div class="hz-dot" style="background:var(--green);"></div>
+      <div class="hz-title">🟢 Recently Completed</div>
+      <div class="hz-count">12 items</div>
+      <span class="chevron">▸</span>
+    </div>
+    <div class="hz-body">
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">ISR Agreement v7 → Anthony — SENT</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(124,58,237,0.1);color:var(--everlane);">EVERLANE</div>
+        <div class="item-title">Craig McClure buyer's agent agreement — SENT</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">Boostly heads-up + collateral → Anthony + Travisse — SENT</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">Restaurant prospects (enriched) → Jim/Mike — SENT</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">System Architecture HTML — LIVE</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Selenko Artifact Design System — LIVE</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">HTML Artifact Build Workflow — LIVE</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Hub-and-Spoke + Delegation Templates — LIVE</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Command Center Dashboard — BUILT (Architect v7)</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(230,57,70,0.1);color:var(--ai-digital);">AI DIGI PRODUCTS</div>
+        <div class="item-title">Operation First Light game plan — BUILT</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Key Person Profiles database — LIVE (6 entries)</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--green);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Architect v8 handoff — /flags /capture evaluation — READY</div>
+      </div>
+    </div>
+
+    <!-- ══ PARKED ══ -->
+    <div class="hz-header anim-item" style="animation-delay:250ms;" onclick="toggleHz(this)">
+      <div class="hz-dot" style="background:var(--gray);"></div>
+      <div class="hz-title">⚫ Parked</div>
+      <div class="hz-count">6 items</div>
+      <span class="chevron">▸</span>
+    </div>
+    <div class="hz-body">
+      <div class="hz-item" style="border-left:3px solid var(--gray);">
+        <div class="vtag" style="background:rgba(124,58,237,0.1);color:var(--everlane);">EVERLANE</div>
+        <div class="item-title">Everlane referral engine restructuring — BoldTrail May renewal</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--gray);">
+        <div class="vtag" style="background:rgba(13,148,136,0.1);color:var(--title-co);">TITLE CO</div>
+        <div class="item-title">Title Company — gated on $20K/mo</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--gray);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">Apple Reminders/Notes migration — dedicated project, later</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--gray);">
+        <div class="vtag" style="background:rgba(22,163,74,0.1);color:var(--lead-gen);">LEAD GEN</div>
+        <div class="item-title">Lead Gen commission split — low priority</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--gray);">
+        <div class="vtag" style="background:rgba(230,148,10,0.1);color:var(--activemenus);">ACTIVEMENUS</div>
+        <div class="item-title">NRA Show (May) — potential next ActiveMenus sprint</div>
+      </div>
+      <div class="hz-item" style="border-left:3px solid var(--gray);">
+        <div class="vtag" style="background:rgba(109,40,217,0.1);color:var(--selenko);">SELENKO</div>
+        <div class="item-title">8 /flags pending /capture — Architect v8 handoff ready</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-horizon -->
+
+</div><!-- /dashboard -->
+
 <script>
-function switchTab(id){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');event.target.classList.add('active')}
-function toggleSection(id){const s=document.getElementById(id);s.classList.toggle('open');s.querySelector('.section-body').classList.toggle('collapsed')}
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('sec-done').classList.remove('open');document.getElementById('sec-parked').classList.remove('open')});
+// ═══ PIN GATE ═══
+const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+const pinInput = document.getElementById('pin-input');
+const pinGate = document.getElementById('pin-gate');
+const pinCard = document.getElementById('pin-card');
+const pinError = document.getElementById('pin-error');
+const dashboard = document.getElementById('dashboard');
+const dots = [0,1,2,3].map(i => document.getElementById('dot-'+i));
+
+// Focus input on click anywhere on gate
+pinGate.addEventListener('click', () => pinInput.focus());
+// Auto-focus on load
+window.addEventListener('load', () => pinInput.focus());
+
+pinInput.addEventListener('input', async () => {
+  const val = pinInput.value;
+  dots.forEach((d,i) => d.classList.toggle('filled', i < val.length));
+  pinError.textContent = '';
+
+  if (val.length === 4) {
+    const hash = await sha256(val);
+    if (hash === PIN_HASH) {
+      pinGate.classList.add('hidden');
+      setTimeout(() => {
+        pinGate.style.display = 'none';
+        dashboard.classList.add('visible');
+      }, 460);
+    } else {
+      pinError.textContent = 'Wrong PIN';
+      pinCard.classList.add('shake');
+      setTimeout(() => {
+        pinCard.classList.remove('shake');
+        pinInput.value = '';
+        dots.forEach(d => d.classList.remove('filled'));
+      }, 550);
+    }
+  }
+});
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ═══ TAB SWITCHING ═══
+function switchTab(tabId) {
+  // Update buttons
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+  // Update content
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById('tab-'+tabId);
+  target.classList.add('active');
+
+  // Re-trigger entrance animations
+  target.querySelectorAll('.anim-item').forEach(el => {
+    el.style.animation = 'none';
+    el.offsetHeight; // force reflow
+    el.style.animation = '';
+  });
+}
+
+// ═══ TODAY TAB — GROUP TOGGLE ═══
+function toggleGroup(label) {
+  const subtitle = label.nextElementSibling;
+  const body = subtitle.nextElementSibling;
+  label.classList.toggle('expanded');
+  body.classList.toggle('open');
+}
+
+// ═══ HORIZON TAB — ACCORDION TOGGLE ═══
+function toggleHz(header) {
+  const chev = header.querySelector('.chevron');
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+
+  body.classList.toggle('open');
+
+  if (isOpen) {
+    chev.style.transform = 'rotate(0deg)';
+    chev.style.background = 'rgba(0,0,0,0.04)';
+    chev.style.color = 'var(--text-muted)';
+  } else {
+    chev.style.transform = 'rotate(90deg)';
+    chev.style.background = 'rgba(109,40,217,0.1)';
+    chev.style.color = 'var(--selenko)';
+  }
+}
 </script>
 </body>
 </html>
