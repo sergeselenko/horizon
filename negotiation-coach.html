@@ -404,11 +404,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line
 </div>
 </div>
 
-<div class="section-heading">Reference — Project Instructions<div class="section-heading-sub">Browse the full system prompt content. You don't need to read this — it's loaded when you copy above.</div></div>
-<div id="pi-accordions"></div>
 
-<div class="section-heading">Reference — Knowledge Base<div class="section-heading-sub">Browse the full knowledge base content. You don't need to read this — it's loaded when you download above.</div></div>
-<div id="kb-accordions"></div>
 </div>
 
 <!-- TAB: SCENARIOS -->
@@ -1060,34 +1056,6 @@ const FAQ_ITEMS = [
 {q:'Is my data private?',a:'Your conversations are between you and Claude, subject to Anthropic\'s privacy policy. No third-party service, no external database, no tracking.'}
 ];
 
-const PI_SECTIONS = [
-{title:'Role & Methodology',start:'# AI Negotiation Coach',end:'## ONBOARDING'},
-{title:'Onboarding — First Conversation',start:'## ONBOARDING',end:'## SESSION MODES'},
-{title:'Session Modes',start:'## SESSION MODES',end:'## ANTI-PATTERNS'},
-{title:'Anti-Patterns',start:'## ANTI-PATTERNS',end:'## CAMP\'S SYSTEM'},
-{title:'Camp\'s System — Structure & Discipline',start:'## CAMP\'S SYSTEM',end:'## VOSS\'S SYSTEM'},
-{title:'Voss\'s System — Tactical Empathy',start:'## VOSS\'S SYSTEM',end:'## COMMUNICATION TEMPLATES'},
-{title:'Communication Templates & Phrases',start:'## COMMUNICATION TEMPLATES',end:'## FOLLOW-UP AFTER'},
-{title:'Follow-Up After Silence',start:'## FOLLOW-UP AFTER',end:'## PRE-COMMUNICATION'},
-{title:'Pre-Communication Checklist & Situation Table',start:'## PRE-COMMUNICATION',end:'## SESSION MEMORY'},
-{title:'Session Memory',start:'## SESSION MEMORY',end:null}
-];
-
-const KB_SECTIONS = [
-{title:'Overview',start:'# Negotiation Coach',end:'## 1.'},
-{title:'1. Principled Negotiation (Fisher & Ury)',start:'## 1.',end:'## 2.'},
-{title:'2. Executive Communication Frameworks',start:'## 2.',end:'## 3.'},
-{title:'3. Pitch & Proposal Design',start:'## 3.',end:'## 4.'},
-{title:'4. Persuasion & Influence (Cialdini)',start:'## 4.',end:'## 5.'},
-{title:'5. Stakeholder Management',start:'## 5.',end:'## 6.'},
-{title:'6. Conflict Resolution',start:'## 6.',end:'## 7.'},
-{title:'7. Written Communication',start:'## 7.',end:'## 8.'},
-{title:'8. The Ackerman Bargaining Method',start:'## 8.',end:'## 9.'},
-{title:'9. Master Cheat Sheet',start:'## 9.',end:'## 10.'},
-{title:'10. Pre-Communication Checklist',start:'## 10.',end:'## 11.'},
-{title:'11. Negotiation Preparation Template',start:'## 11.',end:null}
-];
-
 /* ========== PIN GATE ========== */
 const PIN_HASH = 'b6351211106fc1fc6b1b3d6f6a4dcf92227e1231271227b3f58539fbb9a71711';
 const pinDigits = document.querySelectorAll('.pin-digit');
@@ -1139,73 +1107,6 @@ function switchTab(tabId) {
   document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
   document.getElementById('tab-' + tabId).classList.add('active');
   window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-/* ========== MARKDOWN RENDERER ========== */
-function renderMd(text) {
-  let html = text;
-  html = html.replace(/^### (.+)$/gm, '<h3>$1<\/h3>');
-  html = html.replace(/^## (.+)$/gm, '<h3>$1<\/h3>');
-  html = html.replace(/^# (.+)$/gm, '<h3>$1<\/h3>');
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>');
-  html = html.replace(/\*(.+?)\*/g, '<em>$1<\/em>');
-  html = html.replace(/`([^`]+)`/g, '<code>$1<\/code>');
-  html = html.replace(/^```[\s\S]*?```$/gm, function(m) {
-    const code = m.replace(/^```\w*\n?/, '').replace(/\n?```$/, '');
-    return '<pre><code>' + code.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '<\/code><\/pre>';
-  });
-  html = html.replace(/^\|(.+)\|$/gm, function(line) {
-    if (/^\|\s*[-:]+/.test(line)) return '';
-    const cells = line.split('|').filter(c => c.trim());
-    const tag = 'td';
-    return '<tr>' + cells.map(c => `<${tag}>${c.trim()}<\/${tag}>`).join('') + '<\/tr>';
-  });
-  html = html.replace(/(<tr>[\s\S]*?<\/tr>(?:\s*<tr>[\s\S]*?<\/tr>)*)/g, '<table>$1<\/table>');
-  html = html.replace(/^- (.+)$/gm, '<li>$1<\/li>');
-  html = html.replace(/(<li>[\s\S]*?<\/li>(?:\s*<li>[\s\S]*?<\/li>)*)/g, '<ul>$1<\/ul>');
-  html = html.replace(/^(\d+)\. (.+)$/gm, '<li>$2<\/li>');
-  html = html.replace(/---/g, '<hr style="border:none;border-top:1px solid var(--card-border);margin:16px 0">');
-  const lines = html.split('\n');
-  let result = '';
-  let inP = false;
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) { if (inP) { result += '<\/p>'; inP = false; } continue; }
-    if (trimmed.startsWith('<h') || trimmed.startsWith('<pre') || trimmed.startsWith('<ul') || trimmed.startsWith('<ol') || trimmed.startsWith('<table') || trimmed.startsWith('<hr') || trimmed.startsWith('<li') || trimmed.startsWith('<tr')) {
-      if (inP) { result += '<\/p>'; inP = false; }
-      result += trimmed;
-    } else {
-      if (!inP) { result += '<p>'; inP = true; }
-      else result += ' ';
-      result += trimmed;
-    }
-  }
-  if (inP) result += '<\/p>';
-  return result;
-}
-
-function extractSection(content, startMarker, endMarker) {
-  const startIdx = content.indexOf(startMarker);
-  if (startIdx === -1) return '';
-  const endIdx = endMarker ? content.indexOf(endMarker, startIdx + startMarker.length) : content.length;
-  return content.substring(startIdx, endIdx === -1 ? content.length : endIdx).trim();
-}
-
-/* ========== BUILD ACCORDIONS ========== */
-function buildAccordions(containerId, sections, sourceContent) {
-  const container = document.getElementById(containerId);
-  sections.forEach((sec, i) => {
-    const content = extractSection(sourceContent, sec.start, sec.end);
-    const rendered = renderMd(content);
-    const acc = document.createElement('div');
-    acc.className = 'accordion';
-    acc.innerHTML = `<div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
-      <span class="accordion-title">${sec.title}<\/span>
-      <span class="expand-chevron">▸<\/span>
-    <\/div>
-    <div class="accordion-body"><div class="accordion-content">${rendered}<\/div><\/div>`;
-    container.appendChild(acc);
-  });
 }
 
 function toggleAccordion(el) {
@@ -1393,17 +1294,6 @@ const searchItems = [
   {title:'Follow-Up After Silence',tab:'expansion',section:''},
   {title:'Accusation Audit Builder',tab:'expansion',section:''},
   {title:'Support — Email',tab:'support',section:''},
-  {title:'Troubleshooting',tab:'support',section:''},
-  {title:'BATNA',tab:'coach-files',section:''},
-  {title:'ZOPA',tab:'coach-files',section:''},
-  {title:'Calibrated Questions',tab:'coach-files',section:''},
-  {title:'Accusation Audit',tab:'coach-files',section:''},
-  {title:'Mirroring',tab:'coach-files',section:''},
-  {title:'Labeling',tab:'coach-files',section:''},
-  {title:'Pre-Communication Checklist',tab:'coach-files',section:''},
-  {title:'Neediness Signals',tab:'overview',section:'anti-patterns'},
-  {title:'Ackerman Bargaining Method',tab:'coach-files',section:''},
-  {title:'Negotiation Preparation Template',tab:'coach-files',section:''},
 ];
 
 document.getElementById('search-trigger').addEventListener('click', openPalette);
@@ -1468,8 +1358,6 @@ function goToItem(tab, section) {
 }
 
 /* ========== INIT ========== */
-buildAccordions('pi-accordions', PI_SECTIONS, PI_CONTENT);
-buildAccordions('kb-accordions', KB_SECTIONS, KB_CONTENT);
 buildFAQ();
 buildScenarios();
 </script>
