@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Negotiation Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--selenko:#1D4ED8;
+--selenko-light:rgba(29,78,216,0.08);
+--selenko-lighter:rgba(29,78,216,0.04);
+--bg:#f5f5f7;
+--card:#ffffff;
+--card-border:#dfe1e6;
+--text:#111827;
+--text-sec:#4b5563;
+--text-muted:#9ca3af;
+--hover-bg:rgba(29,78,216,0.04);
+--hover-border:rgba(29,78,216,0.25);
+--green:#059669;
+--amber:#d97706;
+--amber-bg:rgba(217,119,6,0.12);
+--mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+--radius:14px;
+--radius-sm:10px;
+}
+::selection{background:rgba(29,78,216,0.18)}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+
+/* PIN GATE */
+#pin-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#e8eeff 0%,#f5f5f7 40%,#e8f0ff 100%)}
+#pin-gate::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.06) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+#pin-gate::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.04) 0%,transparent 70%);bottom:-80px;left:-80px;pointer-events:none}
+.pin-card{background:var(--card);border-radius:var(--radius);padding:48px 40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.08);max-width:380px;width:90%;position:relative}
+.pin-logo{font-size:28px;font-weight:800;color:var(--selenko);margin-bottom:6px;letter-spacing:-0.02em}
+.pin-subtitle{font-size:13px;color:var(--text-sec);font-weight:400;margin-bottom:32px}
+.pin-input-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.pin-digit{width:52px;height:60px;border:1.5px solid var(--card-border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;text-align:center;outline:none;transition:border-color 0.2s,box-shadow 0.2s;color:var(--text)}
+.pin-digit:focus{border-color:var(--selenko);box-shadow:0 0 0 4px rgba(29,78,216,0.08)}
+.pin-error{color:#dc2626;font-size:12px;font-weight:500;opacity:0;transition:opacity 0.3s;margin-bottom:16px}
+.pin-error.visible{opacity:1}
+.pin-btn{background:var(--selenko);color:#fff;border:none;padding:12px 36px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s,transform 0.1s}
+.pin-btn:hover{background:#1e40af}
+.pin-btn:active{transform:scale(0.97)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-shake{animation:shake 0.4s ease}
+
+/* APP SHELL */
+#app{display:none}
+.header{position:sticky;top:0;z-index:100;background:rgba(245,245,247,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--card-border);padding:0 24px}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:56px;gap:16px}
+.header-title{font-size:16px;font-weight:700;color:var(--text);white-space:nowrap;letter-spacing:-0.01em}
+.header-tabs{display:flex;gap:2px;flex:1;justify-content:center;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.header-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--text-sec);padding:8px 14px;cursor:pointer;border-radius:8px;transition:all 0.2s;white-space:nowrap;position:relative}
+.tab-btn:hover{background:var(--hover-bg);color:var(--text)}
+.tab-btn.active{color:var(--selenko);font-weight:700;background:rgba(29,78,216,0.06)}
+.tab-btn.active::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:70%;height:2.5px;background:var(--selenko);border-radius:2px}
+.search-trigger{background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:6px 14px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap}
+.search-trigger:hover{border-color:var(--hover-border);background:var(--hover-bg)}
+.search-trigger kbd{font-family:var(--mono);font-size:10px;background:var(--bg);padding:2px 5px;border-radius:4px;border:1px solid var(--card-border)}
+
+/* MAIN CONTENT */
+.main{max-width:1200px;margin:0 auto;padding:24px 24px 80px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* SECTION HEADINGS */
+.section-heading{background:rgba(29,78,216,0.06);border-left:4px solid var(--selenko);padding:14px 18px;border-radius:0 10px 10px 0;margin:32px 0 20px;font-size:16px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
+.section-heading:first-child{margin-top:0}
+.section-heading-sub{font-size:12px;font-weight:400;color:var(--text-sec);margin-top:2px}
+
+/* CARDS */
+.card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:20px;transition:all 0.2s}
+.card-clickable{cursor:pointer}
+.card-clickable:hover{border-color:var(--hover-border);background:var(--hover-bg);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#e8eeff 0%,#f5f5f7 40%,#e8f0ff 100%);border-radius:var(--radius);padding:48px 40px;margin-bottom:32px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.06) 0%,transparent 70%);top:-100px;right:-50px;pointer-events:none}
+.hero-layout{display:flex;gap:40px;align-items:center}
+.hero-text{flex:1}
+.hero-title{font-size:clamp(28px,4.5vw,42px);font-weight:800;color:var(--text);line-height:1.15;letter-spacing:-0.02em;margin-bottom:12px}
+.hero-subtitle{font-size:15px;font-weight:400;color:var(--text-sec);line-height:1.6;max-width:540px}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:220px}
+.stat-card{background:var(--card);border-radius:var(--radius-sm);padding:16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.stat-num{font-size:28px;font-weight:800;color:var(--selenko)}
+.stat-label{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* MODE CARDS */
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:32px}
+.mode-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--selenko)}
+.mode-icon{font-size:22px;margin-bottom:8px}
+.mode-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.mode-desc{font-size:12px;color:var(--text-sec);font-weight:400;line-height:1.5}
+
+/* FRAMEWORK CARDS */
+.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:32px}
+.fw-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:18px}
+.fw-author{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.fw-book{font-size:12px;font-weight:500;color:var(--selenko);font-style:italic;margin-bottom:8px}
+.fw-desc{font-size:12px;color:var(--text-sec);line-height:1.5}
+
+/* ANTI-PATTERN */
+.ap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:32px}
+.ap-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:16px}
+.ap-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ap-icon{font-size:16px}
+.ap-desc{font-size:12px;color:var(--text-sec);line-height:1.5}
+
+/* ACCORDION */
+.accordion{margin-bottom:12px}
+.accordion-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s;width:100%}
+.accordion-header:hover{border-color:var(--hover-border);background:var(--hover-bg);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.accordion-title{flex:1;text-align:left;font-size:14px;font-weight:600;color:var(--text)}
+.accordion-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 10px;border-radius:10px;background:rgba(29,78,216,0.1);color:var(--selenko)}
+.expand-chevron{width:32px;height:32px;border-radius:8px;background:rgba(29,78,216,0.08);color:var(--selenko);font-size:13px;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.25s ease,background 0.2s;flex-shrink:0}
+.accordion.is-expanded .expand-chevron{transform:rotate(90deg);background:rgba(29,78,216,0.15)}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+.accordion.is-expanded .accordion-body{max-height:15000px}
+.accordion-content{padding:16px 18px;border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--card);font-size:13px;color:var(--text-sec);line-height:1.7}
+.accordion-content h3{font-size:14px;font-weight:700;color:var(--text);margin:16px 0 8px}
+.accordion-content h3:first-child{margin-top:0}
+.accordion-content p{margin-bottom:10px}
+.accordion-content ul,.accordion-content ol{margin:8px 0 12px 20px}
+.accordion-content li{margin-bottom:4px}
+.accordion-content strong{color:var(--text);font-weight:600}
+.accordion-content code{font-family:var(--mono);font-size:12px;background:rgba(29,78,216,0.07);color:var(--selenko);padding:2px 7px;border-radius:5px;font-weight:500}
+.accordion-content pre{background:#1e293b;color:#e2e8f0;padding:16px;border-radius:var(--radius-sm);overflow-x:auto;margin:12px 0;font-family:var(--mono);font-size:12px;line-height:1.6}
+.accordion-content pre code{background:none;color:inherit;padding:0;border-radius:0}
+.accordion-content table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+.accordion-content table th{background:rgba(29,78,216,0.06);font-weight:600;color:var(--text);padding:8px 12px;text-align:left;border:1px solid var(--card-border)}
+.accordion-content table td{padding:8px 12px;border:1px solid var(--card-border);color:var(--text-sec)}
+
+/* QUICK ACTION CARDS */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.quick-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.quick-card-icon{width:48px;height:48px;border-radius:12px;background:rgba(29,78,216,0.08);display:flex;align-items:center;justify-content:center;font-size:22px}
+.quick-card-title{font-size:15px;font-weight:700;color:var(--text)}
+.quick-card-desc{font-size:12px;color:var(--text-sec);line-height:1.5}
+.quick-card-btn{background:var(--selenko);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.quick-card-btn:hover{background:#1e40af;transform:translateY(-1px);box-shadow:0 4px 12px rgba(29,78,216,0.3)}
+.quick-card-btn:active{transform:scale(0.97)}
+.quick-card-btn.success{background:var(--green)}
+
+/* SCENARIO FORMS */
+.scenario-form{padding:20px 0}
+.form-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:20px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em}
+.form-group input,.form-group textarea,.form-group select{width:100%;border:1.5px solid var(--card-border);border-radius:8px;padding:10px 14px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);background:var(--card);transition:border-color 0.2s,box-shadow 0.2s;resize:vertical}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--selenko);box-shadow:0 0 0 4px rgba(29,78,216,0.08)}
+.form-group textarea{min-height:64px}
+.preview-section{margin-top:20px}
+.preview-label{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.preview-dot{width:8px;height:8px;border-radius:50%;background:var(--selenko)}
+.preview-box{background:#f8fafc;border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:16px;font-size:13px;color:var(--text-sec);line-height:1.7;white-space:pre-wrap;font-family:'Outfit',sans-serif}
+.preview-box .empty-field{background:var(--amber-bg);color:var(--amber);padding:1px 6px;border-radius:4px;font-weight:500}
+.preview-box .filled-field{color:var(--text);font-weight:500}
+.copy-prompt-btn{margin-top:14px;background:var(--selenko);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.copy-prompt-btn:hover{background:#1e40af;transform:translateY(-1px)}
+.copy-prompt-btn:active{transform:scale(0.97)}
+.copy-prompt-btn.success{background:var(--green)}
+.sub-accordion{margin:16px 0 8px}
+.sub-accordion .accordion-header{background:var(--bg);border-color:transparent;padding:10px 14px}
+.sub-accordion .accordion-header:hover{background:rgba(29,78,216,0.04);border-color:var(--hover-border)}
+.sub-accordion .accordion-title{font-size:13px;font-weight:500}
+.sub-accordion .expand-chevron{width:24px;height:24px;font-size:10px}
+.sub-accordion .accordion-content{border-color:transparent;background:var(--bg);padding:10px 14px;font-size:12px}
+
+/* SETUP TAB */
+.setup-step{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--selenko);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-content{flex:1}
+.step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--text-sec);line-height:1.6}
+.step-desc code{font-family:var(--mono);font-size:12px;background:rgba(29,78,216,0.07);color:var(--selenko);padding:2px 7px;border-radius:5px;font-weight:500}
+.example-block{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:var(--radius-sm);font-family:var(--mono);font-size:12px;line-height:1.6;margin:12px 0;overflow-x:auto;white-space:pre-wrap}
+.tip-block{background:rgba(29,78,216,0.04);border:1.5px solid rgba(29,78,216,0.15);border-radius:var(--radius-sm);padding:14px 18px;margin:12px 0;font-size:13px;color:var(--text-sec);line-height:1.6}
+.tip-block strong{color:var(--selenko);font-weight:600}
+
+/* EXPANSION TAB */
+.exp-hero{background:linear-gradient(135deg,rgba(29,78,216,0.06) 0%,rgba(29,78,216,0.02) 100%);border:1.5px solid rgba(29,78,216,0.15);border-radius:var(--radius);padding:32px;text-align:center;margin-bottom:24px}
+.exp-hero h2{font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px}
+.exp-hero p{font-size:14px;color:var(--text-sec);max-width:500px;margin:0 auto}
+.exp-features{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.exp-feature{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:18px;text-align:center}
+.exp-feature-icon{font-size:28px;margin-bottom:8px}
+.exp-feature-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.exp-feature-desc{font-size:12px;color:var(--text-sec)}
+
+/* SUPPORT TAB */
+.support-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.support-card h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px}
+.support-card p{font-size:13px;color:var(--text-sec);line-height:1.6}
+.support-card a{color:var(--selenko);text-decoration:none;font-weight:600}
+.support-card a:hover{text-decoration:underline}
+
+/* COMMAND PALETTE */
+.cmd-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:15vh}
+.cmd-overlay.visible{display:flex}
+.cmd-modal{background:var(--card);border-radius:var(--radius);width:90%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden}
+.cmd-input-wrap{padding:16px;border-bottom:1px solid var(--card-border)}
+.cmd-input{width:100%;border:none;font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;color:var(--text);outline:none;background:transparent}
+.cmd-input::placeholder{color:var(--text-muted)}
+.cmd-results{max-height:360px;overflow-y:auto;padding:8px}
+.cmd-item{padding:10px 16px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background 0.15s}
+.cmd-item:hover,.cmd-item.active{background:var(--hover-bg)}
+.cmd-item-title{font-size:14px;font-weight:500;color:var(--text)}
+.cmd-item-section{font-size:11px;font-weight:500;color:var(--text-muted);margin-left:auto}
+.cmd-empty{padding:24px 16px;text-align:center;color:var(--text-muted);font-size:13px}
+
+/* DISCLAIMER */
+.disclaimer{background:var(--bg);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:14px 18px;font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:32px}
+.footer-brand{text-align:center;padding:32px 0 16px;font-size:12px;color:var(--text-muted)}
+.footer-brand strong{color:var(--text-sec);font-weight:600}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:12px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;z-index:300;transition:transform 0.3s ease;pointer-events:none}
+.toast.visible{transform:translateX(-50%) translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.header-title{display:none}
+.header-inner{gap:8px}
+.tab-btn{font-size:12px;padding:6px 10px}
+.hero{padding:32px 24px}
+.hero-layout{flex-direction:column;gap:24px}
+.hero-stats{min-width:auto}
+.quick-actions{grid-template-columns:1fr}
+.mode-grid{grid-template-columns:1fr 1fr}
+.fw-grid{grid-template-columns:1fr}
+.ap-grid{grid-template-columns:1fr}
+.exp-features{grid-template-columns:1fr 1fr}
+.main{padding:16px 16px 60px}
+.search-trigger span{display:none}
+}
+@media(max-width:480px){
+.mode-grid{grid-template-columns:1fr}
+.hero-stats{grid-template-columns:1fr 1fr}
+.pin-input-wrap{gap:6px}
+.pin-digit{width:44px;height:52px;font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate">
+<div class="pin-card" id="pin-card">
+<div class="pin-logo">AI Negotiation Coach</div>
+<div class="pin-subtitle">Enter your access PIN to continue</div>
+<div class="pin-input-wrap">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="0" autocomplete="off">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="1" autocomplete="off">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="2" autocomplete="off">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="3" autocomplete="off">
+</div>
+<div class="pin-error" id="pin-error">Incorrect PIN. Please try again.</div>
+<button class="pin-btn" id="pin-submit">Unlock</button>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<header class="header">
+<div class="header-inner">
+<div class="header-title">AI Negotiation Coach</div>
+<nav class="header-tabs" id="tabs">
+<button class="tab-btn active" data-tab="overview">Overview</button>
+<button class="tab-btn" data-tab="setup">Setup</button>
+<button class="tab-btn" data-tab="coach-files">Your Coach Files</button>
+<button class="tab-btn" data-tab="scenarios">Scenarios</button>
+<button class="tab-btn" data-tab="expansion">Expansion Pack</button>
+<button class="tab-btn" data-tab="support">Support</button>
+</nav>
+<button class="search-trigger" id="search-trigger">
+<span>/ Search</span>
+<kbd>/</kbd>
+</button>
+</div>
+</header>
+
+<main class="main">
+
+<!-- TAB: OVERVIEW -->
+<div class="tab-content active" id="tab-overview">
+<div class="hero">
+<div class="hero-layout">
+<div class="hero-text">
+<h1 class="hero-title">Your Personal Negotiation Strategist</h1>
+<p class="hero-subtitle">A pre-built coaching system that gives you expert negotiation strategy, specific language to use, and live practice — before any salary talk, vendor deal, partnership, or high-stakes conversation.</p>
+</div>
+<div class="hero-stats">
+<div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Modes</div></div>
+<div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Frameworks</div></div>
+<div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Scenarios</div></div>
+<div class="stat-card"><div class="stat-num">13</div><div class="stat-label">Anti-Patterns</div></div>
+</div>
+</div>
+</div>
+
+<div class="section-heading">The Five Coaching Modes<div class="section-heading-sub">Pick the mode that matches where you are in your negotiation.</div></div>
+<div class="mode-grid">
+<div class="mode-card"><div class="mode-icon">⚡</div><div class="mode-name">Prep</div><div class="mode-desc">Fast, focused advice before an upcoming conversation. Walk in with a strategy, not a hope.</div></div>
+<div class="mode-card"><div class="mode-icon">🧭</div><div class="mode-name">Strategy</div><div class="mode-desc">Deep analysis for complex or multi-stage negotiations. Map stakeholders, sequence moves, build positioning.</div></div>
+<div class="mode-card"><div class="mode-icon">✍️</div><div class="mode-name">Draft</div><div class="mode-desc">Write emails, messages, scripts, or proposals. Every draft gets checked against negotiation best practices.</div></div>
+<div class="mode-card"><div class="mode-icon">🎭</div><div class="mode-name">Role-Play</div><div class="mode-desc">Practice the negotiation live. The coach plays your counterparty, pushes back, then debriefs you.</div></div>
+<div class="mode-card"><div class="mode-icon">🔍</div><div class="mode-name">Debrief</div><div class="mode-desc">After-the-fact analysis of what happened. Identify patterns, missed opportunities, and lessons.</div></div>
+</div>
+
+<div class="section-heading">Four Proven Frameworks<div class="section-heading-sub">Every recommendation traces back to a specific principle from one of these systems.</div></div>
+<div class="fw-grid">
+<div class="fw-card"><div class="fw-author">Jim Camp</div><div class="fw-book">Start with No</div><div class="fw-desc">Decision-based negotiation. Mission-setting, emotional discipline, structured agendas, and the discipline to never need the deal.</div></div>
+<div class="fw-card"><div class="fw-author">Chris Voss</div><div class="fw-book">Never Split the Difference</div><div class="fw-desc">Tactical empathy. Emotional labeling, calibrated questions, accusation audits, mirroring, and getting to "that's right."</div></div>
+<div class="fw-card"><div class="fw-author">Fisher & Ury</div><div class="fw-book">Getting to Yes</div><div class="fw-desc">Interest-based negotiation. BATNA, ZOPA, separating people from problems, and inventing options for mutual gain.</div></div>
+<div class="fw-card"><div class="fw-author">Robert Cialdini</div><div class="fw-book">Influence</div><div class="fw-desc">The psychology of persuasion. Reciprocity, commitment, social proof, authority, liking, and scarcity — used ethically.</div></div>
+</div>
+
+<div class="section-heading">Anti-Pattern Detection<div class="section-heading-sub">The coach actively watches for and flags these common negotiation mistakes.</div></div>
+<div class="ap-grid">
+<div class="ap-card"><div class="ap-name"><span class="ap-icon">🚨</span> Neediness Signals</div><div class="ap-desc">Language that telegraphs desperation — excessive follow-ups, offering concessions before being asked, over-explaining why the deal is good for you.</div></div>
+<div class="ap-card"><div class="ap-name"><span class="ap-icon">⚖️</span> Compromise Traps</div><div class="ap-desc">Splitting the difference, premature concessions, accepting vague commitments without specifics.</div></div>
+<div class="ap-card"><div class="ap-name"><span class="ap-icon">💧</span> Emotional Leakage</div><div class="ap-desc">Showing too much excitement, reacting defensively to pushback, arguing to be right instead of asking questions.</div></div>
+<div class="ap-card"><div class="ap-name"><span class="ap-icon">🎯</span> Yes-Seeking</div><div class="ap-desc">Questions designed to force agreement, momentum-selling tactics, closed questions that invite one-word answers.</div></div>
+</div>
+
+<div class="section-heading">Who This Is For</div>
+<div class="card" style="margin-bottom:24px">
+<p style="font-size:14px;color:var(--text-sec);line-height:1.7">This coaching system is for anyone who negotiates and wants to be better at it — whether that's a salary conversation, a vendor contract, a business partnership, a real estate deal, or a difficult client situation. You don't need negotiation experience. You don't need to have read the books. The coach has the frameworks built in — you bring your situation, and it gives you specific strategy, specific language, and specific practice.</p>
+</div>
+
+<div class="disclaimer">
+<strong>Non-Affiliation Disclaimer:</strong> This product is an independent educational resource. It is not affiliated with, endorsed by, or connected to Chris Voss, Jim Camp, the Black Swan Group, the Camp Negotiation Institute, Roger Fisher, William Ury, the Harvard Negotiation Project, Robert Cialdini, or any other named individual or organization. The negotiation concepts referenced are presented in the creator's own words and interpretations.
+</div>
+</div>
+
+<!-- TAB: SETUP -->
+<div class="tab-content" id="tab-setup">
+<div class="section-heading">Quick Start — Three Steps<div class="section-heading-sub">Total setup time: about 10 minutes.</div></div>
+
+<div class="setup-step">
+<div class="step-num">1</div>
+<div class="step-content">
+<div class="step-title">Create a Claude Account (or Log In)</div>
+<div class="step-desc">Go to <strong>claude.ai</strong> and create an account if you don't have one. Claude Pro ($20/month) gives you longer conversations for complex negotiations, but a free account works too.</div>
+</div>
+</div>
+
+<div class="setup-step">
+<div class="step-num">2</div>
+<div class="step-content">
+<div class="step-title">Create a New Project</div>
+<div class="step-desc">Once logged in, look for <strong>"Projects"</strong> in the left sidebar. Click it, then click <strong>"Create Project."</strong> Name it something like <em>Negotiation Coach</em>.</div>
+</div>
+</div>
+
+<div class="setup-step">
+<div class="step-num">3</div>
+<div class="step-content">
+<div class="step-title">Load Your Coaching System</div>
+<div class="step-desc">Go to the <strong>Your Coach Files</strong> tab on this page. You'll load two things:<br><br>
+<strong>A. Project Instructions:</strong> Copy the text using the "Copy to Clipboard" button, then paste it into the <strong>"Custom Instructions"</strong> field in your Claude Project settings.<br><br>
+<strong>B. Knowledge Base:</strong> Download the .md file using the "Download" button, then in your Claude Project settings, click the <strong>"+"</strong> button in the Files area and upload the file.</div>
+</div>
+</div>
+
+<div class="section-heading">Your First Session</div>
+<div class="card" style="margin-bottom:20px">
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-bottom:12px">Open your Negotiation Coach project, start a new chat, go to the <strong>Scenarios</strong> tab on this page, and pick the scenario closest to your situation. Fill in the fields, copy the completed prompt, and paste it into the chat.</p>
+<div class="example-block">"I'm preparing to negotiate my compensation for a Senior Product Manager role. They offered $145K base with a $15K signing bonus. I know market rate is $155–170K for this role in my city. I have another offer at $150K but like this company more. I'm worried about pushing too hard because the hiring manager mentioned budget constraints. Help me prepare."</div>
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7">The coach will analyze your dual-offer leverage, calculate the employer's likely flexibility range, build an opening strategy, and give you the specific words to use.</p>
+</div>
+
+<div class="section-heading">Tips for Best Results</div>
+<div class="tip-block"><strong>Be specific.</strong> "$145K offer" is much better than "they made an offer." Real numbers and real context unlock real strategy.</div>
+<div class="tip-block"><strong>Use real situations.</strong> The coach is most useful when you bring something you're actually facing — not hypotheticals.</div>
+<div class="tip-block"><strong>Start a new chat each time.</strong> Your project settings carry over, but conversation history doesn't. Fresh chat = clean context.</div>
+<div class="tip-block"><strong>Try different modes.</strong> Prep for fast advice, Strategy for deep analysis, Draft for emails, Role-Play for practice, Debrief for post-game.</div>
+<div class="tip-block"><strong>Privacy note.</strong> Use role descriptions instead of names if privacy matters (e.g., "the hiring manager" instead of a real name).</div>
+
+<div class="section-heading">Frequently Asked Questions</div>
+<div id="setup-faq"></div>
+</div>
+
+<!-- TAB: COACH FILES -->
+<div class="tab-content" id="tab-coach-files">
+<div class="section-heading">Quick Actions<div class="section-heading-sub">Copy or download your coaching system files to load into Claude.</div></div>
+<div class="quick-actions">
+<div class="quick-card">
+<div class="quick-card-icon">📋</div>
+<div class="quick-card-title">Project Instructions</div>
+<div class="quick-card-desc">Copy this text and paste it into the "Custom Instructions" field in your Claude Project.</div>
+<button class="quick-card-btn" id="copy-pi-btn" onclick="copyProjectInstructions(this)">📋 Copy to Clipboard</button>
+</div>
+<div class="quick-card">
+<div class="quick-card-icon">📥</div>
+<div class="quick-card-title">Knowledge Base</div>
+<div class="quick-card-desc">Download this file and upload it to the "Files" area in your Claude Project.</div>
+<button class="quick-card-btn" id="dl-kb-btn" onclick="downloadKnowledgeBase(this)">📥 Download .md File</button>
+</div>
+</div>
+
+<div class="section-heading">Reference — Project Instructions<div class="section-heading-sub">Browse the full system prompt content. You don't need to read this — it's loaded when you copy above.</div></div>
+<div id="pi-accordions"></div>
+
+<div class="section-heading">Reference — Knowledge Base<div class="section-heading-sub">Browse the full knowledge base content. You don't need to read this — it's loaded when you download above.</div></div>
+<div id="kb-accordions"></div>
+</div>
+
+<!-- TAB: SCENARIOS -->
+<div class="tab-content" id="tab-scenarios">
+<div class="section-heading">Scenario Starter Pack<div class="section-heading-sub">Fill in your details, preview the prompt, and copy it to paste into your coach.</div></div>
+<div id="scenario-list"></div>
+</div>
+
+<!-- TAB: EXPANSION -->
+<div class="tab-content" id="tab-expansion">
+<div class="exp-hero">
+<h2>Expansion Pack</h2>
+<p>15 additional scenarios, 5 interactive role-plays, and 3 guided tools to take your negotiation coaching further.</p>
+</div>
+
+<div class="section-heading">What's Included</div>
+<div class="exp-features">
+<div class="exp-feature"><div class="exp-feature-icon">🎯</div><div class="exp-feature-title">Advanced Scenarios</div><div class="exp-feature-desc">Multi-party, recovery, hostile counterparty, negotiating from weakness, contract renewals</div></div>
+<div class="exp-feature"><div class="exp-feature-icon">🏢</div><div class="exp-feature-title">Specific Contexts</div><div class="exp-feature-desc">Freelancer rates, startup equity, medical bills, divorce assets, landlord-tenant</div></div>
+<div class="exp-feature"><div class="exp-feature-icon">🎭</div><div class="exp-feature-title">Role-Play Practice</div><div class="exp-feature-desc">Hardball buyer, emotional manipulator, silent treatment, nibbler, good cop/bad cop</div></div>
+<div class="exp-feature"><div class="exp-feature-icon">🛠️</div><div class="exp-feature-title">Guided Tools</div><div class="exp-feature-desc">Ackerman walkthrough, follow-up after silence, accusation audit builder</div></div>
+</div>
+
+<div class="section-heading">Adding the Expansion Pack</div>
+<div class="card">
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-bottom:12px">If you purchased the Expansion Pack, you'll have a separate portal with all the content and interactive forms. To add the expansion content to your Claude Project:</p>
+<ol style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-left:20px">
+<li style="margin-bottom:6px">Open your Expansion Pack portal using the PIN provided with your purchase</li>
+<li style="margin-bottom:6px">Follow the setup instructions in that portal to download the expansion content file</li>
+<li style="margin-bottom:6px">In your Claude Project settings, click the "+" button in the Files area and upload the file</li>
+</ol>
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-top:12px">Once added, the 3 guided tools (Ackerman, Follow-Up After Silence, Accusation Audit Builder) become available immediately in any chat.</p>
+</div>
+</div>
+
+<!-- TAB: SUPPORT -->
+<div class="tab-content" id="tab-support">
+<div class="section-heading">Get Help</div>
+<div class="support-card">
+<h3>Email Support</h3>
+<p>If you run into any issues during setup or have questions about using the coach, reach out and we'll help you get up and running.</p>
+<p style="margin-top:8px"><a href="mailto:support@selenko.com">support@selenko.com</a></p>
+</div>
+
+<div class="section-heading">Troubleshooting</div>
+<div class="support-card">
+<h3>Responses seem generic — what's wrong?</h3>
+<p>Two common causes: <strong>(1)</strong> Custom Instructions didn't paste correctly — go to your project settings and verify the full text is in the Custom Instructions field. <strong>(2)</strong> You're chatting outside the project — make sure you start chats from within your Negotiation Coach project, not from Claude's main screen.</p>
+</div>
+<div class="support-card">
+<h3>Do I need Claude Pro?</h3>
+<p>Recommended but not required. Pro gives longer conversations for complex negotiations. Free works for straightforward situations.</p>
+</div>
+<div class="support-card">
+<h3>Can I use this with ChatGPT?</h3>
+<p>No. This kit is built specifically for Claude Projects. Loading these files into other tools won't produce the same results.</p>
+</div>
+<div class="support-card">
+<h3>Can I customize the instructions?</h3>
+<p>Yes. Advanced users can edit Custom Instructions. But try it as-is first — it's designed to work out of the box.</p>
+</div>
+<div class="support-card">
+<h3>Is my data private?</h3>
+<p>Your conversations are between you and Claude, subject to Anthropic's privacy policy. No third-party service, no external database, no tracking.</p>
+</div>
+
+<div class="footer-brand"><strong>Selenko</strong> — Smarter AI Systems</div>
+</div>
+
+</main>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="cmd-overlay" id="cmd-overlay">
+<div class="cmd-modal">
+<div class="cmd-input-wrap">
+<input class="cmd-input" id="cmd-input" placeholder="Search for anything..." autocomplete="off">
+</div>
+<div class="cmd-results" id="cmd-results"></div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== DATA ========== */
+
+const PI_CONTENT = `# AI Negotiation Coach — Project Instructions
+You are a senior negotiation coach. Your job is to help the user prepare for, execute, and debrief from real negotiations — salary talks, vendor deals, partnership terms, real estate transactions, client contracts, and any situation where something meaningful is on the table.
+
+You draw from three proven methodologies:
+- **Jim Camp** (*Start with No*) — Decision-based negotiation. Mission, emotional discipline, structured agendas, removing neediness.
+- **Chris Voss** (*Never Split the Difference*) — Tactical empathy. Emotional labeling, calibrated questions, accusation audits, mirroring.
+- **Fisher & Ury** (*Getting to Yes*) — Interest-based negotiation. BATNA, ZOPA, separating people from problems, inventing options for mutual gain.
+
+You blend all three: Camp's structural discipline, Voss's emotional intelligence tools, and Fisher & Ury's analytical frameworks. You never default to generic advice. Every recommendation is grounded in a specific principle from one of these systems.
+
+Your tone: expert, calm, direct, no-nonsense. You speak like a senior negotiation consultant on retainer — someone who's seen hundreds of deals and cuts through noise quickly. You're warm but not soft. You challenge weak thinking. You never sugarcoat.
+
+---
+
+## ONBOARDING — FIRST CONVERSATION
+When a user starts their first conversation, welcome them and run this intake:
+
+Welcome to your Negotiation Coach. I'm here to help you prepare for, execute, and debrief from real negotiations. Let's get oriented.
+
+To give you the best advice, I need to understand your situation. Answer as much as you can:
+
+1. What are you negotiating? (Salary, vendor deal, partnership, real estate, client contract, something else?)
+2. Who is the other party? (Their role, what you know about them, your existing relationship)
+3. What's your ideal outcome? (Be specific — numbers, terms, conditions)
+4. What's your walkaway point? (The worst deal you'd still accept)
+5. What's your timeline? (When does this need to happen?)
+
+Don't worry about getting these perfect. We'll refine as we go.
+
+After intake, summarize what you heard back to them and confirm you understand. Then ask: "What would you like to work on first?" and present the mode options.
+
+---
+
+## SESSION MODES
+Every conversation operates in one of five modes. Present these at the start of each session or when the user seems unsure what to do next:
+
+### PREP — Prepare for an upcoming negotiation
+You help them build a complete negotiation strategy. This includes:
+- Defining their mission (set in the other side's world, not theirs)
+- Identifying BATNA and estimating the counterparty's BATNA
+- Mapping the ZOPA and creative ways to expand it
+- Building an accusation audit
+- Writing calibrated questions
+- Identifying the counterparty's negotiation type (Analyst, Accommodator, Assertive)
+- Running the Pre-Communication Checklist before they walk into the room
+
+### DRAFT — Write or review a negotiation communication
+You help them write emails, messages, scripts, or proposals. Every draft goes through the Pre-Communication Checklist before you present it. You produce 2-3 versions with distinct strategic angles when the situation warrants it.
+
+### ROLE-PLAY — Practice the negotiation live
+You play the counterparty. You fight back using real negotiation tactics — anchoring, pressure, silence, emotional appeals, whatever fits the scenario. After the role-play, you debrief: what they did well, what they missed, what the counterparty was trying to do, and how to handle it better.
+
+### DEBRIEF — Analyze a negotiation that already happened
+You help them break down what went well and what didn't. You identify patterns, missed opportunities, and lessons for next time. You evaluate against the Camp\/Voss\/Fisher frameworks.
+
+### STRATEGY — Think through a complex or multi-stage negotiation
+You help them map the full negotiation landscape: stakeholders, power dynamics, sequencing, coalition building, and long-game positioning. For multi-party negotiations or deals with multiple rounds.
+
+---
+
+## ANTI-PATTERNS — WHAT YOU NEVER DO
+These patterns destroy negotiation leverage. You flag and rewrite any draft that contains them. You call them out when you see the user heading toward them.
+
+### Neediness Signals
+- Language that implies desperation or urgency to close ("I really hope we can make this work," "I'd hate to lose this opportunity," "Let me know ASAP")
+- Excessive follow-ups or chasing ("Just checking in again," "Bumping this to the top")
+- Over-explaining why the deal is good for you — this reveals need
+- Offering concessions before being asked ("To sweeten the deal, we could...")
+- Rushing to price or terms before understanding the other side's pain
+- Trying too hard to be liked rather than respected
+
+### Compromise Traps
+- Splitting the difference on anything — price, terms, timeline
+- Premature concessions disguised as "goodwill" or "getting the ball rolling"
+- Language like "meet in the middle," "let's find a compromise"
+- Accepting vague commitments ("Let's circle back," "We'll figure it out") without pinning down specifics
+
+### Emotional Leakage
+- Showing excitement about a deal closing ("This is going to be amazing!")
+- Reacting defensively to pushback or objections
+- Rushed or overly enthusiastic tone (excessive exclamation points, superlatives)
+- Arguing to be right instead of asking questions
+
+### Yes-Seeking
+- Questions designed to force a "yes" ("Don't you agree that...?")
+- Momentum-selling tactics (stacking small yeses to build toward a big one)
+- Questions starting with "Can," "Is," "Are," "Do," or "Does" in a negotiation context — these invite one-word answers and trigger reciprocity pressure
+
+---
+
+## CAMP'S SYSTEM — STRUCTURE & DISCIPLINE
+
+### Mission and Purpose
+Every negotiation must serve a clear mission set in the other side's world — not yours. Before drafting anything or giving strategy advice, confirm:
+- What decision are we helping them make?
+- What is their world like right now? What problems are they facing?
+- What is our mission in their terms?
+
+### Neediness Control
+Camp's #1 rule: You do not need this deal. You only want it. Every communication must convey comfort with walking away.
+
+### The Columbo Effect
+Let the other side feel smarter, more important, more in control. Ask genuine questions rather than making declarations.
+
+### Blank Slate
+No assumptions, no expectations. Go into every communication without projecting what the other side wants.
+
+### Paint Their Pain
+The mission lives in the other side's world, and their world contains pain. Every effective communication should demonstrate understanding of their specific problems.
+
+### The Four Budgets
+Every negotiation involves four budgets: Time, Energy, Money, and Emotion.
+
+### Agenda Discipline
+Never send an email, make a call, or enter a meeting without a clear agenda.
+
+### Decision Makers
+Before drafting, always confirm: Are we talking to the actual decision-maker?
+
+### No Closing
+Deals don't get "closed" — they come together through vision and decision.
+
+---
+
+## VOSS'S SYSTEM — TACTICAL EMPATHY & INFLUENCE
+
+### Tactical Empathy
+Deeply understanding the other side's feelings and perspective — then demonstrating that understanding to increase influence.
+
+### Mirroring
+Repeat the last 1-3 critical words or key phrase someone used.
+
+### Labeling
+Give a name to the other side's emotions or perceptions. Label starters (never start with "I"): "It seems like..." / "It sounds like..." / "It looks like..."
+
+### Accusation Audit
+Before any difficult communication, list every terrible thing the other side could say about you — and say them first.
+
+### Calibrated Questions
+Open-ended questions starting with "How" or "What" — they give the other side the feeling of control.
+
+### Getting to "That's Right"
+The two most powerful words aren't "yes" — they're "that's right."
+
+### The Rule of Three
+Get agreement to the same thing three times in the same conversation.
+
+### The Three Negotiator Types
+Analyst (methodical, data-driven), Accommodator (relationship-focused), Assertive (values time, direct).
+
+### The Ackerman Bargaining Method
+Set target → 65% first offer → raises to 85%, 95%, 100% → precise final number → non-monetary sweetener.
+
+### Black Swans
+Hidden pieces of information that change everything if discovered.
+
+---
+
+## COMMUNICATION TEMPLATES & PHRASES
+
+### Email Structure
+1. ACKNOWLEDGE — Open with empathy
+2. ACCUSATION AUDIT (if needed)
+3. PAINT THE PAIN
+4. PRESENT VALUE
+5. CALIBRATED QUESTION
+6. NO-ORIENTED EXIT
+
+### Tone Guidelines
+Default: Warm, measured, professional. When tense: shorter sentences. When they're silent: no-pressure check-in.
+
+### Phrases to Use
+Opening: "I've been thinking about your situation with [their challenge]..."
+Permission to say no: "Would it be ridiculous to suggest..." / "Is this a bad time to bring up..."
+Price pushback: "What would you need to see to feel confident about the return?"
+Silence: "Have you decided to go in a different direction?"
+
+### Phrases to Never Use
+"I think this is a great deal" → "Here's what this could look like for you"
+"Let's meet in the middle" → "How can we make this work?"
+"Just checking in" → "Have you had a chance to think this through?"
+"Let me know your thoughts" → "What stands out to you?"
+
+---
+
+## FOLLOW-UP AFTER SILENCE
+Day 3: Soft check-in. Short, empathetic, low-pressure.
+Day 7: Add new value or information.
+Day 14: Direct "where do we stand?" No-oriented question.
+Day 21+: Graceful close or walk-away.
+
+---
+
+## PRE-COMMUNICATION CHECKLIST
+□ Does this serve a clear mission set in THEIR world?
+□ Does this have a defined agenda?
+□ Is this going to the actual decision-maker?
+□ Have I removed all neediness signals?
+□ Have I removed all premature concessions?
+□ Have I opened with empathy\/labels, not pitching?
+□ Have I included an accusation audit if needed?
+□ Am I ending with a calibrated question, not a demand?
+□ Have I given them permission to say no?
+□ Does this let them save face?
+□ Am I blank-slated?
+□ Would Camp call this "no closing"?
+□ Would Voss call this "tactical empathy"?
+
+---
+
+## QUICK-REFERENCE — SITUATION TABLE
+| Situation | Camp Says | Voss Says |
+|---|---|---|
+| They go silent | Don't chase. You don't need it. | "Have you given up on this?" |
+| They push on price | Assess all four budgets. | Ackerman method. Calibrated questions. |
+| They seem angry | Lower your voice. Blank slate. | Label the emotion. Mirror. Pause. |
+| They want to rush | Never rush to close. Slow down. | Deadlines are usually artificial. |
+| They say "yes" fast | Confirm 3 times. | Rule of Three. Watch for counterfeit yes. |
+| They say "maybe" | Push for a real decision. | Identify what's blocking. Label it. |
+
+---
+
+## SESSION MEMORY
+Within each conversation, you maintain context. Reference what the user has told you earlier. Build on prior analysis. When you catch the user making a mistake the frameworks warn against — call it out directly.`;
+
+const KB_CONTENT = `# Negotiation Coach — Knowledge Base
+This reference document contains frameworks, scripts, templates, decision trees, and checklists for real-world negotiations. It draws from four proven sources:
+- **Fisher & Ury** (*Getting to Yes*) — Interest-based negotiation, BATNA, ZOPA
+- **Jim Camp** (*Start with No*) — Decision-based discipline, mission, agenda control
+- **Chris Voss** (*Never Split the Difference*) — Tactical empathy, labels, calibrated questions
+- **Robert Cialdini** (*Influence*) — Psychology of persuasion, framing, anchoring, cognitive biases
+
+Use this alongside the Project Instructions. The instructions tell the coach how to behave. This document gives the coach the knowledge to draw from.
+
+---
+
+## 1. PRINCIPLED NEGOTIATION
+Source: Fisher & Ury, Getting to Yes.
+
+The 4 Principles:
+1. Separate the people from the problem
+2. Focus on interests, not positions
+3. Invent options for mutual gain
+4. Insist on objective criteria
+
+BATNA — Best Alternative to a Negotiated Agreement
+Your walkaway option. The stronger your BATNA, the more power you have.
+
+ZOPA — Zone of Possible Agreement
+The range where a deal is possible — the overlap between your floor and their ceiling.
+
+Creating Value Before Claiming It — First expand the pie, then divide it.
+
+---
+
+## 2. EXECUTIVE COMMUNICATION FRAMEWORKS
+The Pyramid Principle (Barbara Minto) — Start with your conclusion. Then supporting arguments. Then evidence.
+
+SCQA Framework — Situation, Complication, Question, Answer. Use when you need to build context before making a recommendation.
+
+Data Storytelling — Here's what happened. Here's why it matters. Here's what it means for us.
+
+---
+
+## 3. PITCH & PROPOSAL DESIGN
+Partnership Pitch — Lead with their gain, not yours.
+Customer\/Sales Pitch — Lead with the emotional case, close with the rational case.
+Proposal Writing Framework — Executive Summary, Problem, Solution, Process, Investment, Why You, Next Steps.
+
+---
+
+## 4. PERSUASION & INFLUENCE
+Cialdini's 6 Principles: Reciprocity, Commitment & Consistency, Social Proof, Authority, Liking, Scarcity.
+
+Framing Effects — Losses loom larger than equivalent gains.
+Anchoring — The first number stated disproportionately influences the outcome.
+
+---
+
+## 5. STAKEHOLDER MANAGEMENT
+Power\/Interest Grid — Map all stakeholders before any significant negotiation.
+Managing Competing Priorities — Surface conflicts early.
+Building Consensus — Map privately, find the coalition, pre-wire key players.
+
+---
+
+## 6. CONFLICT RESOLUTION
+De-escalation: Slow down, label the emotion, acknowledge without agreeing, find smallest agreement, shift to process.
+When to Compromise vs. Hold Firm — decision tree based on stakes and relationship value.
+Difficult Conversation Framework — SBI Model: Situation, Behavior, Impact, Question.
+Crucial Conversations Model — Start with heart, make it safe, master your story, STATE your path.
+
+---
+
+## 7. WRITTEN COMMUNICATION FOR BUSINESS
+Email Effectiveness — Subject lines, structure, follow-up sequencing.
+SOW Clarity — If it's not written, it doesn't exist.
+Documentation That Gets Read — BLUF principle. Headers as conclusions.
+
+---
+
+## 8. THE ACKERMAN BARGAINING METHOD
+1. Set your target price
+2. First offer at 65% of target
+3. Three raises: 85%, 95%, 100%
+4. Empathy and calibrated questions between rounds
+5. Precise, non-round final number
+6. Non-monetary sweetener on final offer
+
+---
+
+## 9. MASTER CHEAT SHEET
+High-stakes ahead → BATNA + ZOPA pre-work
+Persuading skeptic → SCQA + accusation audit
+Pitching partner → Mutual Value Proposition
+Deal stalled → No-oriented check-in
+Price pushback → Reframe to cost of problem
+Partner conflict → SBI model
+Someone angry → Label, don't defend
+Critical email → Pyramid principle
+Writing proposal → Executive summary first
+Multi-stakeholder → Map grid, pre-wire 1:1s
+
+---
+
+## 10. PRE-COMMUNICATION CHECKLIST
+CLARITY: Main point in first 3 lines? One clear CTA? No vague language?
+EMPATHY: Understanding their situation first? Writing from their interests?
+STRENGTH: No neediness? Calibrated question ending? Permission to say no?
+COMPLETENESS: Clear mission? Right decision-maker? Prior commitments confirmed?
+TONE: Calm and professional? No excess exclamation points?
+
+---
+
+## 11. NEGOTIATION PREPARATION TEMPLATE
+THE BASICS: What decision am I helping them make? What is my mission?
+THE INTERESTS: My interests vs. their likely interests
+BATNA: Mine vs. theirs. Who's stronger?
+ZOPA: My floor\/ceiling, their likely floor\/ceiling, creative expansions
+STAKEHOLDERS: Decision-maker? Who else influences?
+THEIR WORLD: Challenges? Success definition? Fears?
+THE COMMUNICATION: Accusation audit, labels, calibrated questions, non-negotiables, easy concessions
+NEXT STEP: One specific action. Smallest possible next step.
+
+---
+
+This knowledge base works alongside the Negotiation Coach Project Instructions. When in doubt: slow down, label their world, and ask a calibrated question.`;
+
+const SCENARIOS = [
+{
+id: 'salary',
+title: 'Scenario 1: Salary Negotiation',
+desc: 'Prepare for a compensation conversation with a full strategy.',
+fields: [
+{name:'role',label:'Role',placeholder:'Job title you\'re negotiating for',type:'input'},
+{name:'current_comp',label:'Current / Offered Comp',placeholder:'What they\'ve offered or what you currently make',type:'textarea'},
+{name:'target',label:'My Target',placeholder:'What you want to walk away with — be specific',type:'input'},
+{name:'walkaway',label:'My Walkaway',placeholder:'The minimum you\'d accept before declining',type:'input'},
+{name:'their_position',label:'What I Know About Their Position',placeholder:'Budget constraints, how badly they need you, competing candidates...',type:'textarea'},
+{name:'leverage',label:'My Leverage',placeholder:'Other offers, specialized skills, relationships, track record...',type:'textarea'},
+{name:'concerns',label:'What Concerns Me',placeholder:'What makes this negotiation tricky...',type:'textarea'}
+],
+promptTemplate: `I'm preparing to negotiate my compensation and I need your help building a strategy.
+
+Here's my situation:
+
+ROLE: {role}
+
+CURRENT/OFFERED COMP: {current_comp}
+
+MY TARGET: {target}
+
+MY WALKAWAY: {walkaway}
+
+WHAT I KNOW ABOUT THEIR POSITION: {their_position}
+
+MY LEVERAGE: {leverage}
+
+WHAT CONCERNS ME: {concerns}
+
+Help me prepare. I want a full strategy before I go into this conversation.`,
+coachWillDo: 'The coach will analyze your leverage, estimate the employer\'s BATNA and ZOPA, identify your strongest negotiation angles, build an accusation audit for potential pushback, and give you specific language to use at each stage.',
+followUps: [
+{title:'Draft the actual conversation',prompt:'Now help me draft exactly what I\'ll say — opening, how I\'ll present my number, how I\'ll respond to pushback, and how I\'ll close.'},
+{title:'Practice with role-play',prompt:'Let\'s role-play this. You be the hiring manager. Push back on my number, try to anchor me lower. After we\'re done, debrief me.'},
+{title:'Handle a specific objection',prompt:'They\'re likely to say [specific objection]. How do I handle that without caving or damaging the relationship?'}
+]
+},
+{
+id: 'vendor',
+title: 'Scenario 2: Vendor / Contractor Pricing',
+desc: 'Negotiate pricing down without burning the relationship.',
+fields: [
+{name:'providing',label:'What They\'re Providing',placeholder:'Service, product, or deliverable — be specific about scope',type:'textarea'},
+{name:'quote',label:'Their Quote',placeholder:'The number they gave you — include terms',type:'input'},
+{name:'budget',label:'My Budget',placeholder:'What you can actually spend',type:'input'},
+{name:'gap',label:'The Gap',placeholder:'How far apart you are — and how flexible you think each side is',type:'textarea'},
+{name:'relationship',label:'Our Relationship',placeholder:'New vendor, existing relationship, referral, competitive bid',type:'input'},
+{name:'their_alts',label:'Their Alternatives',placeholder:'Are they busy? Do they need this work?',type:'textarea'},
+{name:'my_alts',label:'My Alternatives',placeholder:'Other vendors, ability to do in-house, or delay entirely',type:'textarea'},
+{name:'beyond_price',label:'What Matters Beyond Price',placeholder:'Timeline, quality, ongoing relationship, payment terms...',type:'textarea'}
+],
+promptTemplate: `I need to negotiate pricing with a vendor and I want to make sure I handle this well.
+
+Here's the situation:
+
+WHAT THEY'RE PROVIDING: {providing}
+
+THEIR QUOTE: {quote}
+
+MY BUDGET: {budget}
+
+THE GAP: {gap}
+
+OUR RELATIONSHIP: {relationship}
+
+THEIR ALTERNATIVES: {their_alts}
+
+MY ALTERNATIVES: {my_alts}
+
+WHAT MATTERS BEYOND PRICE: {beyond_price}
+
+Help me build a strategy to negotiate this down to something that works — without burning the relationship or getting a worse deliverable.`,
+coachWillDo: 'The coach will map both sides\' leverage, identify non-monetary levers you can trade, build a specific approach for the pricing conversation, and give you scripts for common vendor pushback patterns.',
+followUps: [
+{title:'Draft the email',prompt:'Help me write the email where I push back on their quote. Give me 2-3 versions with different strategic angles.'},
+{title:'Prepare for their counter',prompt:'If they come back at [likely counter], what\'s my next move? Walk me through round by round.'},
+{title:'Evaluate whether to walk',prompt:'Help me pressure-test whether I should even be negotiating here, or if my BATNA is strong enough to walk.'}
+]
+},
+{
+id: 'partnership',
+title: 'Scenario 3: Business Partnership Terms',
+desc: 'Structure a partnership discussion before getting into specifics.',
+fields: [
+{name:'partnership',label:'The Partnership',placeholder:'Joint venture, revenue share, co-development, referral, equity...',type:'textarea'},
+{name:'other_party',label:'The Other Party',placeholder:'Who they are, what they bring, your existing relationship',type:'textarea'},
+{name:'their_want',label:'What They Want',placeholder:'Their stated position — equity split, revenue share, authority...',type:'textarea'},
+{name:'my_want',label:'What I Want',placeholder:'Your ideal structure — split, control, timeline, exit terms',type:'textarea'},
+{name:'their_need',label:'What I Think They Actually Need',placeholder:'Security, credibility, cash flow, control, upside...',type:'textarea'},
+{name:'concerns',label:'What Concerns Me',placeholder:'Power imbalance, misaligned incentives, unclear roles...',type:'textarea'},
+{name:'timeline',label:'Timeline',placeholder:'When does this need to be resolved? What\'s driving it?',type:'input'}
+],
+promptTemplate: `I'm entering a partnership discussion and I need help structuring my approach before we get into specifics.
+
+Here's what I know:
+
+THE PARTNERSHIP: {partnership}
+
+THE OTHER PARTY: {other_party}
+
+WHAT THEY WANT: {their_want}
+
+WHAT I WANT: {my_want}
+
+WHAT I THINK THEY ACTUALLY NEED: {their_need}
+
+WHAT CONCERNS ME: {concerns}
+
+TIMELINE: {timeline}
+
+Help me think through this strategically. I want to go into this conversation with a clear framework — not just react to whatever they propose.`,
+coachWillDo: 'The coach will separate positions from interests, identify asymmetric trades, flag common partnership traps, help structure a proposal that addresses their interests while protecting yours.',
+followUps: [
+{title:'Map the stakeholders',prompt:'There are [number] people involved on their side. Help me map the power dynamics.'},
+{title:'Draft the proposal',prompt:'Help me write a partnership proposal that frames the deal in their terms.'},
+{title:'Stress-test the structure',prompt:'Play devil\'s advocate. What could go wrong in 6-12 months?'}
+]
+},
+{
+id: 'real-estate',
+title: 'Scenario 4: Real Estate Transaction',
+desc: 'Navigate a property negotiation with specific tactical advice.',
+fields: [
+{name:'role',label:'I\'m The',placeholder:'Buyer or Seller',type:'input'},
+{name:'property',label:'The Property',placeholder:'Type, location, approximate value',type:'textarea'},
+{name:'status',label:'Current Status',placeholder:'Listed, under contract, counter-offer stage, inspection...',type:'input'},
+{name:'numbers',label:'The Numbers',placeholder:'Asking price, my offer/target, contingencies, timeline...',type:'textarea'},
+{name:'other_side',label:'The Other Side',placeholder:'Motivation, timeline pressure, emotional attachment, other offers...',type:'textarea'},
+{name:'leverage',label:'My Leverage',placeholder:'Cash offer, closing flexibility, pre-approval, other properties...',type:'textarea'},
+{name:'concerns',label:'My Concerns',placeholder:'Inspection issues, appraisal gap, multiple offers, financing...',type:'textarea'},
+{name:'help_with',label:'What I Need Help With',placeholder:'Overall strategy, specific counter-offer, tricky agent...',type:'textarea'}
+],
+promptTemplate: `I'm in a real estate negotiation and I want help getting the best possible terms.
+
+Here's the situation:
+
+I'M THE: {role}
+
+THE PROPERTY: {property}
+
+CURRENT STATUS: {status}
+
+THE NUMBERS: {numbers}
+
+THE OTHER SIDE: {other_side}
+
+MY LEVERAGE: {leverage}
+
+MY CONCERNS: {concerns}
+
+WHAT I NEED HELP WITH: {help_with}
+
+Help me navigate this negotiation. I want specific tactical advice, not general real estate wisdom.`,
+coachWillDo: 'The coach will analyze leverage on both sides, identify what the other party cares about beyond price, recommend specific tactics for your position in the deal cycle.',
+followUps: [
+{title:'Counter-offer strategy',prompt:'They came back at [counter details]. Help me decide: counter again, accept, or walk?'},
+{title:'Handle a complication',prompt:'[Describe complication]. How do I handle this without losing the deal?'},
+{title:'Negotiate repairs',prompt:'Inspection found [issues]. Help me figure out what to ask for and how to frame it.'}
+]
+},
+{
+id: 'client-sales',
+title: 'Scenario 5: Client / Sales Deal',
+desc: 'Get a stalled deal across the finish line without chasing.',
+fields: [
+{name:'selling',label:'What I\'m Selling',placeholder:'Product, service, or engagement — describe the scope',type:'textarea'},
+{name:'client',label:'The Client',placeholder:'Who they are, their role, decision-making authority',type:'textarea'},
+{name:'deal_size',label:'The Deal Size',placeholder:'Revenue/contract value at stake',type:'input'},
+{name:'status',label:'Where We Stand',placeholder:'Proposal sent, verbal yes, back-and-forth, going dark...',type:'textarea'},
+{name:'resistance',label:'The Resistance',placeholder:'Price, scope, timing, internal politics, competing options...',type:'textarea'},
+{name:'tried',label:'What I\'ve Tried',placeholder:'Follow-ups, concessions, conversations so far',type:'textarea'},
+{name:'their_needs',label:'What I Know About Their Needs',placeholder:'Pain points, what matters to them, timeline, budget signals',type:'textarea'},
+{name:'walkaway',label:'My Walkaway',placeholder:'At what point does this deal stop being worth it?',type:'input'}
+],
+promptTemplate: `I'm working on closing a deal with a client and I'm hitting resistance. I need help navigating this to a signed agreement.
+
+Here's the situation:
+
+WHAT I'M SELLING: {selling}
+
+THE CLIENT: {client}
+
+THE DEAL SIZE: {deal_size}
+
+WHERE WE STAND: {status}
+
+THE RESISTANCE: {resistance}
+
+WHAT I'VE TRIED: {tried}
+
+WHAT I KNOW ABOUT THEIR NEEDS: {their_needs}
+
+MY WALKAWAY: {walkaway}
+
+Help me figure out what's actually going on here and build a plan to get this across the finish line — without chasing or discounting my way there.`,
+coachWillDo: 'The coach will diagnose the likely cause of resistance, check whether you\'re dealing with the real decision-maker, evaluate your follow-up pattern for neediness, and build a re-engagement strategy with actual scripts.',
+followUps: [
+{title:'Draft re-engagement message',prompt:'Help me write the next message using a no-oriented approach. Draft 2-3 versions.'},
+{title:'Role-play the objection',prompt:'You be the client. Hit me with [their likely pushback]. I\'ll practice handling it.'},
+{title:'Decide whether to move on',prompt:'Help me honestly evaluate: is this deal going to close, or am I chasing?'}
+]
+}
+];
+
+const FAQ_ITEMS = [
+{q:'Do I need Claude Pro?',a:'Recommended but not required. Pro gives longer conversations for complex negotiations. Free works for straightforward situations.'},
+{q:'Can I use this with ChatGPT?',a:'No. This kit is built specifically for Claude Projects. Loading these files into other tools won\'t produce the same results.'},
+{q:'How is this different from just asking Claude?',a:'Generic Claude gives general advice. This coach has structured frameworks from Camp, Voss, Fisher & Ury, and Cialdini, specialized session modes, and trained behavioral patterns that catch common negotiation mistakes.'},
+{q:'Can I customize the instructions?',a:'Yes. Advanced users can edit Custom Instructions. But try it as-is first — it\'s designed to work out of the box.'},
+{q:'Is my data private?',a:'Your conversations are between you and Claude, subject to Anthropic\'s privacy policy. No third-party service, no external database, no tracking.'}
+];
+
+const PI_SECTIONS = [
+{title:'Role & Methodology',start:'# AI Negotiation Coach',end:'## ONBOARDING'},
+{title:'Onboarding — First Conversation',start:'## ONBOARDING',end:'## SESSION MODES'},
+{title:'Session Modes',start:'## SESSION MODES',end:'## ANTI-PATTERNS'},
+{title:'Anti-Patterns',start:'## ANTI-PATTERNS',end:'## CAMP\'S SYSTEM'},
+{title:'Camp\'s System — Structure & Discipline',start:'## CAMP\'S SYSTEM',end:'## VOSS\'S SYSTEM'},
+{title:'Voss\'s System — Tactical Empathy',start:'## VOSS\'S SYSTEM',end:'## COMMUNICATION TEMPLATES'},
+{title:'Communication Templates & Phrases',start:'## COMMUNICATION TEMPLATES',end:'## FOLLOW-UP AFTER'},
+{title:'Follow-Up After Silence',start:'## FOLLOW-UP AFTER',end:'## PRE-COMMUNICATION'},
+{title:'Pre-Communication Checklist & Situation Table',start:'## PRE-COMMUNICATION',end:'## SESSION MEMORY'},
+{title:'Session Memory',start:'## SESSION MEMORY',end:null}
+];
+
+const KB_SECTIONS = [
+{title:'Overview',start:'# Negotiation Coach',end:'## 1.'},
+{title:'1. Principled Negotiation (Fisher & Ury)',start:'## 1.',end:'## 2.'},
+{title:'2. Executive Communication Frameworks',start:'## 2.',end:'## 3.'},
+{title:'3. Pitch & Proposal Design',start:'## 3.',end:'## 4.'},
+{title:'4. Persuasion & Influence (Cialdini)',start:'## 4.',end:'## 5.'},
+{title:'5. Stakeholder Management',start:'## 5.',end:'## 6.'},
+{title:'6. Conflict Resolution',start:'## 6.',end:'## 7.'},
+{title:'7. Written Communication',start:'## 7.',end:'## 8.'},
+{title:'8. The Ackerman Bargaining Method',start:'## 8.',end:'## 9.'},
+{title:'9. Master Cheat Sheet',start:'## 9.',end:'## 10.'},
+{title:'10. Pre-Communication Checklist',start:'## 10.',end:'## 11.'},
+{title:'11. Negotiation Preparation Template',start:'## 11.',end:null}
+];
+
+/* ========== PIN GATE ========== */
+const PIN_HASH = 'b6351211106fc1fc6b1b3d6f6a4dcf92227e1231271227b3f58539fbb9a71711';
+const pinDigits = document.querySelectorAll('.pin-digit');
+const pinError = document.getElementById('pin-error');
+const pinCard = document.getElementById('pin-card');
+
+pinDigits.forEach((d, i) => {
+  d.addEventListener('input', () => {
+    if (d.value && i < 3) pinDigits[i + 1].focus();
+    if (d.value && i === 3) checkPin();
+  });
+  d.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !d.value && i > 0) pinDigits[i - 1].focus();
+    if (e.key === 'Enter') checkPin();
+  });
+});
+
+document.getElementById('pin-submit').addEventListener('click', checkPin);
+
+async function checkPin() {
+  const pin = Array.from(pinDigits).map(d => d.value).join('');
+  if (pin.length < 4) return;
+  const enc = new TextEncoder();
+  const hash = await crypto.subtle.digest('SHA-256', enc.encode(pin));
+  const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+  if (hex === PIN_HASH) {
+    document.getElementById('pin-gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    pinError.classList.add('visible');
+    pinCard.classList.add('pin-shake');
+    setTimeout(() => { pinCard.classList.remove('pin-shake'); pinError.classList.remove('visible'); }, 2000);
+    pinDigits.forEach(d => d.value = '');
+    pinDigits[0].focus();
+  }
+}
+
+setTimeout(() => pinDigits[0].focus(), 100);
+
+/* ========== TABS ========== */
+const tabBtns = document.querySelectorAll('.tab-btn');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function switchTab(tabId) {
+  tabBtns.forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+/* ========== MARKDOWN RENDERER ========== */
+function renderMd(text) {
+  let html = text;
+  html = html.replace(/^### (.+)$/gm, '<h3>$1<\/h3>');
+  html = html.replace(/^## (.+)$/gm, '<h3>$1<\/h3>');
+  html = html.replace(/^# (.+)$/gm, '<h3>$1<\/h3>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1<\/em>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1<\/code>');
+  html = html.replace(/^```[\s\S]*?```$/gm, function(m) {
+    const code = m.replace(/^```\w*\n?/, '').replace(/\n?```$/, '');
+    return '<pre><code>' + code.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '<\/code><\/pre>';
+  });
+  html = html.replace(/^\|(.+)\|$/gm, function(line) {
+    if (/^\|\s*[-:]+/.test(line)) return '';
+    const cells = line.split('|').filter(c => c.trim());
+    const tag = 'td';
+    return '<tr>' + cells.map(c => `<${tag}>${c.trim()}<\/${tag}>`).join('') + '<\/tr>';
+  });
+  html = html.replace(/(<tr>[\s\S]*?<\/tr>(?:\s*<tr>[\s\S]*?<\/tr>)*)/g, '<table>$1<\/table>');
+  html = html.replace(/^- (.+)$/gm, '<li>$1<\/li>');
+  html = html.replace(/(<li>[\s\S]*?<\/li>(?:\s*<li>[\s\S]*?<\/li>)*)/g, '<ul>$1<\/ul>');
+  html = html.replace(/^(\d+)\. (.+)$/gm, '<li>$2<\/li>');
+  html = html.replace(/---/g, '<hr style="border:none;border-top:1px solid var(--card-border);margin:16px 0">');
+  const lines = html.split('\n');
+  let result = '';
+  let inP = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) { if (inP) { result += '<\/p>'; inP = false; } continue; }
+    if (trimmed.startsWith('<h') || trimmed.startsWith('<pre') || trimmed.startsWith('<ul') || trimmed.startsWith('<ol') || trimmed.startsWith('<table') || trimmed.startsWith('<hr') || trimmed.startsWith('<li') || trimmed.startsWith('<tr')) {
+      if (inP) { result += '<\/p>'; inP = false; }
+      result += trimmed;
+    } else {
+      if (!inP) { result += '<p>'; inP = true; }
+      else result += ' ';
+      result += trimmed;
+    }
+  }
+  if (inP) result += '<\/p>';
+  return result;
+}
+
+function extractSection(content, startMarker, endMarker) {
+  const startIdx = content.indexOf(startMarker);
+  if (startIdx === -1) return '';
+  const endIdx = endMarker ? content.indexOf(endMarker, startIdx + startMarker.length) : content.length;
+  return content.substring(startIdx, endIdx === -1 ? content.length : endIdx).trim();
+}
+
+/* ========== BUILD ACCORDIONS ========== */
+function buildAccordions(containerId, sections, sourceContent) {
+  const container = document.getElementById(containerId);
+  sections.forEach((sec, i) => {
+    const content = extractSection(sourceContent, sec.start, sec.end);
+    const rendered = renderMd(content);
+    const acc = document.createElement('div');
+    acc.className = 'accordion';
+    acc.innerHTML = `<div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+      <span class="accordion-title">${sec.title}<\/span>
+      <span class="expand-chevron">▸<\/span>
+    <\/div>
+    <div class="accordion-body"><div class="accordion-content">${rendered}<\/div><\/div>`;
+    container.appendChild(acc);
+  });
+}
+
+function toggleAccordion(el) {
+  el.classList.toggle('is-expanded');
+}
+
+/* ========== BUILD FAQ ========== */
+function buildFAQ() {
+  const container = document.getElementById('setup-faq');
+  FAQ_ITEMS.forEach(item => {
+    const acc = document.createElement('div');
+    acc.className = 'accordion';
+    acc.innerHTML = `<div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+      <span class="accordion-title">${item.q}<\/span>
+      <span class="expand-chevron">▸<\/span>
+    <\/div>
+    <div class="accordion-body"><div class="accordion-content"><p>${item.a}<\/p><\/div><\/div>`;
+    container.appendChild(acc);
+  });
+}
+
+/* ========== BUILD SCENARIOS ========== */
+function buildScenarios() {
+  const container = document.getElementById('scenario-list');
+  SCENARIOS.forEach(sc => {
+    const acc = document.createElement('div');
+    acc.className = 'accordion';
+    acc.id = 'scenario-' + sc.id;
+
+    let fieldsHtml = sc.fields.map(f => {
+      const tag = f.type === 'textarea'
+        ? `<textarea placeholder="${f.placeholder}" data-field="${f.name}" oninput="updatePreview('${sc.id}')"><\/textarea>`
+        : `<input type="text" placeholder="${f.placeholder}" data-field="${f.name}" oninput="updatePreview('${sc.id}')">`;
+      return `<div class="form-group"><label>${f.label}<\/label>${tag}<\/div>`;
+    }).join('');
+
+    let followUpsHtml = sc.followUps.map(fu => {
+      return `<div class="sub-accordion accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+          <span class="accordion-title">${fu.title}<\/span>
+          <span class="expand-chevron">▸<\/span>
+        <\/div>
+        <div class="accordion-body"><div class="accordion-content"><pre><code>${fu.prompt}<\/code><\/pre><\/div><\/div>
+      <\/div>`;
+    }).join('');
+
+    acc.innerHTML = `<div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+      <span class="accordion-title">${sc.title}<\/span>
+      <span class="accordion-badge">${sc.fields.length} fields<\/span>
+      <span class="expand-chevron">▸<\/span>
+    <\/div>
+    <div class="accordion-body"><div class="accordion-content">
+      <p style="margin-bottom:16px;color:var(--text-sec)">${sc.desc}<\/p>
+      <div class="scenario-form">
+        <div class="form-grid">${fieldsHtml}<\/div>
+        <div class="preview-section">
+          <div class="preview-label"><span class="preview-dot"><\/span> Live Preview<\/div>
+          <div class="preview-box" id="preview-${sc.id}"><\/div>
+          <button class="copy-prompt-btn" onclick="copyPrompt('${sc.id}', this)">📋 Copy Completed Prompt<\/button>
+        <\/div>
+      <\/div>
+      <div class="sub-accordion accordion" style="margin-top:20px">
+        <div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+          <span class="accordion-title">What the Coach Will Do<\/span>
+          <span class="expand-chevron">▸<\/span>
+        <\/div>
+        <div class="accordion-body"><div class="accordion-content"><p>${sc.coachWillDo}<\/p><\/div><\/div>
+      <\/div>
+      <div style="margin-top:8px"><strong style="font-size:12px;color:var(--text);text-transform:uppercase;letter-spacing:0.04em">Follow-Up Prompts<\/strong><\/div>
+      ${followUpsHtml}
+    <\/div><\/div>`;
+    container.appendChild(acc);
+    updatePreview(sc.id);
+  });
+}
+
+function updatePreview(scenarioId) {
+  const sc = SCENARIOS.find(s => s.id === scenarioId);
+  if (!sc) return;
+  const container = document.getElementById('scenario-' + scenarioId);
+  let prompt = sc.promptTemplate;
+  sc.fields.forEach(f => {
+    const input = container.querySelector(`[data-field="${f.name}"]`);
+    const val = input ? input.value.trim() : '';
+    const placeholder = `{${f.name}}`;
+    if (val) {
+      prompt = prompt.replace(placeholder, `<span class="filled-field">${val}<\/span>`);
+    } else {
+      prompt = prompt.replace(placeholder, `<span class="empty-field">[${f.label}]<\/span>`);
+    }
+  });
+  document.getElementById('preview-' + scenarioId).innerHTML = prompt;
+}
+
+function getPromptText(scenarioId) {
+  const sc = SCENARIOS.find(s => s.id === scenarioId);
+  if (!sc) return '';
+  const container = document.getElementById('scenario-' + scenarioId);
+  let prompt = sc.promptTemplate;
+  sc.fields.forEach(f => {
+    const input = container.querySelector(`[data-field="${f.name}"]`);
+    const val = input ? input.value.trim() : '';
+    const placeholder = `{${f.name}}`;
+    prompt = prompt.replace(placeholder, val || `[${f.label}]`);
+  });
+  return prompt;
+}
+
+function copyPrompt(scenarioId, btn) {
+  const text = getPromptText(scenarioId);
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('success');
+    btn.innerHTML = '✓ Copied!';
+    showToast('Prompt copied to clipboard');
+    setTimeout(() => { btn.classList.remove('success'); btn.innerHTML = '📋 Copy Completed Prompt'; }, 2000);
+  });
+}
+
+/* ========== COPY / DOWNLOAD ========== */
+function copyProjectInstructions(btn) {
+  navigator.clipboard.writeText(PI_CONTENT).then(() => {
+    btn.classList.add('success');
+    btn.innerHTML = '✓ Copied!';
+    showToast('Project Instructions copied to clipboard');
+    setTimeout(() => { btn.classList.remove('success'); btn.innerHTML = '📋 Copy to Clipboard'; }, 2500);
+  });
+}
+
+function downloadKnowledgeBase(btn) {
+  const blob = new Blob([KB_CONTENT], {type: 'text/markdown;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'negotiation-coach-knowledge-base.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  btn.classList.add('success');
+  btn.innerHTML = '✓ Downloaded!';
+  showToast('Knowledge Base file downloaded');
+  setTimeout(() => { btn.classList.remove('success'); btn.innerHTML = '📥 Download .md File'; }, 2500);
+}
+
+/* ========== TOAST ========== */
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 2500);
+}
+
+/* ========== COMMAND PALETTE ========== */
+const cmdOverlay = document.getElementById('cmd-overlay');
+const cmdInput = document.getElementById('cmd-input');
+const cmdResults = document.getElementById('cmd-results');
+
+const searchItems = [
+  {title:'Overview',tab:'overview',section:''},
+  {title:'Five Coaching Modes',tab:'overview',section:'modes'},
+  {title:'Prep Mode',tab:'overview',section:'modes'},
+  {title:'Strategy Mode',tab:'overview',section:'modes'},
+  {title:'Draft Mode',tab:'overview',section:'modes'},
+  {title:'Role-Play Mode',tab:'overview',section:'modes'},
+  {title:'Debrief Mode',tab:'overview',section:'modes'},
+  {title:'Four Frameworks',tab:'overview',section:'frameworks'},
+  {title:'Jim Camp — Start with No',tab:'overview',section:'frameworks'},
+  {title:'Chris Voss — Never Split the Difference',tab:'overview',section:'frameworks'},
+  {title:'Fisher & Ury — Getting to Yes',tab:'overview',section:'frameworks'},
+  {title:'Robert Cialdini — Influence',tab:'overview',section:'frameworks'},
+  {title:'Anti-Pattern Detection',tab:'overview',section:'anti-patterns'},
+  {title:'Setup — Quick Start',tab:'setup',section:''},
+  {title:'First Session',tab:'setup',section:''},
+  {title:'Tips for Best Results',tab:'setup',section:''},
+  {title:'FAQ',tab:'setup',section:''},
+  {title:'Copy Project Instructions',tab:'coach-files',section:''},
+  {title:'Download Knowledge Base',tab:'coach-files',section:''},
+  {title:'Scenario 1: Salary Negotiation',tab:'scenarios',section:'salary'},
+  {title:'Scenario 2: Vendor Pricing',tab:'scenarios',section:'vendor'},
+  {title:'Scenario 3: Partnership Terms',tab:'scenarios',section:'partnership'},
+  {title:'Scenario 4: Real Estate',tab:'scenarios',section:'real-estate'},
+  {title:'Scenario 5: Client / Sales',tab:'scenarios',section:'client-sales'},
+  {title:'Expansion Pack',tab:'expansion',section:''},
+  {title:'Ackerman Method',tab:'expansion',section:''},
+  {title:'Follow-Up After Silence',tab:'expansion',section:''},
+  {title:'Accusation Audit Builder',tab:'expansion',section:''},
+  {title:'Support — Email',tab:'support',section:''},
+  {title:'Troubleshooting',tab:'support',section:''},
+  {title:'BATNA',tab:'coach-files',section:''},
+  {title:'ZOPA',tab:'coach-files',section:''},
+  {title:'Calibrated Questions',tab:'coach-files',section:''},
+  {title:'Accusation Audit',tab:'coach-files',section:''},
+  {title:'Mirroring',tab:'coach-files',section:''},
+  {title:'Labeling',tab:'coach-files',section:''},
+  {title:'Pre-Communication Checklist',tab:'coach-files',section:''},
+  {title:'Neediness Signals',tab:'overview',section:'anti-patterns'},
+  {title:'Ackerman Bargaining Method',tab:'coach-files',section:''},
+  {title:'Negotiation Preparation Template',tab:'coach-files',section:''},
+];
+
+document.getElementById('search-trigger').addEventListener('click', openPalette);
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
+    e.preventDefault(); openPalette();
+  }
+  if (e.key === 'Escape') closePalette();
+});
+
+cmdOverlay.addEventListener('click', (e) => { if (e.target === cmdOverlay) closePalette(); });
+
+function openPalette() {
+  cmdOverlay.classList.add('visible');
+  cmdInput.value = '';
+  cmdInput.focus();
+  renderSearchResults('');
+}
+
+function closePalette() {
+  cmdOverlay.classList.remove('visible');
+}
+
+cmdInput.addEventListener('input', () => renderSearchResults(cmdInput.value));
+cmdInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const active = cmdResults.querySelector('.cmd-item.active') || cmdResults.querySelector('.cmd-item');
+    if (active) active.click();
+  }
+});
+
+function renderSearchResults(query) {
+  const q = query.toLowerCase().trim();
+  const filtered = q ? searchItems.filter(i => i.title.toLowerCase().includes(q)) : searchItems.slice(0, 12);
+  if (!filtered.length) {
+    cmdResults.innerHTML = '<div class="cmd-empty">No results found<\/div>';
+    return;
+  }
+  const tabNames = {overview:'Overview',setup:'Setup','coach-files':'Coach Files',scenarios:'Scenarios',expansion:'Expansion',support:'Support'};
+  cmdResults.innerHTML = filtered.map((item, i) =>
+    `<div class="cmd-item${i === 0 ? ' active' : ''}" onclick="goToItem('${item.tab}','${item.section}')" onmouseenter="setActiveCmd(this)">
+      <span class="cmd-item-title">${item.title}<\/span>
+      <span class="cmd-item-section">${tabNames[item.tab]}<\/span>
+    <\/div>`
+  ).join('');
+}
+
+function setActiveCmd(el) {
+  cmdResults.querySelectorAll('.cmd-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function goToItem(tab, section) {
+  closePalette();
+  switchTab(tab);
+  if (section) {
+    setTimeout(() => {
+      const el = document.getElementById('scenario-' + section);
+      if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    }, 100);
+  }
+}
+
+/* ========== INIT ========== */
+buildAccordions('pi-accordions', PI_SECTIONS, PI_CONTENT);
+buildAccordions('kb-accordions', KB_SECTIONS, KB_CONTENT);
+buildFAQ();
+buildScenarios();
+</script>
+</body>
+</html>
