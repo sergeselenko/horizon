@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Negotiation Coach — Expansion Pack</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--selenko:#1D4ED8;
+--selenko-light:rgba(29,78,216,0.08);
+--selenko-lighter:rgba(29,78,216,0.04);
+--bg:#f5f5f7;
+--card:#ffffff;
+--card-border:#dfe1e6;
+--text:#111827;
+--text-sec:#4b5563;
+--text-muted:#9ca3af;
+--hover-bg:rgba(29,78,216,0.04);
+--hover-border:rgba(29,78,216,0.25);
+--green:#059669;
+--amber:#d97706;
+--amber-bg:rgba(217,119,6,0.12);
+--mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+--radius:14px;
+--radius-sm:10px;
+}
+::selection{background:rgba(29,78,216,0.18)}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+
+/* PIN GATE */
+#pin-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#e8eeff 0%,#f5f5f7 40%,#e8f0ff 100%)}
+#pin-gate::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.06) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+#pin-gate::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.04) 0%,transparent 70%);bottom:-80px;left:-80px;pointer-events:none}
+.pin-card{background:var(--card);border-radius:var(--radius);padding:48px 40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.08);max-width:380px;width:90%;position:relative}
+.pin-logo{font-size:24px;font-weight:800;color:var(--selenko);margin-bottom:4px;letter-spacing:-0.02em}
+.pin-badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:3px 10px;border-radius:10px;background:rgba(29,78,216,0.1);color:var(--selenko);margin-bottom:6px}
+.pin-subtitle{font-size:13px;color:var(--text-sec);font-weight:400;margin-bottom:32px}
+.pin-input-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.pin-digit{width:52px;height:60px;border:1.5px solid var(--card-border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;text-align:center;outline:none;transition:border-color 0.2s,box-shadow 0.2s;color:var(--text)}
+.pin-digit:focus{border-color:var(--selenko);box-shadow:0 0 0 4px rgba(29,78,216,0.08)}
+.pin-error{color:#dc2626;font-size:12px;font-weight:500;opacity:0;transition:opacity 0.3s;margin-bottom:16px}
+.pin-error.visible{opacity:1}
+.pin-btn{background:var(--selenko);color:#fff;border:none;padding:12px 36px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s,transform 0.1s}
+.pin-btn:hover{background:#1e40af}
+.pin-btn:active{transform:scale(0.97)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-shake{animation:shake 0.4s ease}
+
+/* APP SHELL */
+#app{display:none}
+.header{position:sticky;top:0;z-index:100;background:rgba(245,245,247,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--card-border);padding:0 24px}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:56px;gap:16px}
+.header-title{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;letter-spacing:-0.01em}
+.header-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:8px;background:rgba(29,78,216,0.1);color:var(--selenko);margin-left:-8px}
+.header-tabs{display:flex;gap:2px;flex:1;justify-content:center;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.header-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--text-sec);padding:8px 14px;cursor:pointer;border-radius:8px;transition:all 0.2s;white-space:nowrap;position:relative}
+.tab-btn:hover{background:var(--hover-bg);color:var(--text)}
+.tab-btn.active{color:var(--selenko);font-weight:700;background:rgba(29,78,216,0.06)}
+.tab-btn.active::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:70%;height:2.5px;background:var(--selenko);border-radius:2px}
+.search-trigger{background:none;border:1.5px solid var(--card-border);border-radius:8px;padding:6px 14px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap}
+.search-trigger:hover{border-color:var(--hover-border);background:var(--hover-bg)}
+.search-trigger kbd{font-family:var(--mono);font-size:10px;background:var(--bg);padding:2px 5px;border-radius:4px;border:1px solid var(--card-border)}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:24px 24px 80px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* SECTION HEADINGS */
+.section-heading{background:rgba(29,78,216,0.06);border-left:4px solid var(--selenko);padding:14px 18px;border-radius:0 10px 10px 0;margin:32px 0 20px;font-size:16px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
+.section-heading:first-child{margin-top:0}
+.section-heading-sub{font-size:12px;font-weight:400;color:var(--text-sec);margin-top:2px}
+
+/* CARDS */
+.card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:20px;transition:all 0.2s}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#e8eeff 0%,#f5f5f7 40%,#e8f0ff 100%);border-radius:var(--radius);padding:48px 40px;margin-bottom:32px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.06) 0%,transparent 70%);top:-100px;right:-50px;pointer-events:none}
+.hero-layout{display:flex;gap:40px;align-items:center}
+.hero-text{flex:1}
+.hero-title{font-size:clamp(26px,4vw,38px);font-weight:800;color:var(--text);line-height:1.15;letter-spacing:-0.02em;margin-bottom:12px}
+.hero-subtitle{font-size:15px;font-weight:400;color:var(--text-sec);line-height:1.6;max-width:540px}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:220px}
+.stat-card{background:var(--card);border-radius:var(--radius-sm);padding:16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.stat-num{font-size:28px;font-weight:800;color:var(--selenko)}
+.stat-label{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* CATEGORY CARDS */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:32px}
+.cat-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:20px;text-align:center;position:relative;overflow:hidden}
+.cat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--selenko)}
+.cat-icon{font-size:28px;margin-bottom:10px}
+.cat-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.cat-desc{font-size:12px;color:var(--text-sec);line-height:1.5}
+.cat-count{font-size:11px;font-weight:600;color:var(--selenko);margin-top:8px}
+
+/* ACCORDION */
+.accordion{margin-bottom:12px}
+.accordion-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s;width:100%}
+.accordion-header:hover{border-color:var(--hover-border);background:var(--hover-bg);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.accordion-title{flex:1;text-align:left;font-size:14px;font-weight:600;color:var(--text)}
+.accordion-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:3px 10px;border-radius:10px;background:rgba(29,78,216,0.1);color:var(--selenko)}
+.expand-chevron{width:32px;height:32px;border-radius:8px;background:rgba(29,78,216,0.08);color:var(--selenko);font-size:13px;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.25s ease,background 0.2s;flex-shrink:0}
+.accordion.is-expanded .expand-chevron{transform:rotate(90deg);background:rgba(29,78,216,0.15)}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+.accordion.is-expanded .accordion-body{max-height:20000px}
+.accordion-content{padding:16px 18px;border:1.5px solid var(--card-border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--card);font-size:13px;color:var(--text-sec);line-height:1.7}
+.accordion-content p{margin-bottom:10px}
+.accordion-content pre{background:#1e293b;color:#e2e8f0;padding:16px;border-radius:var(--radius-sm);overflow-x:auto;margin:12px 0;font-family:var(--mono);font-size:12px;line-height:1.6;white-space:pre-wrap}
+.accordion-content code{font-family:var(--mono);font-size:12px;background:rgba(29,78,216,0.07);color:var(--selenko);padding:2px 7px;border-radius:5px;font-weight:500}
+.accordion-content pre code{background:none;color:inherit;padding:0}
+.accordion-content strong{color:var(--text);font-weight:600}
+
+/* SCENARIO FORMS */
+.scenario-form{padding:20px 0}
+.form-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:20px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em}
+.form-group input,.form-group textarea,.form-group select{width:100%;border:1.5px solid var(--card-border);border-radius:8px;padding:10px 14px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);background:var(--card);transition:border-color 0.2s,box-shadow 0.2s;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--selenko);box-shadow:0 0 0 4px rgba(29,78,216,0.08)}
+.form-group textarea{min-height:64px}
+.preview-section{margin-top:20px}
+.preview-label{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.preview-dot{width:8px;height:8px;border-radius:50%;background:var(--selenko)}
+.preview-box{background:#f8fafc;border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:16px;font-size:13px;color:var(--text-sec);line-height:1.7;white-space:pre-wrap;font-family:'Outfit',sans-serif}
+.preview-box .empty-field{background:var(--amber-bg);color:var(--amber);padding:1px 6px;border-radius:4px;font-weight:500}
+.preview-box .filled-field{color:var(--text);font-weight:500}
+.copy-prompt-btn{margin-top:14px;background:var(--selenko);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.copy-prompt-btn:hover{background:#1e40af;transform:translateY(-1px)}
+.copy-prompt-btn:active{transform:scale(0.97)}
+.copy-prompt-btn.success{background:var(--green)}
+.sub-accordion{margin:16px 0 8px}
+.sub-accordion .accordion-header{background:var(--bg);border-color:transparent;padding:10px 14px}
+.sub-accordion .accordion-header:hover{background:rgba(29,78,216,0.04);border-color:var(--hover-border)}
+.sub-accordion .accordion-title{font-size:13px;font-weight:500}
+.sub-accordion .expand-chevron{width:24px;height:24px;font-size:10px}
+.sub-accordion .accordion-content{border-color:transparent;background:var(--bg);padding:10px 14px;font-size:12px}
+
+/* TOOL CARDS */
+.tool-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--selenko)}
+.tool-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.tool-icon{width:40px;height:40px;border-radius:10px;background:rgba(29,78,216,0.08);display:flex;align-items:center;justify-content:center;font-size:20px}
+.tool-name{font-size:16px;font-weight:700;color:var(--text)}
+.tool-desc{font-size:13px;color:var(--text-sec);line-height:1.6;margin-bottom:16px}
+
+/* SETUP */
+.setup-step{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--selenko);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-content{flex:1}
+.step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--text-sec);line-height:1.6}
+
+/* SUPPORT */
+.support-card{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.support-card h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px}
+.support-card p{font-size:13px;color:var(--text-sec);line-height:1.6}
+.support-card a{color:var(--selenko);text-decoration:none;font-weight:600}
+.support-card a:hover{text-decoration:underline}
+
+/* DISCLAIMER */
+.disclaimer{background:var(--bg);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:14px 18px;font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:32px}
+.footer-brand{text-align:center;padding:32px 0 16px;font-size:12px;color:var(--text-muted)}
+.footer-brand strong{color:var(--text-sec);font-weight:600}
+
+/* COMMAND PALETTE */
+.cmd-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:15vh}
+.cmd-overlay.visible{display:flex}
+.cmd-modal{background:var(--card);border-radius:var(--radius);width:90%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden}
+.cmd-input-wrap{padding:16px;border-bottom:1px solid var(--card-border)}
+.cmd-input{width:100%;border:none;font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;color:var(--text);outline:none;background:transparent}
+.cmd-input::placeholder{color:var(--text-muted)}
+.cmd-results{max-height:360px;overflow-y:auto;padding:8px}
+.cmd-item{padding:10px 16px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background 0.15s}
+.cmd-item:hover,.cmd-item.active{background:var(--hover-bg)}
+.cmd-item-title{font-size:14px;font-weight:500;color:var(--text)}
+.cmd-item-section{font-size:11px;font-weight:500;color:var(--text-muted);margin-left:auto}
+.cmd-empty{padding:24px 16px;text-align:center;color:var(--text-muted);font-size:13px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:12px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;z-index:300;transition:transform 0.3s ease;pointer-events:none}
+.toast.visible{transform:translateX(-50%) translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.header-title,.header-badge{display:none}
+.header-inner{gap:8px}
+.tab-btn{font-size:12px;padding:6px 10px}
+.hero{padding:32px 24px}
+.hero-layout{flex-direction:column;gap:24px}
+.hero-stats{min-width:auto}
+.cat-grid{grid-template-columns:1fr 1fr}
+.main{padding:16px 16px 60px}
+.search-trigger span{display:none}
+}
+@media(max-width:480px){
+.cat-grid{grid-template-columns:1fr}
+.pin-input-wrap{gap:6px}
+.pin-digit{width:44px;height:52px;font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate">
+<div class="pin-card" id="pin-card">
+<div class="pin-logo">AI Negotiation Coach</div>
+<div class="pin-badge">Expansion Pack</div>
+<div class="pin-subtitle">Enter your access PIN to continue</div>
+<div class="pin-input-wrap">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="0" autocomplete="off">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="1" autocomplete="off">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="2" autocomplete="off">
+<input class="pin-digit" type="password" inputmode="numeric" maxlength="1" data-idx="3" autocomplete="off">
+</div>
+<div class="pin-error" id="pin-error">Incorrect PIN. Please try again.</div>
+<button class="pin-btn" id="pin-submit">Unlock</button>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<header class="header">
+<div class="header-inner">
+<div class="header-title">AI Negotiation Coach</div>
+<div class="header-badge">Expansion</div>
+<nav class="header-tabs" id="tabs">
+<button class="tab-btn active" data-tab="overview">Overview</button>
+<button class="tab-btn" data-tab="scenarios">Scenarios</button>
+<button class="tab-btn" data-tab="tools">Guided Tools</button>
+<button class="tab-btn" data-tab="setup">Setup</button>
+<button class="tab-btn" data-tab="support">Support</button>
+</nav>
+<button class="search-trigger" id="search-trigger"><span>/ Search</span><kbd>/</kbd></button>
+</div>
+</header>
+
+<main class="main">
+
+<!-- TAB: OVERVIEW -->
+<div class="tab-content active" id="tab-overview">
+<div class="hero">
+<div class="hero-layout">
+<div class="hero-text">
+<h1 class="hero-title">Expansion Pack</h1>
+<p class="hero-subtitle">15 advanced scenarios, 5 interactive role-plays, and 3 guided tools — covering everything from hostile counterparties and startup equity to medical bills and multi-party negotiations.</p>
+</div>
+<div class="hero-stats">
+<div class="stat-card"><div class="stat-num">15</div><div class="stat-label">Scenarios</div></div>
+<div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Tools</div></div>
+<div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Role-Plays</div></div>
+<div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Categories</div></div>
+</div>
+</div>
+</div>
+
+<div class="section-heading">What's Inside</div>
+<div class="cat-grid">
+<div class="cat-card"><div class="cat-icon">🎯</div><div class="cat-title">Advanced Negotiations</div><div class="cat-desc">Multi-party, recovery, contract renewal, hostile counterparty, negotiating from weakness</div><div class="cat-count">5 scenarios</div></div>
+<div class="cat-card"><div class="cat-icon">🏢</div><div class="cat-title">Specific Contexts</div><div class="cat-desc">Freelancer rates, startup equity, medical bills, divorce assets, landlord-tenant</div><div class="cat-count">5 scenarios</div></div>
+<div class="cat-card"><div class="cat-icon">🎭</div><div class="cat-title">Role-Play Practice</div><div class="cat-desc">Hardball buyer, emotional manipulator, silent treatment, nibbler, good cop / bad cop</div><div class="cat-count">5 scenarios</div></div>
+<div class="cat-card"><div class="cat-icon">🛠️</div><div class="cat-title">Guided Tools</div><div class="cat-desc">Ackerman walkthrough, follow-up after silence, accusation audit builder</div><div class="cat-count">3 tools</div></div>
+</div>
+
+<div class="disclaimer">
+<strong>Non-Affiliation Disclaimer:</strong> This product is an independent educational resource. It is not affiliated with, endorsed by, or connected to Chris Voss, Jim Camp, the Black Swan Group, the Camp Negotiation Institute, Roger Fisher, William Ury, the Harvard Negotiation Project, Robert Cialdini, or any other named individual or organization.
+</div>
+</div>
+
+<!-- TAB: SCENARIOS -->
+<div class="tab-content" id="tab-scenarios">
+<div class="section-heading">Category 1: Advanced Negotiations<div class="section-heading-sub">Complex, high-stakes situations with multiple parties and shifting dynamics.</div></div>
+<div id="scenarios-advanced"></div>
+
+<div class="section-heading">Category 2: Specific Contexts<div class="section-heading-sub">Tailored scenarios for common real-world domains.</div></div>
+<div id="scenarios-specific"></div>
+
+<div class="section-heading">Category 3: Role-Play Practice<div class="section-heading-sub">Practice against a counterparty who fights back. Type "debrief" when ready for feedback.</div></div>
+<div id="scenarios-roleplay"></div>
+</div>
+
+<!-- TAB: GUIDED TOOLS -->
+<div class="tab-content" id="tab-tools">
+<div class="section-heading">Guided Interactive Tools<div class="section-heading-sub">Step-by-step walkthroughs that apply specific negotiation techniques to your real situation.</div></div>
+<div id="tools-list"></div>
+</div>
+
+<!-- TAB: SETUP -->
+<div class="tab-content" id="tab-setup">
+<div class="section-heading">Adding the Expansion Pack to Your Coach<div class="section-heading-sub">About 30 seconds — one quick step.</div></div>
+
+<div class="card" style="margin-bottom:24px">
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-bottom:16px">The expansion content needs to be added to your Claude Project so the coach can access the additional scenarios and guided tools.</p>
+
+<div class="setup-step">
+<div class="step-num">1</div>
+<div class="step-content">
+<div class="step-title">Download the Expansion Pack File</div>
+<div class="step-desc">Click the button below to download the expansion pack content as a text file.</div>
+<button class="copy-prompt-btn" style="margin-top:12px" onclick="downloadExpansion(this)">📥 Download Expansion Pack File</button>
+</div>
+</div>
+
+<div class="setup-step">
+<div class="step-num">2</div>
+<div class="step-content">
+<div class="step-title">Upload to Your Claude Project</div>
+<div class="step-desc">In your Claude Project settings, click the <strong>"+"</strong> button in the Files area, select the downloaded file, and save. The 15 scenarios and 3 guided tools become available immediately in any new chat.</div>
+</div>
+</div>
+</div>
+
+<div class="section-heading">What Changes After Setup</div>
+<div class="card">
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7">Once the expansion file is loaded, three new capabilities are available in every chat:</p>
+<ul style="font-size:13px;color:var(--text-sec);line-height:1.7;margin:12px 0 0 20px">
+<li style="margin-bottom:6px"><strong>Ackerman Guided Walkthrough</strong> — Step-by-step price negotiation method using your real numbers</li>
+<li style="margin-bottom:6px"><strong>Follow-Up After Silence</strong> — Timed sequence builder for when someone goes dark</li>
+<li style="margin-bottom:6px"><strong>Accusation Audit Builder</strong> — Walk through building an accusation audit for any difficult conversation</li>
+</ul>
+<p style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-top:12px">You can also copy any of the 15 scenario prompts from the Scenarios tab on this portal and paste them into your coach.</p>
+</div>
+</div>
+
+<!-- TAB: SUPPORT -->
+<div class="tab-content" id="tab-support">
+<div class="section-heading">Get Help</div>
+<div class="support-card">
+<h3>Email Support</h3>
+<p>If you have questions about the expansion pack or run into any issues, we're here to help.</p>
+<p style="margin-top:8px"><a href="mailto:support@selenko.com">support@selenko.com</a></p>
+</div>
+<div class="support-card">
+<h3>Need the Core Kit?</h3>
+<p>The expansion pack works alongside the core AI Negotiation Coach Kit. If you haven't set up the core coaching system yet, you'll need that first — it includes the Project Instructions, Knowledge Base, and 5 foundational scenarios.</p>
+</div>
+<div class="footer-brand"><strong>Selenko</strong> — Smarter AI Systems</div>
+</div>
+
+</main>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="cmd-overlay" id="cmd-overlay">
+<div class="cmd-modal">
+<div class="cmd-input-wrap">
+<input class="cmd-input" id="cmd-input" placeholder="Search for anything..." autocomplete="off">
+</div>
+<div class="cmd-results" id="cmd-results"></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== PIN GATE ========== */
+const PIN_HASH='687224ed4bc816385815a93a8a73290bf77c046c81a9b9174d330c88469444f3';
+const pinDigits=document.querySelectorAll('.pin-digit');
+const pinError=document.getElementById('pin-error');
+const pinCard=document.getElementById('pin-card');
+pinDigits.forEach((d,i)=>{
+d.addEventListener('input',()=>{if(d.value&&i<3)pinDigits[i+1].focus();if(d.value&&i===3)checkPin()});
+d.addEventListener('keydown',(e)=>{if(e.key==='Backspace'&&!d.value&&i>0)pinDigits[i-1].focus();if(e.key==='Enter')checkPin()});
+});
+document.getElementById('pin-submit').addEventListener('click',checkPin);
+async function checkPin(){
+const pin=Array.from(pinDigits).map(d=>d.value).join('');
+if(pin.length<4)return;
+const enc=new TextEncoder();
+const hash=await crypto.subtle.digest('SHA-256',enc.encode(pin));
+const hex=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+if(hex===PIN_HASH){document.getElementById('pin-gate').style.display='none';document.getElementById('app').style.display='block'}
+else{pinError.classList.add('visible');pinCard.classList.add('pin-shake');setTimeout(()=>{pinCard.classList.remove('pin-shake');pinError.classList.remove('visible')},2000);pinDigits.forEach(d=>d.value='');pinDigits[0].focus()}
+}
+setTimeout(()=>pinDigits[0].focus(),100);
+
+/* ========== TABS ========== */
+const tabBtns=document.querySelectorAll('.tab-btn');
+tabBtns.forEach(btn=>{btn.addEventListener('click',()=>switchTab(btn.dataset.tab))});
+function switchTab(tabId){
+tabBtns.forEach(b=>b.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+document.getElementById('tab-'+tabId).classList.add('active');
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ========== EXPANSION CONTENT FOR DOWNLOAD ========== */
+const EXP_CONTENT=`# AI Negotiation Coach — Expansion Pack
+
+You've got the fundamentals covered with the 5 core scenarios. This pack goes further — 15 new scenarios covering advanced situations, specific real-world contexts, and interactive role-plays where you practice against a counterparty who fights back. It also includes 3 guided tools that walk you through specific negotiation techniques step by step.
+
+Everything works the same way: copy a scenario, fill in the brackets with your real details, paste it into a new chat in your Negotiation Coach project.
+
+---
+
+## GUIDED INTERACTIVE TOOLS
+
+### TOOL 1: ACKERMAN GUIDED WALKTHROUGH
+I want to use the Ackerman bargaining method for a price negotiation. Walk me through it step by step with my real numbers.
+
+WHAT I'M NEGOTIATING: [Buying something? Selling something? Negotiating a rate?]
+MY TARGET PRICE: [The number I actually want to land on]
+THEIR ASKING PRICE (if known): [What they've quoted or expect]
+AM I THE BUYER OR SELLER? [This changes how the method works]
+
+Walk me through the full Ackerman sequence with empathy phrases and calibrated questions at each stage.
+
+### TOOL 2: FOLLOW-UP AFTER SILENCE SEQUENCE
+I sent a proposal\/offer and the other side has gone quiet. Help me build a follow-up strategy.
+
+WHAT I SENT: [The proposal or message they haven't responded to]
+WHEN I SENT IT: [Date or "X days ago"]
+OUR RELATIONSHIP BEFORE THIS: [Were things going well?]
+WHAT I THINK IS HAPPENING: [Your gut read]
+HOW MUCH THIS DEAL MATTERS TO ME: [Scale of 1-10]
+
+Walk me through the follow-up sequence: Day 3, Day 7, Day 14, Day 21+.
+
+### TOOL 3: ACCUSATION AUDIT BUILDER
+I need to build an accusation audit for a conversation or communication I'm about to have.
+
+THE SITUATION: [What's happening]
+WHO I'M TALKING TO: [Their role, relationship to you]
+WHAT THEY MIGHT BE THINKING ABOUT ME: [List everything negative they could be thinking]
+WHAT I'M ASKING FOR OR PROPOSING: [What you want from this conversation]
+
+Walk me through building the audit step by step.
+
+---
+
+## NON-AFFILIATION DISCLAIMER
+This product is an independent educational resource. It is not affiliated with, endorsed by, or connected to Chris Voss, Jim Camp, the Black Swan Group, the Camp Negotiation Institute, Roger Fisher, William Ury, the Harvard Negotiation Project, Robert Cialdini, or any other named individual or organization. The negotiation concepts referenced are presented in the creator's own words and interpretations.`;
+
+function downloadExpansion(btn){
+const blob=new Blob([EXP_CONTENT],{type:'text/markdown;charset=utf-8'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;a.download='negotiation-coach-expansion-pack.md';
+document.body.appendChild(a);a.click();document.body.removeChild(a);
+URL.revokeObjectURL(url);
+btn.classList.add('success');btn.innerHTML='✓ Downloaded!';
+showToast('Expansion Pack file downloaded');
+setTimeout(()=>{btn.classList.remove('success');btn.innerHTML='📥 Download Expansion Pack File'},2500);
+}
+
+/* ========== SCENARIO DATA ========== */
+const SCENARIOS = [
+// --- CATEGORY 1: ADVANCED ---
+{id:'multi-party',cat:'advanced',title:'Scenario 1: Multi-Party Negotiation',desc:'Navigate negotiations with three or more parties, each with their own agenda.',
+fields:[
+{name:'parties',label:'The Parties at the Table',placeholder:'List each party, their role, and what they want',type:'textarea'},
+{name:'alliances',label:'Alliances and Dynamics',placeholder:'Who sides with whom? Any history between parties?',type:'textarea'},
+{name:'values',label:'What Each Party Values Most',placeholder:'Rank what matters to each — money, timeline, control, reputation...',type:'textarea'},
+{name:'priority',label:'My Priority Ranking',placeholder:'Which parties\' agreement matters most?',type:'textarea'},
+{name:'decision',label:'The Decision Structure',placeholder:'Does everyone need to agree? Who can veto?',type:'textarea'},
+{name:'tried',label:'What I\'ve Tried So Far',placeholder:'Any conversations, proposals, or approaches attempted',type:'textarea'}
+],
+promptTemplate:`I'm heading into a negotiation with multiple parties involved and I need help managing the complexity.
+
+THE PARTIES AT THE TABLE:
+{parties}
+
+ALLIANCES AND DYNAMICS: {alliances}
+
+WHAT EACH PARTY VALUES MOST: {values}
+
+MY PRIORITY RANKING: {priority}
+
+THE DECISION STRUCTURE: {decision}
+
+WHAT I'VE TRIED SO FAR: {tried}
+
+Help me build a strategy that accounts for all the moving pieces. I need to know who to talk to first, what to propose, and how to handle the dynamics between the parties.`,
+coachWillDo:'The coach will map each party\'s interests, identify alliance opportunities, recommend a sequencing strategy, and flag where you\'re vulnerable to a coalition forming against you.',
+followUps:[{title:'Map the relationships',prompt:'Create a stakeholder map showing power, interest level, and likely alliances.'},{title:'Prepare for the group meeting',prompt:'Help me plan exactly how to run the conversation with all parties present.'},{title:'Handle a coalition against me',prompt:'[Party 2] and [Party 3] are aligning against me on [issue]. How do I break it up?'}]},
+
+{id:'recovery',cat:'advanced',title:'Scenario 2: Negotiation Recovery',desc:'A deal fell apart or trust got damaged — figure out if and how to salvage it.',
+fields:[
+{name:'what_happened',label:'What Happened',placeholder:'The deal, who was involved, what you were trying to accomplish',type:'textarea'},
+{name:'went_wrong',label:'What Went Wrong',placeholder:'Pushed too hard? Misunderstanding? Deadline passed?',type:'textarea'},
+{name:'relationship',label:'Current State of the Relationship',placeholder:'Still talking? Angry? Ghosting? Open to continuing?',type:'textarea'},
+{name:'salvage',label:'What I Want to Salvage',placeholder:'The original deal? Modified version? Just the relationship?',type:'textarea'},
+{name:'their_read',label:'My Read on Why They Pulled Back',placeholder:'Your best guess at what they\'re thinking',type:'textarea'},
+{name:'differently',label:'What I\'d Do Differently',placeholder:'Looking back, what was the mistake?',type:'textarea'}
+],
+promptTemplate:`A negotiation I was involved in went sideways and I need help figuring out my next move.
+
+WHAT HAPPENED: {what_happened}
+
+WHAT WENT WRONG: {went_wrong}
+
+CURRENT STATE OF THE RELATIONSHIP: {relationship}
+
+WHAT I WANT TO SALVAGE: {salvage}
+
+MY READ ON WHY THEY PULLED BACK: {their_read}
+
+WHAT I'D DO DIFFERENTLY IF I COULD: {differently}
+
+Help me build a recovery strategy. I want to know if this is worth pursuing and, if so, exactly how to re-engage.`,
+coachWillDo:'The coach will assess what actually went wrong, evaluate recovery feasibility, build an accusation audit for re-engagement, and craft the outreach approach.',
+followUps:[{title:'Draft re-engagement message',prompt:'Draft the exact message to re-open this — under 150 words, acknowledge what happened without groveling.'},{title:'Decide whether to walk away',prompt:'Give me an honest assessment: is this deal worth recovering?'}]},
+
+{id:'contract-renewal',cat:'advanced',title:'Scenario 3: High-Stakes Contract Renewal',desc:'Renegotiate when circumstances have changed since the original agreement.',
+fields:[
+{name:'current',label:'The Current Contract',placeholder:'Price, duration, scope, key provisions',type:'textarea'},
+{name:'changed',label:'What\'s Changed',placeholder:'Budget cuts? New competitors? Quality slipped? Needs grew?',type:'textarea'},
+{name:'their_position',label:'Their Likely Position',placeholder:'Price increase? Same terms? Longer commitment?',type:'textarea'},
+{name:'ideal',label:'My Ideal Outcome',placeholder:'What the renewed contract should look like',type:'textarea'},
+{name:'walkaway',label:'My Walkaway',placeholder:'When would you leave? What does the alternative look like?',type:'input'},
+{name:'relationship_stakes',label:'The Relationship Stakes',placeholder:'How important is this vendor/partner long-term?',type:'textarea'},
+{name:'leverage',label:'Leverage I Have',placeholder:'Competing offers, internal alternatives, their dependency on you',type:'textarea'}
+],
+promptTemplate:`I have a contract coming up for renewal and the circumstances have changed since the original agreement.
+
+THE CURRENT CONTRACT: {current}
+
+WHAT'S CHANGED: {changed}
+
+THEIR LIKELY POSITION: {their_position}
+
+MY IDEAL OUTCOME: {ideal}
+
+MY WALKAWAY: {walkaway}
+
+THE RELATIONSHIP STAKES: {relationship_stakes}
+
+LEVERAGE I HAVE: {leverage}
+
+Help me prepare for this renewal negotiation. I want a strategy that gets me better terms without blowing up a relationship I need.`,
+coachWillDo:'The coach will analyze how changed circumstances shift leverage, identify the new ZOPA, prepare you for anchoring tactics, and give you language for key moments.',
+followUps:[{title:'Handle their price increase',prompt:'They want a [X]% increase citing [reasons]. Help me push back while preserving the relationship.'},{title:'Evaluate switching providers',prompt:'Should I actually be renewing? Walk me through the switching cost analysis.'}]},
+
+{id:'hostile',cat:'advanced',title:'Scenario 4: Hostile Counterparty',desc:'Deal with aggressive, manipulative, or bad-faith negotiation tactics.',
+fields:[
+{name:'situation',label:'The Situation',placeholder:'What\'s being negotiated and what\'s at stake',type:'textarea'},
+{name:'tactics',label:'Their Tactics',placeholder:'Anchoring aggressively? Threats? Take it or leave it? Lying? Disrespectful?',type:'textarea'},
+{name:'motivation',label:'My Read on Their Motivation',placeholder:'Natural style? Under pressure? Testing you?',type:'textarea'},
+{name:'need',label:'What I Need From This Deal',placeholder:'Outcome and non-negotiable parts',type:'textarea'},
+{name:'batna',label:'My BATNA',placeholder:'Best alternative if this doesn\'t work out',type:'textarea'},
+{name:'can_walk',label:'Can I Walk Away?',placeholder:'Do you need this deal? Is there a relationship reason to stay?',type:'textarea'}
+],
+promptTemplate:`I'm negotiating with someone who's playing hardball and I need a strategy for dealing with their tactics.
+
+THE SITUATION: {situation}
+
+THEIR TACTICS: {tactics}
+
+MY READ ON THEIR MOTIVATION: {motivation}
+
+WHAT I NEED FROM THIS DEAL: {need}
+
+MY BATNA: {batna}
+
+CAN I WALK AWAY? {can_walk}
+
+Help me build a strategy that neutralizes their tactics without lowering myself to their level. I want to stay calm, hold my position, and still get a deal done if one is possible.`,
+coachWillDo:'The coach will identify which tactics they\'re using, give counter-strategies for each, calibrate whether they\'re strong or performing strength, and prepare you with phrases for the hardest moments.',
+followUps:[{title:'Role-play the confrontation',prompt:'Let\'s role-play. You be [counterparty]. Use the tactics I described. I\'ll practice staying calm.'},{title:'Draft a reset message',prompt:'Draft a message that subtly lets them know I see through their tactics without being confrontational.'}]},
+
+{id:'weakness',cat:'advanced',title:'Scenario 5: Negotiating from Weakness',desc:'Make the most of a tough position when you have less leverage.',
+fields:[
+{name:'imbalance',label:'The Power Imbalance',placeholder:'Why are you in the weaker position?',type:'textarea'},
+{name:'limited_leverage',label:'What Limited Leverage I Do Have',placeholder:'Expertise, switching costs, unique capability, timing...',type:'textarea'},
+{name:'need',label:'What I Absolutely Need',placeholder:'Your floor — not ideal, minimum',type:'textarea'},
+{name:'creative',label:'Creative Options I\'ve Considered',placeholder:'Non-traditional structures, phased approaches, performance terms?',type:'textarea'},
+{name:'dont_know',label:'What They Don\'t Know',placeholder:'Anything they might be underestimating?',type:'textarea'},
+{name:'why_me',label:'Why They Might Still Want Me',placeholder:'What do they get from working with you specifically?',type:'textarea'}
+],
+promptTemplate:`I'm going into a negotiation where I know I have less leverage than the other side. I need help making the most of a tough position.
+
+THE POWER IMBALANCE: {imbalance}
+
+WHAT LIMITED LEVERAGE I DO HAVE: {limited_leverage}
+
+WHAT I ABSOLUTELY NEED: {need}
+
+CREATIVE OPTIONS I'VE CONSIDERED: {creative}
+
+WHAT THEY DON'T KNOW: {dont_know}
+
+WHY THEY MIGHT STILL WANT TO DEAL WITH ME: {why_me}
+
+Help me build a strategy that maximizes my outcome despite the power imbalance.`,
+coachWillDo:'The coach will find leverage you\'re undervaluing, identify creative deal structures, prepare you for the psychological pressure, and help you identify your true walkaway.',
+followUps:[{title:'Find hidden leverage',prompt:'Ask me 10 questions about my situation — the answers might reveal leverage I haven\'t considered.'},{title:'Design a creative deal structure',prompt:'Help me design something that changes the dynamic — performance-based, phased, equity/revenue sharing.'}]},
+
+// --- CATEGORY 2: SPECIFIC CONTEXTS ---
+{id:'freelancer',cat:'specific',title:'Scenario 6: Freelancer Rate Negotiation',desc:'Protect your rate without losing the work — or decide to walk.',
+fields:[
+{name:'work',label:'My Work',placeholder:'Design, writing, development, consulting, photography...',type:'input'},
+{name:'situation',label:'The Situation',placeholder:'Client pushing back on rate? Scope creep? Discount request?',type:'textarea'},
+{name:'rate',label:'Current Rate',placeholder:'What you\'re charging or quoted',type:'input'},
+{name:'proposing',label:'What They\'re Proposing',placeholder:'Lower rate, same rate but more work, delayed payment...',type:'textarea'},
+{name:'market',label:'Market Rate',placeholder:'What others charge for similar work (or say "I don\'t know")',type:'input'},
+{name:'history',label:'Client History',placeholder:'How long? Do they pay on time? Easy or difficult?',type:'textarea'},
+{name:'pipeline',label:'My Pipeline',placeholder:'How much do you need this client right now?',type:'textarea'},
+{name:'want',label:'What I Want',placeholder:'Ideal rate, terms, or arrangement',type:'textarea'}
+],
+promptTemplate:`I'm a freelancer dealing with a pricing or scope issue with a client and I need help navigating it.
+
+MY WORK: {work}
+THE SITUATION: {situation}
+CURRENT RATE: {rate}
+WHAT THEY'RE PROPOSING: {proposing}
+MARKET RATE: {market}
+CLIENT HISTORY: {history}
+MY PIPELINE: {pipeline}
+WHAT I WANT: {want}
+
+Help me navigate this without either losing a good client or undervaluing my work. If the answer is to walk away, tell me that too.`,
+coachWillDo:'The coach will separate emotions from strategy, calculate the real cost of their concession request, identify restructuring options, and tell you straight whether this client is worth keeping.',
+followUps:[{title:'Handle scope creep',prompt:'The scope expanded beyond our agreement and they expect the same price. Help me draft a reset message.'},{title:'Raise rates across the board',prompt:'Help me draft a rate increase announcement for my clients.'}]},
+
+{id:'startup-equity',cat:'specific',title:'Scenario 7: Startup Equity and Compensation',desc:'Navigate co-founder splits, employee equity, or advisor agreements.',
+fields:[
+{name:'situation',label:'The Situation',placeholder:'Co-founder split? Employee equity? Advisor agreement?',type:'textarea'},
+{name:'stage',label:'Stage of the Company',placeholder:'Pre-revenue? Has customers? Has funding? Revenue?',type:'textarea'},
+{name:'roles',label:'The Roles and Contributions',placeholder:'Who\'s contributing what? Full-time vs. part-time?',type:'textarea'},
+{name:'existing',label:'Existing Agreements',placeholder:'Anything on paper? Verbal agreements? Vesting?',type:'textarea'},
+{name:'on_table',label:'What\'s on the Table',placeholder:'Specific percentages, vesting, salary, cliff...',type:'textarea'},
+{name:'fair',label:'What I Think Is Fair',placeholder:'Your view and why',type:'textarea'},
+{name:'relationship',label:'The Relationship',placeholder:'Friends? Family? Professional contacts?',type:'textarea'},
+{name:'worried',label:'What I\'m Worried About',placeholder:'What if someone stops? What if it takes off? Or doesn\'t?',type:'textarea'}
+],
+promptTemplate:`I need help negotiating equity or compensation in a startup context.
+
+THE SITUATION: {situation}
+STAGE OF THE COMPANY: {stage}
+THE ROLES AND CONTRIBUTIONS: {roles}
+EXISTING AGREEMENTS: {existing}
+WHAT'S ON THE TABLE: {on_table}
+WHAT I THINK IS FAIR: {fair}
+THE RELATIONSHIP: {relationship}
+WHAT I'M WORRIED ABOUT: {worried}
+
+Help me think through this clearly. I want to make sure I'm not leaving value on the table or setting up problems for later.`,
+coachWillDo:'The coach will walk through valuation frameworks, stress-test the proposed split, identify protective provisions you need, and help navigate the emotional complexity.',
+followUps:[{title:'Design a vesting schedule',prompt:'Help me design a vesting schedule that protects all parties.'},{title:'Have the hard conversation',prompt:'One person is contributing more than another. Help me have this conversation without destroying the relationship.'}]},
+
+{id:'medical-bills',cat:'specific',title:'Scenario 8: Medical Bill Negotiation',desc:'Negotiate hospital bills down — the sticker price is rarely the final price.',
+fields:[
+{name:'bill',label:'The Bill',placeholder:'Total amount, what it\'s for, date of service',type:'textarea'},
+{name:'insurance',label:'My Insurance Situation',placeholder:'Insured? Partial coverage? Denied claim? Uninsured?',type:'textarea'},
+{name:'afford',label:'What I Can Afford',placeholder:'Realistic payment — lump sum or monthly?',type:'textarea'},
+{name:'errors',label:'Billing Errors I\'ve Spotted',placeholder:'Duplicate charges? Services not received? Unreasonable charges?',type:'textarea'},
+{name:'done',label:'What I\'ve Done So Far',placeholder:'Called? Appealed? Financial assistance? First step?',type:'textarea'},
+{name:'deadlines',label:'Any Deadlines',placeholder:'Going to collections? Payment deadline?',type:'input'}
+],
+promptTemplate:`I received a medical bill I need help negotiating down.
+
+THE BILL: {bill}
+MY INSURANCE SITUATION: {insurance}
+WHAT I CAN AFFORD: {afford}
+BILLING ERRORS I'VE SPOTTED: {errors}
+WHAT I'VE DONE SO FAR: {done}
+ANY DEADLINES: {deadlines}
+
+Help me build a plan to reduce this bill. Tell me who to call, what to say, and what to ask for.
+
+I'm not looking for legal or medical billing advice — I want negotiation strategy for reducing this bill.`,
+coachWillDo:'The coach will walk you through requesting an itemized bill, spotting errors, understanding common patient protections, building your case, and preparing for the phone call with specific scripts.',
+followUps:[{title:'Script the phone call',prompt:'Give me a step-by-step script for calling the billing department.'},{title:'Draft a dispute letter',prompt:'Help me write a formal dispute letter about [specific charge].'}]},
+
+{id:'divorce',cat:'specific',title:'Scenario 9: Divorce / Separation Asset Division',desc:'Think strategically about splitting assets when emotions are running high.',
+fields:[
+{name:'assets',label:'Major Assets',placeholder:'House, cars, savings, retirement, investments, business...',type:'textarea'},
+{name:'debts',label:'Debts',placeholder:'Mortgage, loans, credit cards, joint debts...',type:'textarea'},
+{name:'children',label:'Children',placeholder:'Ages? Current custody? What you\'re hoping for?',type:'textarea'},
+{name:'dynamic',label:'The Dynamic',placeholder:'Amicable, hostile, somewhere in between? Through lawyers?',type:'textarea'},
+{name:'matters',label:'What Matters Most to Me',placeholder:'The house? Retirement? Fairness? Speed? Kids?',type:'textarea'},
+{name:'their_matters',label:'What Matters Most to Them',placeholder:'What will they fight hardest for?',type:'textarea'},
+{name:'legal',label:'What Legal Help I Have',placeholder:'Lawyer? Mediator? Unrepresented?',type:'input'}
+],
+promptTemplate:`I'm going through a divorce or separation and need help thinking through the asset division negotiation.
+
+MAJOR ASSETS: {assets}
+DEBTS: {debts}
+CHILDREN: {children}
+THE DYNAMIC: {dynamic}
+WHAT MATTERS MOST TO ME: {matters}
+WHAT I THINK MATTERS MOST TO THEM: {their_matters}
+WHAT LEGAL HELP I HAVE: {legal}
+
+I'm not looking for legal advice — I want help thinking through the negotiation strategy: what to prioritize, where to be flexible, and how to have these conversations productively.`,
+coachWillDo:'The coach will help separate emotional decisions from financial ones, identify which assets matter most long-term, and prepare for common sticking points.',
+followUps:[{title:'Prepare for mediation',prompt:'Help me prepare for the mediation session — opening position, compromise areas, non-negotiables.'},{title:'Long-term math',prompt:'Compare keeping [Asset A] vs. taking [Asset B] over 5 and 10 years.'}]},
+
+{id:'landlord',cat:'specific',title:'Scenario 10: Landlord-Tenant Negotiation',desc:'Negotiate rent, lease terms, or security deposit disputes.',
+fields:[
+{name:'situation',label:'The Situation',placeholder:'Rent increase? Lease renewal? Breaking lease? Deposit dispute?',type:'textarea'},
+{name:'terms',label:'Current Terms',placeholder:'Monthly rent, lease end date, security deposit...',type:'textarea'},
+{name:'proposing',label:'What They\'re Proposing',placeholder:'New rent, new terms, their position on dispute...',type:'textarea'},
+{name:'alts',label:'My Alternatives',placeholder:'Could you move? Comparable costs? Moving cost?',type:'textarea'},
+{name:'market',label:'Market Rates',placeholder:'Similar units in your area (or "I don\'t know")',type:'input'},
+{name:'relationship',label:'Relationship with Landlord',placeholder:'Good? Bad? Direct or through property management?',type:'input'},
+{name:'protections',label:'Local Tenant Protections',placeholder:'Rent control? Required notice? What city/state?',type:'textarea'}
+],
+promptTemplate:`I need help negotiating with my landlord about a lease or rental issue.
+
+THE SITUATION: {situation}
+CURRENT TERMS: {terms}
+WHAT THEY'RE PROPOSING: {proposing}
+MY ALTERNATIVES: {alts}
+MARKET RATES: {market}
+MY RELATIONSHIP WITH THE LANDLORD: {relationship}
+LOCAL TENANT PROTECTIONS: {protections}
+
+Help me negotiate the best outcome here. I want to know my leverage and exactly what to say.`,
+coachWillDo:'The coach will identify your leverage, calculate the landlord\'s cost of losing a good tenant, identify applicable protections, and draft your communication.',
+followUps:[{title:'Counter the rent increase',prompt:'Help me draft a response that pushes back on a [X]% increase.'},{title:'Break my lease',prompt:'Help me negotiate early termination while minimizing what I owe.'}]},
+
+// --- CATEGORY 3: ROLE-PLAY ---
+{id:'hardball-buyer',cat:'roleplay',title:'Scenario 11: The Hardball Buyer',desc:'Practice against an aggressive buyer who anchors low and creates urgency.',
+fields:[
+{name:'selling',label:'I\'m Selling',placeholder:'Product, service, what it costs, why it\'s valuable',type:'textarea'},
+{name:'buyer',label:'The Buyer',placeholder:'Who they represent — company, individual, procurement?',type:'textarea'},
+{name:'quoted',label:'What I\'ve Quoted',placeholder:'Price or proposal on the table',type:'input'},
+{name:'floor',label:'My Floor',placeholder:'Lowest I\'d actually accept',type:'input'}
+],
+promptTemplate:`I want to practice negotiating with a hardball buyer. Here's the setup:
+
+I'M SELLING: {selling}
+THE BUYER: {buyer}
+WHAT I'VE QUOTED: {quoted}
+MY FLOOR: {floor}
+
+Play the buyer. Anchor at least 30-40% below my asking price. Use urgency tactics, claim cheaper alternatives, and push hard on every concession. Be realistic — not a cartoon villain, but not easy.
+
+Start the role-play. I'll type "debrief" when I want feedback.`,
+coachWillDo:'The coach stays in character as a tough buyer using aggressive anchoring, manufactured deadlines, and claims of competing offers. In the debrief, it identifies where you held firm and where you gave ground unnecessarily.',
+followUps:[{title:'Run it again',prompt:'Same scenario, but this time I want to try [specific technique]. Reset and start over.'}]},
+
+{id:'emotional',cat:'roleplay',title:'Scenario 12: The Emotional Manipulator',desc:'Practice against someone who uses guilt and personal appeals.',
+fields:[
+{name:'situation',label:'The Situation',placeholder:'What\'s being negotiated',type:'textarea'},
+{name:'relationship',label:'Our Relationship',placeholder:'Friend, family, long-time client, colleague?',type:'input'},
+{name:'their_want',label:'What They Want',placeholder:'Their position',type:'textarea'},
+{name:'my_want',label:'What I Want',placeholder:'What I think is fair',type:'textarea'},
+{name:'emotional_leverage',label:'The Emotional Leverage',placeholder:'What will they bring up? Past favors? Friendship? Sacrifices?',type:'textarea'}
+],
+promptTemplate:`I want to practice negotiating with someone who uses emotional manipulation.
+
+THE SITUATION: {situation}
+OUR RELATIONSHIP: {relationship}
+WHAT THEY WANT: {their_want}
+WHAT I WANT: {my_want}
+THE EMOTIONAL LEVERAGE: {emotional_leverage}
+
+Play this person. Use guilt, personal appeals, bring up our history, get disappointed if I push back. Be subtle about it — real emotional manipulation usually is.
+
+Start the role-play. I'll type "debrief" when I want feedback.`,
+coachWillDo:'The coach plays a subtly manipulative counterparty using guilt trips and loyalty appeals. In the debrief, it teaches you the difference between legitimate emotional appeals and manipulative ones.',
+followUps:[{title:'Practice acknowledge without conceding',prompt:'Let\'s run it again. I want to practice acknowledging feelings without changing my position.'}]},
+
+{id:'silent-treatment',cat:'roleplay',title:'Scenario 13: The Silent Treatment',desc:'Practice handling the void when someone goes dark after your proposal.',
+fields:[
+{name:'context',label:'The Context',placeholder:'What you proposed, when, how important it is',type:'textarea'},
+{name:'who',label:'Who They Are',placeholder:'Person/company you\'re dealing with',type:'textarea'},
+{name:'last_exchange',label:'Our Last Exchange',placeholder:'Last thing said before the silence — positive, neutral, or tense?',type:'textarea'}
+],
+promptTemplate:`I want to practice dealing with a counterparty who goes silent after my proposal.
+
+THE CONTEXT: {context}
+WHO THEY ARE: {who}
+OUR LAST EXCHANGE: {last_exchange}
+
+Play this person. After I send my initial follow-up, go silent. Don't respond right away. If I follow up again, maybe give a short, noncommittal reply.
+
+Start the role-play. I'll type "debrief" when I want feedback.`,
+coachWillDo:'The coach simulates realistic silence — delayed responses, vague replies. In the debrief, it evaluates your timing, tone, and strategy.',
+followUps:[{title:'Build my follow-up sequence',prompt:'Based on the role-play, build a real follow-up sequence: Day 3, Day 7, Day 14, Day 21+.'}]},
+
+{id:'nibbler',cat:'roleplay',title:'Scenario 14: The Nibbler',desc:'Practice handling someone who keeps asking for extras after the deal is agreed.',
+fields:[
+{name:'deal',label:'The Deal We Agreed On',placeholder:'Terms you already shook hands on',type:'textarea'},
+{name:'delivering',label:'What I\'m Delivering',placeholder:'Product, service, or commitment',type:'textarea'},
+{name:'dynamic',label:'The Relationship Dynamic',placeholder:'Boss, client, partner, buyer? How much do you want to keep them happy?',type:'textarea'}
+],
+promptTemplate:`I want to practice dealing with a nibbler — someone who keeps asking for extras after the deal is agreed.
+
+THE DEAL WE AGREED ON: {deal}
+WHAT I'M DELIVERING: {delivering}
+THE RELATIONSHIP DYNAMIC: {dynamic}
+
+Play this person. After we "agree" on terms, start asking for small add-ons: "Oh, one more thing — could you also...?" Make each request feel minor and reasonable on its own. See how many extras you can get me to agree to before I push back.
+
+Start the role-play. I'll type "debrief" when I want feedback.`,
+coachWillDo:'The coach nibbles realistically — starting small, escalating gradually. In the debrief, it shows how much value you gave away and teaches specific boundary-setting phrases.',
+followUps:[{title:'Practice saying no',prompt:'Run it again. This time I\'ll draw the line on the first extra ask. Coach me on doing it warmly but firmly.'}]},
+
+{id:'good-cop-bad-cop',cat:'roleplay',title:'Scenario 15: The Good Cop / Bad Cop',desc:'Practice against a coordinated team — one friendly, one harsh.',
+fields:[
+{name:'negotiation',label:'The Negotiation',placeholder:'What\'s being negotiated and what\'s at stake',type:'textarea'},
+{name:'team',label:'The Team',placeholder:'Who are these people? Roles/titles?',type:'textarea'},
+{name:'position',label:'My Position',placeholder:'What I want out of this deal',type:'textarea'}
+],
+promptTemplate:`I want to practice negotiating against a good cop / bad cop team.
+
+THE NEGOTIATION: {negotiation}
+THE TEAM: {team}
+MY POSITION: {position}
+
+Play both people. The "good cop" should be warm, understanding, and seem sympathetic while subtly steering me toward concessions. The "bad cop" should be demanding, skeptical, and create pressure. Switch between them — label each speaker with their role and name at the start of each line, like '[GOOD COP — Sarah]:' and '[BAD COP — Dave]:' so I always know who I'm responding to.
+
+Start the role-play. I'll type "debrief" when I want feedback.`,
+coachWillDo:'The coach plays both roles convincingly. In the debrief, it breaks down how the tactic works and shows specific moments where the good cop was extracting concessions disguised as help.',
+followUps:[{title:'Treat them as one unit',prompt:'Run it again. This time I want to practice addressing both together instead of splitting my attention.'}]}
+];
+
+const TOOLS = [
+{id:'ackerman',title:'Ackerman Guided Walkthrough',icon:'📊',desc:'The Ackerman method is a structured approach to price negotiation. Instead of going back and forth randomly, you follow a calculated sequence that anchors low, makes deliberate concessions, and signals your limit. This tool walks you through it with your actual numbers.',
+fields:[
+{name:'negotiating',label:'What I\'m Negotiating',placeholder:'Buying? Selling? Negotiating a rate? Describe the deal.',type:'textarea'},
+{name:'target',label:'My Target Price',placeholder:'The number you actually want to land on — not your opening, not your walkaway',type:'input'},
+{name:'their_ask',label:'Their Asking Price (if known)',placeholder:'What they\'ve quoted or expect',type:'input'},
+{name:'buyer_seller',label:'Am I the Buyer or Seller?',placeholder:'Buyer or Seller',type:'input'}
+],
+promptTemplate:`I want to use the Ackerman bargaining method for a price negotiation. Walk me through it step by step with my real numbers.
+
+WHAT I'M NEGOTIATING: {negotiating}
+MY TARGET PRICE: {target}
+THEIR ASKING PRICE (if known): {their_ask}
+AM I THE BUYER OR SELLER? {buyer_seller}
+
+Walk me through the full Ackerman sequence:
+1. Calculate my opening offer (65% of my target)
+2. Show me the three raises (to 85%, 95%, 100%)
+3. At each stage, help me craft what I'll actually say — including empathy phrases and calibrated questions
+4. Help me pick a precise non-round final number
+5. Help me choose a non-monetary sweetener for the final offer
+
+Don't just give me the numbers — walk me through the conversation at each stage.`},
+
+{id:'silence',title:'Follow-Up After Silence',icon:'⏳',desc:'They went dark after your proposal. No response. This tool helps you figure out why, then builds a timed follow-up sequence that re-engages them without sounding desperate.',
+fields:[
+{name:'sent',label:'What I Sent',placeholder:'The proposal or message they haven\'t responded to',type:'textarea'},
+{name:'when',label:'When I Sent It',placeholder:'Date or "X days ago"',type:'input'},
+{name:'relationship',label:'Our Relationship Before This',placeholder:'Going well? Tension? Expected or out of the blue?',type:'textarea'},
+{name:'read',label:'What I Think Is Happening',placeholder:'Busy? Considering alternatives? Pushed too hard? Tactical silence?',type:'textarea'},
+{name:'importance',label:'How Much This Deal Matters',placeholder:'Scale of 1-10 — be honest',type:'input'}
+],
+promptTemplate:`I sent a proposal/offer and the other side has gone quiet. Help me build a follow-up strategy.
+
+WHAT I SENT: {sent}
+WHEN I SENT IT: {when}
+OUR RELATIONSHIP BEFORE THIS: {relationship}
+WHAT I THINK IS HAPPENING: {read}
+HOW MUCH THIS DEAL MATTERS TO ME: {importance}
+
+Walk me through the follow-up sequence:
+1. Help me figure out what the silence means
+2. Draft a Day 3 check-in (using a no-oriented question)
+3. Draft a Day 7 message that adds value instead of just "checking in"
+4. Draft a Day 14 "have you given up on this?" message
+5. Draft a Day 21+ graceful close or walk-away — a brief, dignified final message that leaves the door open without chasing
+6. Help me decide at each stage whether to send the next message or let it go`},
+
+{id:'audit',title:'Accusation Audit Builder',icon:'🛡️',desc:'An accusation audit is when you list all the negative things the other person might be thinking about you — and say them out loud first. It sounds counterintuitive, but it disarms defensiveness and builds trust.',
+fields:[
+{name:'situation',label:'The Situation',placeholder:'Meeting, email, phone call, difficult conversation',type:'textarea'},
+{name:'who',label:'Who I\'m Talking To',placeholder:'Their role, relationship to you',type:'textarea'},
+{name:'thinking',label:'What They Might Be Thinking About Me',placeholder:'List everything negative — even if unfair. "They think I\'m trying to take advantage..."',type:'textarea'},
+{name:'asking',label:'What I\'m Asking For or Proposing',placeholder:'What you want from this conversation',type:'textarea'}
+],
+promptTemplate:`I need to build an accusation audit for a conversation or communication I'm about to have.
+
+THE SITUATION: {situation}
+WHO I'M TALKING TO: {who}
+WHAT THEY MIGHT BE THINKING ABOUT ME: {thinking}
+WHAT I'M ASKING FOR OR PROPOSING: {asking}
+
+Walk me through building the audit:
+1. Help me brainstorm anything I'm missing from my list
+2. Reframe each one as an accusation audit statement ("You're probably thinking..." or "It might seem like...")
+3. Put them in the right order — least to most severe
+4. Coach me on tone and delivery
+5. Prepare me for how they're likely to respond after the audit`}
+];
+
+/* ========== BUILD FUNCTIONS ========== */
+function toggleAccordion(el){el.classList.toggle('is-expanded')}
+
+function buildScenarioList(containerId, cat){
+const container=document.getElementById(containerId);
+SCENARIOS.filter(s=>s.cat===cat).forEach(sc=>{
+const acc=document.createElement('div');
+acc.className='accordion';
+acc.id='scenario-'+sc.id;
+let fieldsHtml=sc.fields.map(f=>{
+const tag=f.type==='textarea'
+?`<textarea placeholder="${f.placeholder}" data-field="${f.name}" oninput="updatePreview('${sc.id}')"><\/textarea>`
+:`<input type="text" placeholder="${f.placeholder}" data-field="${f.name}" oninput="updatePreview('${sc.id}')">`;
+return`<div class="form-group"><label>${f.label}<\/label>${tag}<\/div>`;
+}).join('');
+let followUpsHtml=sc.followUps?sc.followUps.map(fu=>`<div class="sub-accordion accordion">
+<div class="accordion-header" onclick="toggleAccordion(this.parentElement)"><span class="accordion-title">${fu.title}<\/span><span class="expand-chevron">▸<\/span><\/div>
+<div class="accordion-body"><div class="accordion-content"><pre><code>${fu.prompt}<\/code><\/pre><\/div><\/div><\/div>`).join(''):'';
+acc.innerHTML=`<div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+<span class="accordion-title">${sc.title}<\/span>
+<span class="accordion-badge">${sc.fields.length} fields<\/span>
+<span class="expand-chevron">▸<\/span><\/div>
+<div class="accordion-body"><div class="accordion-content">
+<p style="margin-bottom:16px;color:var(--text-sec)">${sc.desc}<\/p>
+<div class="scenario-form"><div class="form-grid">${fieldsHtml}<\/div>
+<div class="preview-section"><div class="preview-label"><span class="preview-dot"><\/span> Live Preview<\/div>
+<div class="preview-box" id="preview-${sc.id}"><\/div>
+<button class="copy-prompt-btn" onclick="copyPrompt('${sc.id}',this)">📋 Copy Completed Prompt<\/button><\/div><\/div>
+<div class="sub-accordion accordion" style="margin-top:20px">
+<div class="accordion-header" onclick="toggleAccordion(this.parentElement)"><span class="accordion-title">What the Coach Will Do<\/span><span class="expand-chevron">▸<\/span><\/div>
+<div class="accordion-body"><div class="accordion-content"><p>${sc.coachWillDo}<\/p><\/div><\/div><\/div>
+${followUpsHtml?'<div style="margin-top:8px"><strong style="font-size:12px;color:var(--text);text-transform:uppercase;letter-spacing:0.04em">Follow-Up Prompts<\/strong><\/div>'+followUpsHtml:''}
+<\/div><\/div>`;
+container.appendChild(acc);
+updatePreview(sc.id);
+});
+}
+
+function buildTools(){
+const container=document.getElementById('tools-list');
+TOOLS.forEach(tool=>{
+const acc=document.createElement('div');
+acc.className='accordion';
+acc.id='tool-'+tool.id;
+let fieldsHtml=tool.fields.map(f=>{
+const tag=f.type==='textarea'
+?`<textarea placeholder="${f.placeholder}" data-field="${f.name}" oninput="updateToolPreview('${tool.id}')"><\/textarea>`
+:`<input type="text" placeholder="${f.placeholder}" data-field="${f.name}" oninput="updateToolPreview('${tool.id}')">`;
+return`<div class="form-group"><label>${f.label}<\/label>${tag}<\/div>`;
+}).join('');
+acc.innerHTML=`<div class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+<span style="font-size:20px;flex-shrink:0">${tool.icon}<\/span>
+<span class="accordion-title">${tool.title}<\/span>
+<span class="accordion-badge">${tool.fields.length} fields<\/span>
+<span class="expand-chevron">▸<\/span><\/div>
+<div class="accordion-body"><div class="accordion-content">
+<p style="margin-bottom:16px;color:var(--text-sec)">${tool.desc}<\/p>
+<div class="scenario-form"><div class="form-grid">${fieldsHtml}<\/div>
+<div class="preview-section"><div class="preview-label"><span class="preview-dot"><\/span> Live Preview<\/div>
+<div class="preview-box" id="preview-tool-${tool.id}"><\/div>
+<button class="copy-prompt-btn" onclick="copyToolPrompt('${tool.id}',this)">📋 Copy Completed Prompt<\/button><\/div><\/div>
+<\/div><\/div>`;
+container.appendChild(acc);
+updateToolPreview(tool.id);
+});
+}
+
+/* ========== PREVIEW & COPY ========== */
+function updatePreview(scenarioId){
+const sc=SCENARIOS.find(s=>s.id===scenarioId);
+if(!sc)return;
+const container=document.getElementById('scenario-'+scenarioId);
+let prompt=sc.promptTemplate;
+sc.fields.forEach(f=>{
+const input=container.querySelector(`[data-field="${f.name}"]`);
+const val=input?input.value.trim():'';
+const ph=`{${f.name}}`;
+prompt=val?prompt.replace(ph,`<span class="filled-field">${val}<\/span>`):prompt.replace(ph,`<span class="empty-field">[${f.label}]<\/span>`);
+});
+document.getElementById('preview-'+scenarioId).innerHTML=prompt;
+}
+
+function updateToolPreview(toolId){
+const tool=TOOLS.find(t=>t.id===toolId);
+if(!tool)return;
+const container=document.getElementById('tool-'+toolId);
+let prompt=tool.promptTemplate;
+tool.fields.forEach(f=>{
+const input=container.querySelector(`[data-field="${f.name}"]`);
+const val=input?input.value.trim():'';
+const ph=`{${f.name}}`;
+prompt=val?prompt.replace(ph,`<span class="filled-field">${val}<\/span>`):prompt.replace(ph,`<span class="empty-field">[${f.label}]<\/span>`);
+});
+document.getElementById('preview-tool-'+toolId).innerHTML=prompt;
+}
+
+function getPromptText(scenarioId){
+const sc=SCENARIOS.find(s=>s.id===scenarioId);
+if(!sc)return'';
+const container=document.getElementById('scenario-'+scenarioId);
+let prompt=sc.promptTemplate;
+sc.fields.forEach(f=>{
+const input=container.querySelector(`[data-field="${f.name}"]`);
+const val=input?input.value.trim():'';
+prompt=prompt.replace(`{${f.name}}`,val||`[${f.label}]`);
+});
+return prompt;
+}
+
+function getToolPromptText(toolId){
+const tool=TOOLS.find(t=>t.id===toolId);
+if(!tool)return'';
+const container=document.getElementById('tool-'+toolId);
+let prompt=tool.promptTemplate;
+tool.fields.forEach(f=>{
+const input=container.querySelector(`[data-field="${f.name}"]`);
+const val=input?input.value.trim():'';
+prompt=prompt.replace(`{${f.name}}`,val||`[${f.label}]`);
+});
+return prompt;
+}
+
+function copyPrompt(id,btn){
+navigator.clipboard.writeText(getPromptText(id)).then(()=>{
+btn.classList.add('success');btn.innerHTML='✓ Copied!';showToast('Prompt copied to clipboard');
+setTimeout(()=>{btn.classList.remove('success');btn.innerHTML='📋 Copy Completed Prompt'},2000);
+});
+}
+
+function copyToolPrompt(id,btn){
+navigator.clipboard.writeText(getToolPromptText(id)).then(()=>{
+btn.classList.add('success');btn.innerHTML='✓ Copied!';showToast('Prompt copied to clipboard');
+setTimeout(()=>{btn.classList.remove('success');btn.innerHTML='📋 Copy Completed Prompt'},2000);
+});
+}
+
+function showToast(msg){
+const t=document.getElementById('toast');t.textContent=msg;t.classList.add('visible');
+setTimeout(()=>t.classList.remove('visible'),2500);
+}
+
+/* ========== COMMAND PALETTE ========== */
+const cmdOverlay=document.getElementById('cmd-overlay');
+const cmdInput=document.getElementById('cmd-input');
+const cmdResults=document.getElementById('cmd-results');
+const searchItems=[
+{title:'Overview',tab:'overview'},
+{title:'Scenario 1: Multi-Party Negotiation',tab:'scenarios'},
+{title:'Scenario 2: Negotiation Recovery',tab:'scenarios'},
+{title:'Scenario 3: Contract Renewal',tab:'scenarios'},
+{title:'Scenario 4: Hostile Counterparty',tab:'scenarios'},
+{title:'Scenario 5: Negotiating from Weakness',tab:'scenarios'},
+{title:'Scenario 6: Freelancer Rate',tab:'scenarios'},
+{title:'Scenario 7: Startup Equity',tab:'scenarios'},
+{title:'Scenario 8: Medical Bills',tab:'scenarios'},
+{title:'Scenario 9: Divorce Assets',tab:'scenarios'},
+{title:'Scenario 10: Landlord-Tenant',tab:'scenarios'},
+{title:'Scenario 11: Hardball Buyer (Role-Play)',tab:'scenarios'},
+{title:'Scenario 12: Emotional Manipulator (Role-Play)',tab:'scenarios'},
+{title:'Scenario 13: Silent Treatment (Role-Play)',tab:'scenarios'},
+{title:'Scenario 14: The Nibbler (Role-Play)',tab:'scenarios'},
+{title:'Scenario 15: Good Cop / Bad Cop (Role-Play)',tab:'scenarios'},
+{title:'Ackerman Guided Walkthrough',tab:'tools'},
+{title:'Follow-Up After Silence',tab:'tools'},
+{title:'Accusation Audit Builder',tab:'tools'},
+{title:'Setup — Add to Claude',tab:'setup'},
+{title:'Support — Email',tab:'support'},
+];
+document.getElementById('search-trigger').addEventListener('click',openPalette);
+document.addEventListener('keydown',(e)=>{
+if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();openPalette()}
+if(e.key==='Escape')closePalette();
+});
+cmdOverlay.addEventListener('click',(e)=>{if(e.target===cmdOverlay)closePalette()});
+function openPalette(){cmdOverlay.classList.add('visible');cmdInput.value='';cmdInput.focus();renderSearch('')}
+function closePalette(){cmdOverlay.classList.remove('visible')}
+cmdInput.addEventListener('input',()=>renderSearch(cmdInput.value));
+cmdInput.addEventListener('keydown',(e)=>{if(e.key==='Enter'){const a=cmdResults.querySelector('.cmd-item.active')||cmdResults.querySelector('.cmd-item');if(a)a.click()}});
+function renderSearch(q){
+const query=q.toLowerCase().trim();
+const filtered=query?searchItems.filter(i=>i.title.toLowerCase().includes(query)):searchItems;
+if(!filtered.length){cmdResults.innerHTML='<div class="cmd-empty">No results found<\/div>';return}
+const tabs={overview:'Overview',scenarios:'Scenarios',tools:'Guided Tools',setup:'Setup',support:'Support'};
+cmdResults.innerHTML=filtered.map((item,i)=>
+`<div class="cmd-item${i===0?' active':''}" onclick="goTo('${item.tab}')" onmouseenter="this.parentElement.querySelectorAll('.cmd-item').forEach(x=>x.classList.remove('active'));this.classList.add('active')">
+<span class="cmd-item-title">${item.title}<\/span><span class="cmd-item-section">${tabs[item.tab]}<\/span><\/div>`).join('');
+}
+function goTo(tab){closePalette();switchTab(tab)}
+
+/* ========== INIT ========== */
+buildScenarioList('scenarios-advanced','advanced');
+buildScenarioList('scenarios-specific','specific');
+buildScenarioList('scenarios-roleplay','roleplay');
+buildTools();
+</script>
+</body>
+</html>
