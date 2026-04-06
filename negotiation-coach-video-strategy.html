@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Content Strategy — AI Negotiation Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-border: #dfe1e6;
+  --text: #111827;
+  --text-sec: #4b5563;
+  --text-muted: #9ca3af;
+  --selenko: #6d28d9;
+  --ai-digital: #e63946;
+  --green: #059669;
+  --amber: #d97706;
+  --gray-mid: #6b7280;
+  --hover-bg: rgba(109,40,217,0.04);
+  --hover-border: rgba(109,40,217,0.25);
+  --mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+::selection{background:rgba(109,40,217,0.18)}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);font-weight:500;font-size:14px;line-height:1.6}
+
+/* Header */
+.header{position:sticky;top:0;z-index:100;background:rgba(245,245,247,0.85);backdrop-filter:blur(14px);border-bottom:1.5px solid var(--card-border);padding:0 24px}
+.header-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px}
+.header-title{font-weight:800;font-size:18px;color:var(--selenko);white-space:nowrap}
+.tabs{display:flex;gap:4px;flex:1;justify-content:center}
+.tab{padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;color:var(--text-sec);cursor:pointer;border:none;background:none;transition:all 0.2s;position:relative}
+.tab:hover{background:var(--hover-bg);color:var(--selenko)}
+.tab.active{color:var(--selenko);background:rgba(109,40,217,0.08)}
+.tab.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2.5px;background:var(--selenko);border-radius:2px}
+
+/* Hero */
+.hero{background:linear-gradient(160deg,#eee8ff 0%,#f5f5f7 40%,#e8eeff 100%);padding:40px 24px 32px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(109,40,217,0.06) 0%,transparent 70%);top:-80px;right:-60px;pointer-events:none}
+.hero-inner{max-width:960px;margin:0 auto;display:flex;gap:32px;align-items:center}
+.hero-text{flex:1}
+.hero-text h1{font-size:clamp(26px,4vw,38px);font-weight:800;color:var(--text);line-height:1.15;margin-bottom:8px}
+.hero-text p{font-size:14px;color:var(--text-sec);font-weight:400;max-width:500px;margin-bottom:16px}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);text-align:center;border:1.5px solid var(--card-border)}
+.stat-num{font-size:28px;font-weight:800;color:var(--selenko)}
+.stat-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em}
+
+/* Content */
+.content{max-width:960px;margin:0 auto;padding:24px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Cards */
+.card{background:var(--card);border:1.5px solid var(--card-border);border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.card-accent{position:absolute;top:0;left:0;right:0;height:4px}
+
+/* Expandable sections */
+.expand-header{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;padding:4px 0}
+.expand-header:hover{opacity:0.85}
+.expand-chevron{width:24px;height:24px;border-radius:6px;background:rgba(0,0,0,0.04);color:var(--text-muted);font-size:11px;display:inline-flex;align-items:center;justify-content:center;transition:all 0.25s ease;flex-shrink:0}
+.is-expanded>.expand-header .expand-chevron{transform:rotate(90deg);background:rgba(109,40,217,0.1);color:var(--selenko)}
+.expand-title{font-weight:700;font-size:15px;color:var(--text)}
+.expand-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+.is-expanded>.expand-body{max-height:8000px}
+.expand-body-inner{padding:16px 0 4px 36px}
+
+/* Group label */
+.group-label{font-size:14px;font-weight:700;color:var(--text);border-left:4px solid var(--selenko);padding-left:14px;margin:24px 0 8px}
+.group-subtitle{font-size:12.5px;font-weight:400;color:var(--text-sec);margin-left:18px;margin-bottom:16px}
+
+/* Badges */
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;display:inline-block;white-space:nowrap}
+.badge-green{background:rgba(5,150,105,0.1);color:#059669}
+.badge-amber{background:rgba(217,119,6,0.1);color:#d97706}
+.badge-red{background:rgba(230,57,70,0.1);color:#e63946}
+.badge-gray{background:rgba(107,114,128,0.1);color:#6b7280}
+.badge-purple{background:rgba(109,40,217,0.1);color:#6d28d9}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th{text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);padding:8px 12px;border-bottom:1.5px solid var(--card-border)}
+td{padding:10px 12px;border-bottom:1px solid rgba(0,0,0,0.04);font-weight:400;vertical-align:top}
+tr:hover td{background:var(--hover-bg)}
+
+/* Code blocks with copy */
+.code-wrap{position:relative;margin:12px 0}
+.code-block{font-family:var(--mono);font-size:12px;background:rgba(109,40,217,0.05);border:1.5px solid rgba(109,40,217,0.12);border-radius:10px;padding:14px 50px 14px 16px;white-space:pre-wrap;word-break:break-word;line-height:1.7;color:var(--text)}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--card);border:1.5px solid var(--card-border);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;font-family:'Outfit',sans-serif;color:var(--text-sec);cursor:pointer;transition:all 0.2s}
+.copy-btn:hover{border-color:var(--hover-border);color:var(--selenko);background:var(--hover-bg)}
+.copy-btn.copied{background:rgba(5,150,105,0.08);border-color:rgba(5,150,105,0.3);color:#059669}
+
+/* Inline code */
+code{font-family:var(--mono);font-size:12px;background:rgba(109,40,217,0.07);color:var(--selenko);padding:2px 7px;border-radius:5px;font-weight:500}
+
+/* Step indicators */
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:var(--selenko);color:white;font-weight:800;font-size:14px;flex-shrink:0}
+
+/* Automation score */
+.auto-score{display:inline-flex;gap:4px;align-items:center}
+.auto-score span{font-size:12px}
+
+/* Detail text */
+.detail{font-size:13px;color:var(--text-sec);font-weight:400;line-height:1.7}
+.detail strong{color:var(--text);font-weight:600}
+.detail-list{list-style:none;padding:0;margin:8px 0}
+.detail-list li{padding:4px 0;padding-left:16px;position:relative}
+.detail-list li::before{content:'→';position:absolute;left:0;color:var(--selenko);font-weight:700}
+
+/* Responsive */
+@media(max-width:768px){
+  .header-title{display:none}
+  .hero-inner{flex-direction:column}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  .tabs{gap:2px}
+  .tab{padding:8px 10px;font-size:12px}
+  .expand-body-inner{padding-left:12px}
+  .content{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-title">Video Strategy</div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('execute')">Execute</button>
+      <button class="tab" onclick="switchTab('strategy')">Strategy</button>
+      <button class="tab" onclick="switchTab('reference')">Reference</button>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>Video Content Strategy</h1>
+      <p>AI Negotiation Coach · Close the comprehension gap · $42.93 spent, 77 view content events, 0 purchases → demo video is the fix.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card"><div class="stat-num">~100s</div><div class="stat-label">Demo Length</div></div>
+      <div class="stat-card"><div class="stat-num">$35</div><div class="stat-label">Monthly Tools</div></div>
+      <div class="stat-card"><div class="stat-num">1.5-2h</div><div class="stat-label">First Video</div></div>
+      <div class="stat-card"><div class="stat-num">45m</div><div class="stat-label">After That</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════ TAB 1: EXECUTE ═══════════════════ -->
+<div class="tab-content active" id="tab-execute">
+
+<div class="group-label">Execution Checklist</div>
+<div class="group-subtitle">Every text input pre-written. Copy, paste, click, record one screen take.</div>
+
+<!-- Step 0 -->
+<div class="card">
+  <div class="card-accent" style="background:var(--selenko)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="step-num">0</span>
+    <span class="expand-title">Subscribe & Connect Tools</span>
+    <span class="badge badge-amber">~15-20 min</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+
+    <div class="detail"><strong>0A: HeyGen Creator ($29/mo)</strong></div>
+    <div class="code-wrap"><div class="code-block">1. heygen.com → Pricing → Creator ($29/mo)
+2. Subscribe
+3. Confirm: 1080p, no watermark, unlimited Avatar III, 200 premium credits
+
+HeyGen MCP already connected at mcp.heygen.com/mcp/v1/
+Claude generates avatar clips from chat after upgrade.</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>0B: ElevenLabs Starter ($5/mo) + Voice Clone</strong></div>
+    <div class="code-wrap"><div class="code-block">1. elevenlabs.io → Pricing → Starter ($5/mo)
+2. Subscribe
+3. Voices → Add Voice → Instant Voice Clone
+4. Upload 1-5 min clean audio (Loom recordings, voice memos, Captions sample)
+5. Name: "Serge - Selenko"
+6. Confirm voice name back in chat</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:12px"><strong>ElevenLabs Settings:</strong></div>
+    <div class="code-wrap"><div class="code-block">Model: Multilingual v2
+Stability: 0.60
+Similarity: 0.78
+Style Exaggeration: 0.05
+Speaker Boost: ON
+Speed: 0.95</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>0C: Integrate ElevenLabs into HeyGen</strong></div>
+    <div class="code-wrap"><div class="code-block">HeyGen → Voice → + New Voice → Integrate 3rd Party
+→ Import → ElevenLabs → paste API key
+  (elevenlabs.io → Profile → API Keys)
+→ Cloned voices now appear in HeyGen's voice list</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>0D: Bunny Stream (~$1/mo)</strong></div>
+    <div class="code-wrap"><div class="code-block">1. bunny.net → Sign Up
+2. Create a Video Library
+3. Note library ID — upload happens in Step 4</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+  </div></div>
+</div>
+
+<!-- Step 1 -->
+<div class="card">
+  <div class="card-accent" style="background:var(--selenko)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="step-num">1</span>
+    <span class="expand-title">Pre-Generate Demo Scenarios</span>
+    <span class="badge badge-amber">~10 min</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail">Open the <strong>AI Negotiation Coach project in Claude</strong> — must be the real product project (sidebar shows project name, system prompt active).</div>
+
+    <div class="detail" style="margin-top:16px"><strong>Prompt 1 — Salary Negotiation Prep (main demo):</strong></div>
+    <div class="code-wrap"><div class="code-block">MODE: Prep
+
+I have a performance review coming up next week with my manager. I've been at the company for 2 years, I was promoted 8 months ago but my salary wasn't adjusted to match the new role. Market rate for my position is $95-110K and I'm currently at $82K. My manager is generally supportive but the company has been tightening budgets. I have a competing offer from another company at $105K but I'd prefer to stay.
+
+Give me a complete prep strategy with:
+1. Specific opening language to use
+2. How to handle the likely pushback ("budgets are tight")
+3. How to use the competing offer without making it feel like an ultimatum
+4. What NOT to say (anti-patterns to avoid)
+5. A step-by-step sequence for the conversation</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>Prompt 2 — Role-Play:</strong></div>
+    <div class="code-wrap"><div class="code-block">Let's switch to ROLE-PLAY mode. Play my manager. I'm going to practice my opening for the salary conversation. Push back realistically — mention budget constraints, ask me to wait until next quarter, and test whether I'll fold under pressure.
+
+I'll go first: "Thanks for making time for this. I wanted to talk about my compensation — specifically the gap between my current salary and what the market data shows for this role."</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>Prompt 3 — Anti-Pattern Detection:</strong></div>
+    <div class="code-wrap"><div class="code-block">MODE: Prep
+
+I really hope we can work something out on the salary front. I know things are tight and I don't want to be difficult, but I've been thinking about this for a while and I just feel like maybe I deserve a bit more? I'm not trying to be greedy or anything, I just wanted to bring it up and see what you think.</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="detail">Coach should flag neediness, compromise language, weak framing. This output is gold for the demo.</div>
+
+  </div></div>
+</div>
+
+<!-- Step 2 -->
+<div class="card">
+  <div class="card-accent" style="background:var(--selenko)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="step-num">2</span>
+    <span class="expand-title">Record Silent Screen Footage</span>
+    <span class="badge badge-amber">~12 min</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail"><strong>MacBook Setup (3 min):</strong></div>
+    <div class="code-wrap"><div class="code-block">1. Do Not Disturb ON
+2. Close all apps except browser
+3. Hide Dock (System Settings → Desktop & Dock → Auto-hide)
+4. Claude open — ONLY AI Negotiation Coach project visible
+5. Hide personal chats from sidebar
+6. Browser zoom 125% (Cmd + Plus)
+7. Loom or QuickTime → Screen Recording → NO microphone</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>Desktop Takes (7 min):</strong></div>
+    <div class="code-wrap"><div class="code-block">Take 1 (3 min): Prep output — slow scroll, pause on scripts. 2 takes.
+Take 2 (1 min): Fresh chat — type scenario naturally.
+Take 3 (1 min): Role-Play — scroll back-and-forth.
+Take 4 (1 min): Anti-Pattern — scroll to flags.
+Take 5 (1 min): Project setup — modes visible.</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>iPhone Take (2 min):</strong></div>
+    <div class="code-wrap"><div class="code-block">Take 6 (2 min): Open same Prep output on iPhone in Claude app.
+  Scroll through response.
+  Use iPhone screen recording:
+  Settings → Control Center → add Screen Recording.
+  Swipe down → tap record → open Claude → scroll.
+  Produces native 9:16 vertical footage.</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="detail">Desktop takes (16:9) → sales page + 4:5 Meta feed ads. iPhone take (9:16) → Stories/Reels (native vertical, no reframe).</div>
+  </div></div>
+</div>
+
+<!-- Step 3 -->
+<div class="card">
+  <div class="card-accent" style="background:var(--selenko)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="step-num">3</span>
+    <span class="expand-title">Generate & Assemble the Video</span>
+    <span class="badge badge-amber">~60-90 min</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+
+    <div class="detail"><strong>Path A: HeyGen + CapCut (Recommended)</strong></div>
+    <div class="detail">Say in chat: <strong>"HeyGen is upgraded, generate intro."</strong> Claude will list avatars, generate intro + CTA clips via MCP, and give you download URLs.</div>
+
+    <div class="detail" style="margin-top:16px"><strong>Voiceover script — paste into ElevenLabs:</strong></div>
+    <div class="code-wrap"><div class="code-block">The coach asks clarifying questions about your situation, then gives you a specific strategy — not generic advice. <break time="0.5s" />
+It tells you exactly what to say, how to handle pushback, and what traps to avoid. Every recommendation maps back to one of four proven negotiation frameworks.
+<break time="1.0s" />
+You can practice the conversation in role-play mode — the coach plays your counterparty and pushes back with realistic tactics.
+<break time="1.0s" />
+And it actively flags mistakes you'd never notice — like neediness signals, compromise traps, and weak framing.
+<break time="1.0s" />
+Four frameworks built in — Camp, Voss, Fisher and Ury, and Cialdini. You don't need to read the books. The coach has the principles — you bring your situation.</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>CapCut Assembly (voice-first editing):</strong></div>
+    <div class="code-wrap"><div class="code-block">1. CapCut → New Project → 16:9 (1920×1080)
+2. Import: avatar intro, screen recordings, voiceover MP3, avatar CTA
+3. AUDIO: Drag voiceover to audio track
+4. VIDEO — arrange:
+   a. Avatar intro (~10s)
+   b. Take 2: typing scenario (~10s, trim)
+   c. Take 1: output scroll (~45-50s, match VO timing)
+   d. Take 3: role-play (~10s, match "role-play" VO)
+   e. Take 4: anti-pattern (~10s, match "flags mistakes" VO)
+   f. Avatar CTA (~10s)
+5. Trim visuals to match &lt;break&gt; pauses
+6. Text overlay: "What a $67 AI negotiation coach actually looks like"
+7. End card: "$67 · Instant Access · selenko.com"
+8. Preview on mobile → Export 1080p MP4</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>Meta Ad Cuts:</strong></div>
+    <div class="code-wrap"><div class="code-block">CapCut auto-reframe → 4:5 (1080×1350) from desktop Takes 1-5:
+  30-60s cut → Retargeting Ad v1 "How It Works"
+  15-30s cut → Retargeting Ad v2 "Real Output"
+
+Stories/Reels → use Take 6 (iPhone, native 9:16):
+  Trim to 6-15s highlights of coaching output
+  No auto-reframe needed — already vertical</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:20px"><strong>Path B: CapCut Only (Fallback — no avatar)</strong></div>
+    <div class="detail">Same workflow but add intro/CTA lines to the voiceover script. No avatar clips. Screen recordings + voiceover only.</div>
+
+  </div></div>
+</div>
+
+<!-- Step 4 -->
+<div class="card">
+  <div class="card-accent" style="background:var(--selenko)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="step-num">4</span>
+    <span class="expand-title">Upload & Embed</span>
+    <span class="badge badge-amber">~15-20 min</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail"><strong>4A: Upload to Bunny Stream</strong></div>
+    <div class="code-wrap"><div class="code-block">1. bunny.net → Video Library → Upload 16:9 master
+2. Wait for processing
+3. Copy embed code (iframe)</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:16px"><strong>4B: Embed on Systeme.io</strong></div>
+    <div class="code-wrap"><div class="code-block">1. Systeme.io → Funnels → AI Negotiation Coach → Edit Sales Page
+2. "See it in action" section
+3. Add element → Custom Embed (Raw HTML)
+4. Paste Bunny Stream iframe
+5. Save → Preview on mobile</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+    <div class="detail" style="margin-top:12px">Want facade pattern (224× faster load)? Say <strong>"add facade pattern"</strong> in chat — Claude generates the HTML/JS.</div>
+
+    <div class="detail" style="margin-top:16px"><strong>4C: Meta Pixel Tracking</strong> — Say <strong>"Video is on Bunny"</strong> in chat. Claude generates the tracking JS with your video ID. Fires VideoPlay + VideoProgress 25/50/75/100%.</div>
+
+    <div class="detail" style="margin-top:16px"><strong>4D: Meta Ad Cuts</strong> — Push cuts to GitHub Pages, say <strong>"Ad cuts on GitHub"</strong>. Claude uploads via Pipeboard.</div>
+
+  </div></div>
+</div>
+
+<!-- Step 5 -->
+<div class="card">
+  <div class="card-accent" style="background:var(--green)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="step-num">5</span>
+    <span class="expand-title">Verify & Report Back</span>
+    <span class="badge badge-green">~5 min</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="code-wrap"><div class="code-block">1. Open selenko.com/negotiation-coach on phone
+2. Video plays? Text readable?
+3. Check Bunny Stream dashboard
+4. Say in chat: "Video is live"</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="detail" style="margin-top:12px">Claude then: pulls ad baseline via Pipeboard, verifies pixel events, updates Notion session log, sets 7-day measurement window.</div>
+    <div class="detail" style="margin-top:8px"><strong>After 7 days:</strong> Re-pull metrics. Compare before/after. If improved → activate retargeting at 300-500 visitors, $3/day.</div>
+  </div></div>
+</div>
+
+</div>
+
+<!-- ═══════════════════ TAB 2: STRATEGY ═══════════════════ -->
+<div class="tab-content" id="tab-strategy">
+
+<div class="group-label">Diagnosis</div>
+<div class="group-subtitle">Why zero purchases despite 77 view content events.</div>
+<div class="card">
+  <div class="detail">
+    <strong>$42.93 spent.</strong> 98 link clicks, 77 view content events, 1 initiated checkout at $67, 0 purchases. People click but can't bridge "sounds interesting" → "I understand what I'm buying."
+    <br><br>
+    <strong>Root cause:</strong> "Pre-built Claude Project coaching system" means nothing to cold Meta ad traffic. Static screenshots don't show the product working.
+    <br><br>
+    <strong>Evidence:</strong> DR3: 1/15 competitors has video. DR8: video increases conversions up to 86%. Video ads get 480% more clicks on Meta.
+  </div>
+</div>
+
+<div class="group-label">Video Roadmap</div>
+<div class="group-subtitle">Four tiers, prioritized by impact and dependencies.</div>
+
+<div class="card">
+  <div class="card-accent" style="background:var(--ai-digital)"></div>
+  <div class="expand-header is-expanded-init" onclick="toggle(this.parentElement)">
+    <span class="expand-title">Tier 1 — Sales Page Demo (This Weekend)</span>
+    <span class="badge badge-red">Highest Priority</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail">
+      <strong>Format:</strong> HeyGen avatar bookends + screen recording + ElevenLabs voiceover<br>
+      <strong>Length:</strong> ~100 seconds (240-300 words)<br>
+      <strong>Hosting:</strong> Bunny Stream (~$1/mo)<br>
+      <strong>Scenario:</strong> Salary negotiation<br><br>
+      <strong>Script:</strong> Avatar intro (10s) → scenario input (15s) → coaching output (30s) → role-play + anti-pattern (15s) → frameworks (15s) → avatar CTA (15s)<br><br>
+      Avatar segments under 15 seconds each (uncanny valley threshold). Stock avatar v1. Digital Twin Week 3-4.
+    </div>
+  </div></div>
+</div>
+
+<div class="card">
+  <div class="card-accent" style="background:var(--amber)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="expand-title">Tier 2 — Retargeting Cuts (Week 2)</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail">Cut from Tier 1 footage — no additional recording.<br><br>
+      "How It Works": 30-60s, 4:5 (1080×1350)<br>
+      "Real Output": 15-30s, 4:5 (1080×1350)<br>
+      Stories/Reels: 6-15s, 9:16 (1080×1920)
+    </div>
+  </div></div>
+</div>
+
+<div class="card">
+  <div class="card-accent" style="background:var(--amber)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="expand-title">Tier 3 — Upgraded Prospecting (Week 3-4)</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail">Prospecting Ad v2: HeyGen Digital Twin + real screen recording. Replaces Video Ad v1.<br><br>
+      Digital Twin: record 2+ min of Serge → reusable avatar for all future ads.<br><br>
+      "Salary Negotiation in 90 Seconds": first organic content piece.
+    </div>
+  </div></div>
+</div>
+
+<div class="card">
+  <div class="card-accent" style="background:var(--gray-mid)"></div>
+  <div class="expand-header" onclick="toggle(this.parentElement)">
+    <span class="expand-title">Tier 4 — Organic Content Engine (Month 2+)</span>
+    <span class="expand-chevron">▸</span>
+  </div>
+  <div class="expand-body"><div class="expand-body-inner">
+    <div class="detail">Full product walkthrough (3-5 min, includes Draft mode).<br>
+      Scenario-specific shorts (batch via ElevenLabs). One per negotiation type.
+    </div>
+  </div></div>
+</div>
+
+<div class="group-label">Retargeting Timeline</div>
+<div class="group-subtitle">Option D then B — demo first, retarget at 300-500 visitors.</div>
+<div class="card">
+  <div class="detail">
+    <strong>Phase 1 (Now):</strong> Get demo video live. Measure 7 days. No retargeting spend. Fix the page before retargeting it.<br><br>
+    <strong>Phase 2 (~2-3 weeks, 300-500 visitors):</strong> Activate retargeting. $3/day budget. Tight frequency caps (below 7/person/week).<br><br>
+    Audiences already created and populating. Ad cuts ready from Tier 1 footage.
+  </div>
+</div>
+
+</div>
+
+<!-- ═══════════════════ TAB 3: REFERENCE ═══════════════════ -->
+<div class="tab-content" id="tab-reference">
+
+<div class="group-label">Tool Stack & Automation</div>
+<div class="group-subtitle">Every tool scored by automation capability. One $67 sale covers the full monthly cost.</div>
+
+<div class="card">
+<table>
+  <tr><th>Tool</th><th>Role</th><th>Cost</th><th>MCP</th><th>API</th></tr>
+  <tr><td><strong>HeyGen Creator</strong></td><td>Avatar presenter (AI Studio)</td><td>$29/mo</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td></tr>
+  <tr><td><strong>ElevenLabs Starter</strong></td><td>Voice clone + TTS</td><td>$5/mo</td><td><span class="badge badge-gray">❌</span></td><td><span class="badge badge-green">✅</span></td></tr>
+  <tr><td><strong>Bunny Stream</strong></td><td>Video hosting, CDN, analytics</td><td>~$1/mo</td><td><span class="badge badge-gray">❌</span></td><td><span class="badge badge-green">✅</span></td></tr>
+  <tr><td><strong>Pipeboard</strong></td><td>Meta ad uploads + insights</td><td>Existing</td><td><span class="badge badge-green">✅</span></td><td>—</td></tr>
+  <tr><td><strong>CapCut</strong></td><td>Multi-track assembly</td><td>Free</td><td><span class="badge badge-gray">❌</span></td><td><span class="badge badge-gray">❌</span></td></tr>
+  <tr><td><strong>Canva Pro</strong></td><td>Thumbnails, static ads</td><td>$15/mo</td><td><span class="badge badge-green">✅</span></td><td>—</td></tr>
+  <tr><td><strong>Kling AI</strong></td><td>AI B-roll</td><td>Free</td><td><span class="badge badge-gray">❌</span></td><td><span class="badge badge-gray">❌</span></td></tr>
+  <tr><td style="color:var(--text-muted)">Captions</td><td style="color:var(--text-muted)">Legacy — evaluate after HeyGen confirmed</td><td style="color:var(--text-muted)">$25/mo</td><td><span class="badge badge-gray">❌</span></td><td><span class="badge badge-gray">❌</span></td></tr>
+</table>
+<div class="detail" style="margin-top:8px"><strong>New monthly cost:</strong> $35 (HeyGen + ElevenLabs + Bunny). Net $10/mo if Captions cancelled. One $67 sale covers everything.</div>
+</div>
+
+<div class="group-label">Audiences</div>
+<div class="group-subtitle">Current Meta custom audiences, updated April 6.</div>
+
+<div class="card">
+<table>
+  <tr><th>Audience</th><th>ID</th><th>Status</th></tr>
+  <tr><td>All Website Visitors — 180d</td><td><code>120242502145110344</code></td><td><span class="badge badge-green">Ready</span></td></tr>
+  <tr><td>Product Page Viewers — 30d</td><td><code>120242612881960344</code></td><td><span class="badge badge-green">Recreated ✅</span></td></tr>
+  <tr><td>Engaged Visitors — 30d</td><td><code>120242612835180344</code></td><td><span class="badge badge-green">New ✅</span></td></tr>
+  <tr><td>Purchasers — 180d</td><td><code>120242502178540344</code></td><td><span class="badge badge-gray">Too Small</span></td></tr>
+  <tr><td>Page Engagers — 365d</td><td><code>120242502436280344</code></td><td><span class="badge badge-green">Ready</span></td></tr>
+</table>
+</div>
+
+<div class="group-label">Hosting & Embed</div>
+<div class="group-subtitle">Bunny Stream → Raw HTML embed → facade pattern → pixel tracking.</div>
+<div class="card">
+  <div class="detail">
+    <strong>Host:</strong> Bunny Stream (~$1/mo). Zero branding, CDN, HLS adaptive, analytics.<br>
+    <strong>Why not YouTube:</strong> Can't remove logo, may show competitor ads, 1.3-2.6 MB JS bloat.<br><br>
+    <strong>Embed:</strong> Systeme.io Custom Embed / Raw HTML (NOT standard Video element).<br>
+    <strong>Facade pattern:</strong> Thumbnail + play button → load player on click (224× faster).<br>
+    <strong>Pixel tracking:</strong> VideoPlay + VideoProgress 25/50/75/100% via header JS.<br><br>
+    <strong>Export specs:</strong><br>
+    Sales page: 16:9, 1920×1080, MP4<br>
+    Meta feed ads: 4:5, 1080×1350, MP4<br>
+    Stories/Reels: 9:16, 1080×1920, MP4
+  </div>
+</div>
+
+<div class="group-label">ElevenLabs Settings</div>
+<div class="group-subtitle">Optimal TTS configuration for product demo narration.</div>
+<div class="card">
+  <div class="code-wrap"><div class="code-block">Model: Multilingual v2
+Stability: 0.55-0.65 (use 0.60)
+Similarity: 0.75-0.80 (use 0.78)
+Style Exaggeration: 0-0.10 (use 0.05)
+Speaker Boost: ON
+Speed: 0.95-1.0 (use 0.95)
+
+Script formatting: use &lt;break time="1.0s" /&gt; tags between sections</div><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+</div>
+
+<div class="group-label">Production Workflow</div>
+<div class="group-subtitle">Confirmed from deep research. Voice-first editing.</div>
+<div class="card">
+  <div class="detail">
+    <strong>Pipeline:</strong> HeyGen AI Studio → avatar bookends (under 15s each) → ElevenLabs → voiceover → CapCut → multi-track assembly.<br><br>
+    <strong>Voice-first editing:</strong> Voiceover sets the timeline. Generate VO first, lay on timeline, cut visuals to match. The <code>&lt;break&gt;</code> pauses mark transition points.<br><br>
+    <strong>Why CapCut for assembly:</strong> HeyGen Video Agent can't selectively show/hide avatar per scene. CapCut's multi-track timeline gives full control. Auto-reframe generates 4:5 and 9:16 cuts.<br><br>
+    <strong>What Claude handles via MCP:</strong> Avatar clip generation (HeyGen), ad uploads (Pipeboard), audience management (Pipeboard), session logs (Notion), facade pattern code, pixel tracking code.
+  </div>
+</div>
+
+<div class="group-label">Constraints</div>
+<div class="group-subtitle">Brand, budget, platform, and content rules.</div>
+<div class="card">
+  <div class="detail">
+    <strong>Brand:</strong> "AI Negotiation Coach" (never "Kit"). No fabricated social proof. Non-affiliation disclaimer. #2563eb / #0f172a. Inter font.<br><br>
+    <strong>Budget:</strong> Validation $500-750. CPA break-even ~$55-58. Retargeting max 20%, $3/day when activated.<br><br>
+    <strong>Platform:</strong> Systeme.io $17/mo. Bunny ~$1/mo. Pixel 940922441675710. Account act_2729333130771878.<br><br>
+    <strong>Video rules:</strong> No personal chats/sidebar. No PII. No results claims. Avatar under 15s. Authenticity > polish.
+  </div>
+</div>
+
+</div>
+
+</div>
+
+<div style="text-align:center;padding:24px;font-size:11px;color:var(--text-muted);font-weight:400">
+  Video Content Strategy v4 · Execution Checklist v3 · April 2026 · Selenko
+</div>
+
+<script>
+function switchTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggle(el){
+  el.classList.toggle('is-expanded');
+}
+
+function copyCode(btn){
+  const code=btn.previousElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
+  });
+}
+</script>
+</body>
+</html>
