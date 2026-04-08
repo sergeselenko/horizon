@@ -905,13 +905,16 @@ var PHASES = [
     ]
   },
   {
-    id: 'phase-1', name: 'Phase 1: Sales Page Rebuild', status: 'in-progress', defaultExpanded: true,
+    id: 'phase-1', name: 'Phase 1: Sales Page Rebuild', status: 'complete', defaultExpanded: false,
     items: [
       { id: 'p1-1', text: 'Sales page copy \u2014 all 15 sections written and approved', status: 'complete', time: '0 min Serge', who: 'Claude', detail: 'Copy build chat. Sources: Deep Research + Competitive Intel + Brand Voice + Serge story + Locked Decisions.' },
-      { id: 'p1-2', text: 'Spin up HTML Build Chat', status: 'next', time: '5 min', who: 'Serge', detail: 'Delegation prompt ready. Build chat produces paste-ready HTML blocks for Systeme.io.' },
-      { id: 'p1-3', text: 'Generate product mockup images in Gemini', status: 'pending', time: '~15 min', who: 'Serge', detail: 'Laptop + phone mockups showing coaching conversation. Push to GitHub per Image Upload SOP.' },
-      { id: 'p1-4', text: 'Paste HTML blocks into Systeme.io', status: 'pending', time: '30-45 min', who: 'Serge', detail: '16 Raw HTML blocks. Save \u2192 View funnel step to verify each. Cannot preview in editor.' },
-      { id: 'p1-5', text: 'Mobile testing on live page', status: 'pending', time: '~10 min', who: 'Serge', detail: 'Test on iPhone Safari. Check all CTAs, sticky bar, section rendering, image loading.' }
+      { id: 'p1-2', text: 'Sales page HTML \u2014 all 15 sections built, audited, saved to Notion', status: 'complete', time: '0 min Serge', who: 'Claude', detail: '3 source pages + 2 multi-platform replacements. Self-review passed.' },
+      { id: 'p1-3', text: 'Portal Rebuild v3 \u2014 both portals rebuilt with 3-platform picker Setup tabs', status: 'complete', time: '0 min Serge', who: 'Claude', detail: 'Core portal (PIN 4126) and Expansion portal (PIN 2641) updated and deployed to GitHub.' },
+      { id: 'p1-4', text: '12 setup screenshots created (4 per platform) and pushed to GitHub', status: 'complete', time: '20 min', who: 'Serge', detail: 'ChatGPT, Claude, Gemini \u2014 4 screenshots each. Created in Canva.' },
+      { id: 'p1-5', text: 'Hero mockup image generated and live on GitHub', status: 'complete', time: '15 min', who: 'Serge', detail: 'Gemini-generated laptop mockup showing coaching conversation.' },
+      { id: 'p1-6', text: 'Paste HTML blocks into Systeme.io \u2014 all 15 sections live', status: 'complete', time: '30-45 min', who: 'Serge', detail: 'All 15 Raw HTML blocks pasted. Live on www.selenko.com.' },
+      { id: 'p1-7', text: 'Multi-platform support LOCKED (Decision #12)', status: 'complete', who: 'Both', detail: 'Product works on ChatGPT (free), Claude (Pro), Gemini (Advanced). ChatGPT is lead recommendation.' },
+      { id: 'p1-8', text: 'Welcome Email 1 LIVE in Systeme.io', status: 'complete', who: 'Both', detail: 'Trigger: negotiation-coach-buyer tag, immediate send.' }
     ]
   },
   {
@@ -927,7 +930,7 @@ var PHASES = [
     ]
   },
   {
-    id: 'phase-3-ob', name: 'Phase 3: Order Bump + Checkout Flow', status: 'pending', defaultExpanded: false,
+    id: 'phase-3-ob', name: 'Phase 3: Order Bump + Checkout Flow', status: 'in-progress', defaultExpanded: true,
     items: [
       { id: 'p3-1', text: 'Configure order bump in Systeme.io', status: 'pending', time: '10 min', who: 'Serge', detail: 'Order form page \u2192 Settings \u2192 Add order bump. Tag: expansion-pack-buyer. $27 price plan.' },
       { id: 'p3-2', text: 'Place bump element on page with copy', status: 'pending', time: '5 min', who: 'Serge', detail: 'Drag Order bump element above purchase button. Copy: "\u2705 Add the Expansion Pack \u2014 15 additional scenarios + 3 advanced tools \u2014 $27."' },
@@ -943,12 +946,12 @@ var PHASES = [
     subsections: [
       {
         id: 'p4-pre', name: 'Pre-Build Checklist', items: [
-          { id: 'p4-pre-1', text: 'Sales page rebuild is live (Phase 1 complete)', status: 'pending' },
+          { id: 'p4-pre-1', text: 'Sales page rebuild is live (Phase 1 complete)', status: 'complete' },
           { id: 'p4-pre-2', text: 'Order bump working on checkout (Phase 3 complete)', status: 'pending' },
           { id: 'p4-pre-3', text: 'CAPI verified \u2014 browser + server events both firing', status: 'pending' },
           { id: 'p4-pre-4', text: 'At least one new static ad image ready (Gemini)', status: 'pending' },
           { id: 'p4-pre-5', text: 'Old campaign retired', status: 'complete' },
-          { id: 'p4-pre-6', text: 'Naked domain redirect confirmed working', status: 'pending' }
+          { id: 'p4-pre-6', text: 'Naked domain redirect confirmed working', status: 'complete' }
         ]
       },
       {
@@ -976,20 +979,24 @@ var PHASES = [
     subsections: [
       {
         id: 'p5-pre', name: 'Pre-Flight Checklist', items: [
-          { id: 'p5-1', text: 'Sales page rebuilt with all 15 sections', status: 'pending' },
+          { id: 'p5-1', text: 'Sales page rebuilt with all 15 sections', status: 'complete' },
           { id: 'p5-2', text: 'Demo video embedded (or placeholder section)', status: 'pending' },
           { id: 'p5-3', text: 'Order bump working on checkout page', status: 'pending' },
-          { id: 'p5-4', text: 'CAPI verified \u2014 browser AND server events firing', status: 'pending' },
+          { id: 'p5-4', text: 'CAPI verified \u2014 browser AND server events firing', status: 'pending', detail: 'CAPI setup is done but verification is PENDING. Browser events fire but server events not yet confirmed in Events Manager Test Events.' },
           { id: 'p5-5', text: 'All ad creatives linked to ad set', status: 'pending' },
           { id: 'p5-6', text: 'ALL destination URLs verified', status: 'pending' },
           { id: 'p5-7', text: 'Old campaign retired', status: 'complete' },
           { id: 'p5-8', text: 'Payment method active in Meta', status: 'pending' },
           { id: 'p5-9', text: 'Mobile sticky CTA bar working', status: 'pending' },
           { id: 'p5-10', text: 'Microsoft Clarity installed and tracking', status: 'pending' },
-          { id: 'p5-11', text: 'Systeme.io homepage set to /negotiation-coach', status: 'pending' },
-          { id: 'p5-12', text: 'Naked domain redirect confirmed', status: 'pending' },
+          { id: 'p5-11', text: 'Systeme.io homepage set to sales page', status: 'complete', detail: 'URL path cleared. www.selenko.com now loads the sales page directly.' },
+          { id: 'p5-12', text: 'Naked domain redirect confirmed', status: 'complete', detail: 'GoDaddy A records deleted. selenko.com now 301 forwards to www.selenko.com.' },
           { id: 'p5-13', text: 'Facebook Business Page set up', status: 'pending' },
-          { id: 'p5-14', text: 'End-to-end buyer journey walk-through completed', status: 'pending' }
+          { id: 'p5-14', text: 'End-to-end buyer journey walk-through completed', status: 'pending' },
+          { id: 'p5-15', text: 'CoWork /design-critique on live page', status: 'pending', detail: 'Phase 0 Step 4. Run on www.selenko.com AFTER all HTML is pasted. Produces specific CSS/HTML fixes. Quality gate, NOT a launch gate.' },
+          { id: 'p5-16', text: 'Audit upsell page', status: 'pending', detail: 'www.selenko.com/negotiation-coach-upsell must either present Expansion Pack to non-bump buyers or redirect to Thank You. No dead pages in flow.' },
+          { id: 'p5-17', text: 'Audit order form page', status: 'pending', detail: 'Ensure Selenko logo, consistent colors, guarantee reminder above payment fields.' },
+          { id: 'p5-18', text: 'Review Thank You page', status: 'pending', detail: 'Must include portal links, PINs, and "start your first coaching session in 2 minutes" instruction. Match design system. DR10: 40% of refunds from buyer confusion.' }
         ]
       },
       {
@@ -1033,6 +1040,18 @@ var PHASES = [
           { id: 'p5-c2', text: 'Copy tracking code snippet', status: 'pending' },
           { id: 'p5-c3', text: 'Paste in Systeme.io Settings \u2192 Sales Funnels \u2192 Tracking Code', status: 'pending' },
           { id: 'p5-c4', text: 'Verify \u2014 visit sales page, check Clarity for live user', status: 'pending' }
+        ]
+      },
+      {
+        id: 'p5-postlaunch', name: 'During No-Touch Window', items: [
+          { id: 'p5-ga1', text: 'Google Ads keyword research ($0, Keyword Planner)', status: 'pending', time: '~30 min', who: 'Serge', detail: 'Decision trigger: combined search volume > 1,000/month at CPC < $5 \u2192 add $10/day Search campaign.' }
+        ]
+      },
+      {
+        id: 'p5-phase3a', name: 'Post-Launch \u2014 Build During Week 1 (Phase 3A)', items: [
+          { id: 'p5-em1', text: 'Post-purchase email sequence (Emails 2-7)', status: 'pending', who: 'Both', detail: 'Core buyers: onboarding, tips, expansion pack pitch. Email 1 is LIVE. Remaining emails NOT a launch blocker but build during no-touch window.' },
+          { id: 'p5-em2', text: 'Expansion Pack buyer workflow', status: 'pending', who: 'Both', detail: 'Automation: expansion-pack-buyer tag \u2192 send email with Expansion Pack portal link + PIN 2641.' },
+          { id: 'p5-em3', text: 'Support response templates', status: 'pending', who: 'Both', detail: '5 common questions: setup help, refund, "is this just prompts?", specific negotiation types, "how different from ChatGPT?"' }
         ]
       }
     ]
@@ -1255,7 +1274,7 @@ function buildMissionControl() {
   html += '<p style="font-size:18px;color:var(--text-muted-dark);margin-bottom:32px;">AI Negotiation Coach \u2014 From Launch to $1,000/Day<\/p>';
   html += '<div class="card-grid card-grid-3">';
   html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 1: Validate Clicks<\/div>' + '<span class="badge badge-complete">\u2705 Complete<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">$52.64 spent, 207 clicks<\/div><\/div>';
-  html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 2: Convert<\/div>' + '<span class="badge badge-progress">\ud83d\udfe1 In Progress<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">Sales page rebuild + relaunch<\/div><\/div>';
+  html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 2: Convert<\/div>' + '<span class="badge badge-progress">\ud83d\udfe1 In Progress<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">Sales page live \u2014 pre-launch checklist<\/div><\/div>';
   html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 3: Scale<\/div>' + '<span class="badge badge-pending">\u23f3 Pending<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">Activates when CPA &lt; $55<\/div><\/div>';
   html += '<\/div>';
   html += '<\/div><\/div>';
@@ -1264,16 +1283,50 @@ function buildMissionControl() {
   html += '<div class="section section-white"><div class="container">';
   html += '<div class="eyebrow">Immediate<\/div>';
   html += '<h2 class="h2">What\u2019s Next<\/h2>';
-  var actions = [
-    { title: 'Execute Multi-Platform DDV Prompts', phase: 'Phase 1', who: 'Serge', time: '20 min (7 Notion AI prompts)' },
-    { title: 'Take 12 Platform Screenshots', phase: 'Phase 1', who: 'Serge', time: '20 min (ChatGPT, Claude, Gemini, 4 each)' },
-    { title: 'Spin up Portal Rebuild Chat', phase: 'Phase 1', who: 'Serge', time: '5 min (paste delegation prompt)' },
-    { title: 'Paste HTML blocks into Systeme.io', phase: 'Phase 1', who: 'Serge', time: '30-45 min' },
-    { title: 'Configure order bump', phase: 'Phase 3', who: 'Serge', time: '10 min' }
+
+  html += '<h3 class="h3" style="margin-top:4px;font-size:16px;color:var(--status-complete);">Ready Now \u2014 No Dependencies<\/h3>';
+  var actionsReady = [
+    { title: 'Generate hero laptop mockup in Gemini', phase: 'Step 2', who: 'Serge', time: '~15 min' },
+    { title: 'Configure order bump \u2014 $27 Expansion Pack', phase: 'Step 4', who: 'Serge', time: '~10 min' },
+    { title: 'Install Microsoft Clarity', phase: 'Step 6', who: 'Serge', time: '~2 min, free' },
+    { title: 'Facebook Page setup \u2014 cover, about, CTA, 1-2 posts', phase: 'Step 7', who: 'Serge', time: '~20-30 min' },
+    { title: 'Generate static ad image in Gemini', phase: 'Step 9', who: 'Serge', time: '~15 min' }
   ];
-  actions.forEach(function(a, i) {
+  actionsReady.forEach(function(a, i) {
     html += '<div class="action-card">';
     html += '<div class="action-card-num">' + (i + 1) + '<\/div>';
+    html += '<div class="action-card-content">';
+    html += '<div class="action-card-title">' + a.title + '<\/div>';
+    html += '<div class="action-card-info"><span>' + a.phase + '<\/span><span>' + a.who + '<\/span><span>' + a.time + '<\/span><\/div>';
+    html += '<\/div><\/div>';
+  });
+
+  html += '<h3 class="h3" style="margin-top:24px;font-size:16px;color:var(--status-progress);">Requires Earlier Steps<\/h3>';
+  var actionsBlocked = [
+    { title: 'Buyer journey walk-through', phase: 'Step 8', who: 'Serge', time: '~15 min (after order bump)' },
+    { title: 'Campaign build via Pipeboard', phase: 'Step 10', who: 'Claude', time: 'After Steps 4, 6, 7, 9' },
+    { title: 'End-to-end test purchase', phase: 'Step 11', who: 'Serge', time: '~15 min (before go-live)' },
+    { title: 'Go live \u2014 Claude activates campaign', phase: 'Step 12', who: 'Claude', time: 'Then 7 days zero changes' }
+  ];
+  actionsBlocked.forEach(function(a, i) {
+    html += '<div class="action-card" style="border-left-color:var(--status-progress);">';
+    html += '<div class="action-card-num" style="background:var(--status-progress);">' + (6 + i) + '<\/div>';
+    html += '<div class="action-card-content">';
+    html += '<div class="action-card-title">' + a.title + '<\/div>';
+    html += '<div class="action-card-info"><span>' + a.phase + '<\/span><span>' + a.who + '<\/span><span>' + a.time + '<\/span><\/div>';
+    html += '<\/div><\/div>';
+  });
+
+  html += '<h3 class="h3" style="margin-top:24px;font-size:16px;color:var(--status-parallel);">Parallel \u2014 Not Blocking Launch<\/h3>';
+  var actionsParallel = [
+    { title: 'Record demo video (page has placeholder)', phase: 'Step 3', who: 'Serge', time: '~65-100 min' },
+    { title: 'SPF record reconciliation (Microsoft 365 + Systeme.io)', phase: 'Infra', who: 'Serge', time: 'Not urgent' },
+    { title: 'Welcome email sequence (Emails 2-7)', phase: 'Post-launch', who: 'Both', time: 'During no-touch window' },
+    { title: 'Expansion Pack buyer workflow', phase: 'Post-launch', who: 'Both', time: 'During no-touch window' }
+  ];
+  actionsParallel.forEach(function(a, i) {
+    html += '<div class="action-card" style="border-left-color:var(--status-parallel);">';
+    html += '<div class="action-card-num" style="background:var(--status-parallel);">' + (10 + i) + '<\/div>';
     html += '<div class="action-card-content">';
     html += '<div class="action-card-title">' + a.title + '<\/div>';
     html += '<div class="action-card-info"><span>' + a.phase + '<\/span><span>' + a.who + '<\/span><span>' + a.time + '<\/span><\/div>';
