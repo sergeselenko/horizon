@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation First Light — Execution Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════
+   CSS VARIABLES — Sales Page Design System
+   ══════════════════════════════════════════════════════════ */
+:root {
+  --primary-blue: #1D4ED8;
+  --accent-blue: #2563EB;
+  --light-blue: #60A5FA;
+  --dark-slate: #0F172A;
+  --white: #FFFFFF;
+  --light-gray: #F8FAFC;
+  --cta-orange: #f97316;
+  --cta-orange-hover: #ea580c;
+  --text-muted: #475569;
+  --text-muted-dark: #94a3b8;
+  --text-faint: #64748b;
+  --text-soft-dark: #cbd5e1;
+  --border: #e2e8f0;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 16px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04);
+  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+  --content-width: 680px;
+  /* Status colors */
+  --status-complete: #16a34a;
+  --status-complete-bg: #dcfce7;
+  --status-progress: #d97706;
+  --status-progress-bg: #fef3c7;
+  --status-pending: #6b7280;
+  --status-pending-bg: #f3f4f6;
+  --status-blocked: #dc2626;
+  --status-blocked-bg: #fee2e2;
+  --status-parallel: #2563EB;
+  --status-parallel-bg: #dbeafe;
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--dark-slate);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════════════════════════
+   PIN GATE
+   ══════════════════════════════════════════════════════════ */
+#pin-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--dark-slate);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+#pin-gate.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.pin-container {
+  text-align: center;
+  padding: 20px;
+}
+.pin-logo {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--light-blue);
+  margin-bottom: 12px;
+}
+.pin-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.pin-subtitle {
+  font-size: 16px;
+  color: var(--text-muted-dark);
+  margin-bottom: 32px;
+}
+.pin-boxes {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.pin-box {
+  width: 56px;
+  height: 64px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  -webkit-appearance: none;
+}
+.pin-box:focus {
+  border-color: var(--accent-blue);
+  background: rgba(37,99,235,0.1);
+}
+.pin-box.error {
+  border-color: #ef4444;
+  background: rgba(239,68,68,0.1);
+  animation: shake 0.5s ease;
+}
+.pin-error-msg {
+  font-size: 14px;
+  color: #ef4444;
+  height: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.pin-error-msg.visible { opacity: 1; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+@media (min-width: 768px) {
+  .pin-title { font-size: 36px; }
+  .pin-box { width: 64px; height: 72px; font-size: 28px; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   HEADER & NAVIGATION
+   ══════════════════════════════════════════════════════════ */
+#app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--dark-slate);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 20px;
+}
+.header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+}
+.header-brand {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  white-space: nowrap;
+}
+.header-brand span { color: var(--light-blue); }
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted-dark);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+.tab-btn.active { color: var(--white); background: var(--accent-blue); }
+
+/* ══════════════════════════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════════════════════════ */
+#app-content { display: none; }
+#app-content.visible { display: block; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.section {
+  width: 100%;
+  padding: 48px 20px;
+}
+.section-white { background: var(--white); color: var(--dark-slate); }
+.section-gray { background: var(--light-gray); color: var(--dark-slate); }
+.section-dark { background: var(--dark-slate); color: var(--white); }
+.container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .section { padding: 64px 24px; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════════════════════════════════════ */
+.h1 { font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 16px; }
+.h2 { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 20px; }
+.h3 { font-size: 20px; font-weight: 600; line-height: 1.3; margin: 0 0 12px; }
+.eyebrow {
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.5px; margin: 0 0 8px;
+}
+.section-dark .eyebrow { color: var(--light-blue); }
+.section-white .eyebrow, .section-gray .eyebrow { color: var(--accent-blue); }
+
+@media (min-width: 768px) {
+  .h1 { font-size: 36px; }
+  .h2 { font-size: 28px; }
+  .h3 { font-size: 22px; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CARDS
+   ══════════════════════════════════════════════════════════ */
+.card {
+  background: var(--light-gray);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.section-gray .card { background: var(--white); }
+.section-dark .card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: none;
+}
+.section-dark .card h3, .section-dark .card .card-title { color: var(--white); }
+.section-dark .card p, .section-dark .card .card-body { color: var(--text-soft-dark); }
+@media (min-width: 768px) { .card { padding: 24px; } }
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.card-body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.section-dark .card-body { color: var(--text-soft-dark); }
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  gap: 12px;
+}
+.card-grid-2 { grid-template-columns: 1fr; }
+.card-grid-3 { grid-template-columns: 1fr; }
+.card-grid-4 { grid-template-columns: 1fr 1fr; }
+@media (min-width: 768px) {
+  .card-grid-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+}
+
+/* Stat card */
+.stat-card { text-align: center; padding: 20px 16px; }
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 4px;
+}
+.section-dark .stat-number { color: var(--light-blue); }
+.stat-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.section-dark .stat-label { color: var(--text-muted-dark); }
+
+/* ══════════════════════════════════════════════════════════
+   STATUS BADGES
+   ══════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.badge-complete { background: var(--status-complete-bg); color: var(--status-complete); }
+.badge-progress { background: var(--status-progress-bg); color: var(--status-progress); }
+.badge-pending { background: var(--status-pending-bg); color: var(--status-pending); }
+.badge-blocked { background: var(--status-blocked-bg); color: var(--status-blocked); }
+.badge-parallel { background: var(--status-parallel-bg); color: var(--status-parallel); }
+.badge-next { background: #fef3c7; color: #92400e; }
+
+/* ══════════════════════════════════════════════════════════
+   PHASE SECTIONS (Tab 2)
+   ══════════════════════════════════════════════════════════ */
+.phase-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+.phase-header:hover { background: var(--light-gray); }
+.phase-chevron {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+  width: 20px;
+  text-align: center;
+}
+.phase-section.expanded .phase-chevron { transform: rotate(90deg); }
+.phase-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dark-slate);
+  min-width: 0;
+}
+.phase-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.phase-progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.phase-progress-bar {
+  width: 60px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.phase-progress-fill {
+  height: 100%;
+  background: var(--accent-blue);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.phase-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.phase-section.expanded .phase-body {
+  max-height: 5000px;
+}
+.phase-body-inner {
+  padding: 0 20px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* Subsection within a phase */
+.subsection-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 20px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ══════════════════════════════════════════════════════════
+   CHECKBOX ITEMS
+   ══════════════════════════════════════════════════════════ */
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.check-item:last-child { border-bottom: none; }
+.check-item input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--accent-blue);
+  cursor: pointer;
+}
+.check-item-text {
+  flex: 1;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--dark-slate);
+  transition: color 0.2s ease;
+}
+.check-item.checked .check-item-text {
+  color: var(--text-muted-dark);
+  text-decoration: line-through;
+}
+.check-item-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.check-item-time {
+  font-size: 13px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.check-item-who {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.who-serge { background: #fef3c7; color: #92400e; }
+.who-claude { background: #dbeafe; color: #1e40af; }
+.who-both { background: #e9d5ff; color: #6b21a8; }
+
+/* Detail expand */
+.check-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.check-detail.expanded { max-height: 300px; }
+.check-detail-inner {
+  padding: 8px 0 4px 32px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ACTION CARDS (What's Next)
+   ══════════════════════════════════════════════════════════ */
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--light-gray);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  border-left: 4px solid var(--accent-blue);
+}
+.action-card-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: var(--accent-blue);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.action-card-content { flex: 1; min-width: 0; }
+.action-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dark-slate);
+  margin-bottom: 2px;
+}
+.action-card-info {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MILESTONE CARDS
+   ══════════════════════════════════════════════════════════ */
+.milestone-card {
+  padding: 20px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 12px;
+}
+.milestone-card.target {
+  border-color: var(--accent-blue);
+  background: rgba(37,99,235,0.08);
+}
+.milestone-revenue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.milestone-means {
+  font-size: 16px;
+  color: var(--text-soft-dark);
+  margin-bottom: 8px;
+}
+.milestone-unlocks {
+  font-size: 14px;
+  color: var(--text-muted-dark);
+}
+.milestone-unlocks strong { color: var(--light-blue); }
+
+/* ══════════════════════════════════════════════════════════
+   TABLES
+   ══════════════════════════════════════════════════════════ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.data-table th {
+  background: var(--dark-slate);
+  color: var(--white);
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+}
+.data-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+.data-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.data-table tr:nth-child(even) td { background: var(--light-gray); }
+.data-table tr:last-child td { border-bottom: none; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-sm); }
+
+/* ══════════════════════════════════════════════════════════
+   WARNING CARDS (Kill Criteria)
+   ══════════════════════════════════════════════════════════ */
+.warning-card {
+  background: var(--status-blocked-bg);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-left: 4px solid var(--status-blocked);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+.warning-card-threshold {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--status-blocked);
+  margin-bottom: 4px;
+}
+.warning-card-action {
+  font-size: 15px;
+  color: var(--dark-slate);
+}
+
+/* ══════════════════════════════════════════════════════════
+   COPY BUTTON
+   ══════════════════════════════════════════════════════════ */
+.copy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.copy-row:last-child { border-bottom: none; }
+.copy-label {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 140px;
+}
+.copy-value {
+  flex: 1;
+  font-size: 14px;
+  color: var(--dark-slate);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  word-break: break-all;
+  min-width: 0;
+}
+.copy-btn {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: var(--light-gray);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.copy-btn:hover { background: var(--accent-blue); color: var(--white); border-color: var(--accent-blue); }
+.copy-btn.copied { background: var(--status-complete); color: var(--white); border-color: var(--status-complete); }
+
+/* ══════════════════════════════════════════════════════════
+   COLLAPSIBLE
+   ══════════════════════════════════════════════════════════ */
+.collapsible-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dark-slate);
+  text-align: left;
+}
+.section-dark .collapsible-trigger { color: var(--white); }
+.collapsible-trigger:hover { color: var(--accent-blue); }
+.section-dark .collapsible-trigger:hover { color: var(--light-blue); }
+.collapsible-icon {
+  transition: transform 0.2s ease;
+  font-size: 12px;
+}
+.collapsible.expanded .collapsible-icon { transform: rotate(90deg); }
+.collapsible-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.collapsible.expanded .collapsible-body { max-height: 10000px; }
+
+/* ══════════════════════════════════════════════════════════
+   OUTLINE CARDS (Phase 3 — lighter treatment)
+   ══════════════════════════════════════════════════════════ */
+.outline-card {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.outline-card-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.outline-card-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-faint);
+}
+.outline-card-body ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+.outline-card-body li {
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+.outline-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESET BUTTON
+   ══════════════════════════════════════════════════════════ */
+.reset-section {
+  text-align: center;
+  padding: 32px 20px;
+  border-top: 1px solid var(--border);
+}
+.reset-btn {
+  padding: 10px 24px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--status-blocked);
+  background: transparent;
+  border: 1px solid rgba(220,38,38,0.3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.reset-btn:hover { background: var(--status-blocked-bg); }
+
+/* ══════════════════════════════════════════════════════════
+   INFO TABLE (non-checkbox)
+   ══════════════════════════════════════════════════════════ */
+.info-row {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  font-size: 15px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { font-weight: 600; color: var(--dark-slate); flex-shrink: 0; min-width: 120px; }
+.info-value { color: var(--text-muted); }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE UTILITIES
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .hide-mobile { display: none !important; }
+  .copy-label { min-width: 100px; font-size: 13px; }
+  .copy-value { font-size: 12px; }
+  .phase-progress-bar { width: 40px; }
+  .check-item-meta { flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PIN GATE
+     ═══════════════════════════════════════════════════════════ -->
+<div id="pin-gate">
+  <div class="pin-container">
+    <div class="pin-logo">Selenko</div>
+    <div class="pin-title">Operation First Light</div>
+    <div class="pin-subtitle">Enter PIN to continue</div>
+    <div class="pin-boxes">
+      <input type="tel" class="pin-box" maxlength="1" data-pin="0" autocomplete="off" inputmode="numeric">
+      <input type="tel" class="pin-box" maxlength="1" data-pin="1" autocomplete="off" inputmode="numeric">
+      <input type="tel" class="pin-box" maxlength="1" data-pin="2" autocomplete="off" inputmode="numeric">
+      <input type="tel" class="pin-box" maxlength="1" data-pin="3" autocomplete="off" inputmode="numeric">
+    </div>
+    <div class="pin-error-msg" id="pin-error">Incorrect PIN</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP SHELL
+     ═══════════════════════════════════════════════════════════ -->
+<div id="app-content">
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="header-brand"><span>&#9670;</span> First Light</div>
+      </div>
+      <nav class="tab-nav" id="tab-nav"></nav>
+    </div>
+  </header>
+
+  <!-- Tab panels rendered by JS -->
+  <main id="tab-panels"></main>
+
+  <!-- Reset -->
+  <div class="reset-section">
+    <button class="reset-btn" id="reset-btn">Reset All Progress</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT — DATA + RENDERING
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function() {
+'use strict';
+
+/* ──────────────────────────────────────────────────────────
+   PIN GATE
+   ────────────────────────────────────────────────────────── */
+const PIN_HASH = '70fa656aa0391eb9ef7bbc9c7e6771ec09e7d5d7ab1fcbbde2480d21263ee79a';
+
+async function sha256(str) {
+  var buf = new TextEncoder().encode(str);
+  var hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+function initPinGate() {
+  if (localStorage.getItem('fl-authenticated') === 'true') {
+    document.getElementById('pin-gate').classList.add('hidden');
+    document.getElementById('app-content').classList.add('visible');
+    return;
+  }
+  var boxes = document.querySelectorAll('.pin-box');
+  boxes.forEach(function(box, i) {
+    box.addEventListener('input', function() {
+      if (box.value.length === 1 && i < 3) {
+        boxes[i + 1].focus();
+      }
+      if (i === 3 && box.value.length === 1) {
+        var pin = '';
+        boxes.forEach(function(b) { pin += b.value; });
+        verifyPin(pin, boxes);
+      }
+    });
+    box.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace' && box.value === '' && i > 0) {
+        boxes[i - 1].focus();
+        boxes[i - 1].value = '';
+      }
+    });
+    box.addEventListener('paste', function(e) {
+      e.preventDefault();
+      var paste = (e.clipboardData || window.clipboardData).getData('text').trim();
+      if (paste.length === 4 && /^\d{4}$/.test(paste)) {
+        boxes.forEach(function(b, j) { b.value = paste[j]; });
+        verifyPin(paste, boxes);
+      }
+    });
+  });
+  setTimeout(function() { boxes[0].focus(); }, 300);
+}
+
+async function verifyPin(pin, boxes) {
+  var hash = await sha256(pin);
+  if (hash === PIN_HASH) {
+    localStorage.setItem('fl-authenticated', 'true');
+    document.getElementById('pin-gate').classList.add('hidden');
+    document.getElementById('app-content').classList.add('visible');
+  } else {
+    document.getElementById('pin-error').classList.add('visible');
+    boxes.forEach(function(b) { b.classList.add('error'); b.value = ''; });
+    setTimeout(function() {
+      boxes.forEach(function(b) { b.classList.remove('error'); });
+      document.getElementById('pin-error').classList.remove('visible');
+      boxes[0].focus();
+    }, 800);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   TAB DATA
+   ────────────────────────────────────────────────────────── */
+var TABS = [
+  { id: 'mission-control', label: 'Mission Control' },
+  { id: 'phase-2-convert', label: 'Phase 2: Convert' },
+  { id: 'phase-3-scale', label: 'Phase 3: Scale' },
+  { id: 'campaign', label: 'Campaign' },
+  { id: 'reference', label: 'Reference' }
+];
+
+/* ──────────────────────────────────────────────────────────
+   PHASE DATA (Tab 2)
+   ────────────────────────────────────────────────────────── */
+var PHASES = [
+  {
+    id: 'phase-0', name: 'Phase 0: Pre-Production Research', status: 'complete', defaultExpanded: false,
+    items: [
+      { id: 'p0-1', text: 'Competitive Intelligence', status: 'complete', time: '~15 min', who: 'Serge', detail: 'CoWork Sales \u2192 /competitive-intelligence. Output: Interactive battlecard. Save to Notion.' },
+      { id: 'p0-2', text: 'Brand Voice Discovery & Guidelines', status: 'complete', time: '~15 min', who: 'Serge', detail: 'CoWork Brand Voice \u2192 /discover-brand + /generate-guidelines. Output: Brand voice guide.' },
+      { id: 'p0-3', text: 'Design System Validation', status: 'complete', time: '~10 min', who: 'Serge', detail: 'CoWork Design \u2192 /design-system. Output: HTML/CSS component patterns.' },
+      { id: 'p0-4', text: 'Post-Publish Design Critique', status: 'pending', time: '~10 min', who: 'Serge', detail: 'AFTER sales page is published. CoWork Design \u2192 /design-critique on live URL. Quality gate, not launch gate.' }
+    ]
+  },
+  {
+    id: 'phase-1', name: 'Phase 1: Sales Page Rebuild', status: 'in-progress', defaultExpanded: true,
+    items: [
+      { id: 'p1-1', text: 'Sales page copy \u2014 all 15 sections written and approved', status: 'complete', time: '0 min Serge', who: 'Claude', detail: 'Copy build chat. Sources: Deep Research + Competitive Intel + Brand Voice + Serge story + Locked Decisions.' },
+      { id: 'p1-2', text: 'Spin up HTML Build Chat', status: 'next', time: '5 min', who: 'Serge', detail: 'Delegation prompt ready. Build chat produces paste-ready HTML blocks for Systeme.io.' },
+      { id: 'p1-3', text: 'Generate product mockup images in Gemini', status: 'pending', time: '~15 min', who: 'Serge', detail: 'Laptop + phone mockups showing coaching conversation. Push to GitHub per Image Upload SOP.' },
+      { id: 'p1-4', text: 'Paste HTML blocks into Systeme.io', status: 'pending', time: '30-45 min', who: 'Serge', detail: '16 Raw HTML blocks. Save \u2192 View funnel step to verify each. Cannot preview in editor.' },
+      { id: 'p1-5', text: 'Mobile testing on live page', status: 'pending', time: '~10 min', who: 'Serge', detail: 'Test on iPhone Safari. Check all CTAs, sticky bar, section rendering, image loading.' }
+    ]
+  },
+  {
+    id: 'phase-2', name: 'Phase 2: Demo Video Production', status: 'parallel', defaultExpanded: false,
+    items: [
+      { id: 'p2-1', text: 'Write voiceover script (~240-300 words)', status: 'pending', time: '0 min Serge', who: 'Claude', detail: 'DR6 structure: Hook (0-3s) \u2192 Problem (3-7s) \u2192 Solution (7-15s) \u2192 Proof+CTA (15-20s).' },
+      { id: 'p2-2', text: 'Record screen session (salary negotiation scenario)', status: 'pending', time: '15-20 min', who: 'Serge', detail: 'Loom with webcam overlay (recommended) or QuickTime. Also record 2-3 min raw founder walkthrough.' },
+      { id: 'p2-3', text: 'Record voiceover', status: 'pending', time: '15-30 min', who: 'Serge', detail: 'Option A: HeyGen stock voice. Option B: Own voice. Option C: ElevenLabs TTS.' },
+      { id: 'p2-4', text: 'Assemble in CapCut Pro', status: 'pending', time: '20-35 min', who: 'Serge', detail: 'AI Auto-Edit \u2192 voice-first editing \u2192 AI Auto-Captions \u2192 export 16:9 1920\u00d71080 or 4K.' },
+      { id: 'p2-5', text: 'Upload to Bunny Stream', status: 'pending', time: '5 min', who: 'Serge', detail: 'Create account (~$1/mo). Upload video. Get video ID and embed URL.' },
+      { id: 'p2-6', text: 'Embed facade pattern HTML on sales page', status: 'pending', time: '5 min', who: 'Both', detail: 'Claude produces code, Serge pastes into Systeme.io Section 5.' },
+      { id: 'p2-7', text: 'Add Meta Pixel video tracking JS', status: 'pending', time: '5 min', who: 'Both', detail: 'VideoPlay, VideoProgress 25/50/75/100% events in Systeme.io header.' }
+    ]
+  },
+  {
+    id: 'phase-3-ob', name: 'Phase 3: Order Bump + Checkout Flow', status: 'pending', defaultExpanded: false,
+    items: [
+      { id: 'p3-1', text: 'Configure order bump in Systeme.io', status: 'pending', time: '10 min', who: 'Serge', detail: 'Order form page \u2192 Settings \u2192 Add order bump. Tag: expansion-pack-buyer. $27 price plan.' },
+      { id: 'p3-2', text: 'Place bump element on page with copy', status: 'pending', time: '5 min', who: 'Serge', detail: 'Drag Order bump element above purchase button. Copy: "\u2705 Add the Expansion Pack \u2014 15 additional scenarios + 3 advanced tools \u2014 $27."' },
+      { id: 'p3-3', text: 'Test the bump (test checkout)', status: 'pending', time: '5 min', who: 'Serge', detail: 'Verify: bump checkbox appears, $27 added to total, purchase event fires with full value ($67 or $94).' },
+      { id: 'p3-4', text: 'Configure post-purchase delivery', status: 'pending', time: '10 min', who: 'Serge', detail: 'Both portal links on Thank You page + email with Expansion Pack link when tag added.' },
+      { id: 'p3-5', text: 'Review Thank You page design', status: 'pending', time: 'Incl. in P1', who: 'Both', detail: 'Must match v4 design system. Portal link + PIN + "start in 2 minutes" instruction. Critical per DR10: 40% refund rate from confusion.' },
+      { id: 'p3-6', text: 'Audit order form page branding', status: 'pending', time: '5 min', who: 'Both', detail: 'Selenko logo, consistent colors, guarantee reminder above payment fields.' },
+      { id: 'p3-7', text: 'Audit upsell page', status: 'pending', time: '5 min', who: 'Serge', detail: 'Either present Expansion Pack to non-bump buyers OR redirect to Thank You. No dead pages in flow.' }
+    ]
+  },
+  {
+    id: 'phase-4', name: 'Phase 4: Campaign Build', status: 'pending', defaultExpanded: false,
+    subsections: [
+      {
+        id: 'p4-pre', name: 'Pre-Build Checklist', items: [
+          { id: 'p4-pre-1', text: 'Sales page rebuild is live (Phase 1 complete)', status: 'pending' },
+          { id: 'p4-pre-2', text: 'Order bump working on checkout (Phase 3 complete)', status: 'pending' },
+          { id: 'p4-pre-3', text: 'CAPI verified \u2014 browser + server events both firing', status: 'pending' },
+          { id: 'p4-pre-4', text: 'At least one new static ad image ready (Gemini)', status: 'pending' },
+          { id: 'p4-pre-5', text: 'Old campaign retired', status: 'complete' },
+          { id: 'p4-pre-6', text: 'Naked domain redirect confirmed working', status: 'pending' }
+        ]
+      },
+      {
+        id: 'p4-build', name: 'Build Sequence (Claude via Pipeboard)', items: [
+          { id: 'p4-b1', text: 'Create 3 new engagement audiences (Video 75%, Video 25%, Ad Engagers)', status: 'pending', who: 'Claude' },
+          { id: 'p4-b1b', text: 'Create Video Viewers 50% audience for Layer 1 retargeting', status: 'pending', who: 'Claude' },
+          { id: 'p4-b2', text: 'Upload new Gemini static image \u2192 get image_hash', status: 'pending', who: 'Claude' },
+          { id: 'p4-b3', text: 'Create new Gemini static ad creative', status: 'pending', who: 'Claude' },
+          { id: 'p4-b4', text: 'Create recycled FLEX static ad creative with Selenko URL', status: 'pending', who: 'Claude' },
+          { id: 'p4-b5', text: 'Create new carousel creative with Selenko URLs', status: 'pending', who: 'Claude' },
+          { id: 'p4-b6', text: 'Upload demo video (when ready) \u2192 get video_id', status: 'pending', who: 'Claude' },
+          { id: 'p4-b7', text: 'Create video ad creative', status: 'pending', who: 'Claude' },
+          { id: 'p4-b8', text: 'Create retargeting campaign + Layer 1 ad set ($2-3/day)', status: 'pending', who: 'Claude' },
+          { id: 'p4-b9', text: 'Create prospecting campaign "AI Coach \u2014 Sales \u2014 V1"', status: 'pending', who: 'Claude' },
+          { id: 'p4-b10', text: 'Create ad set: Prospecting \u2014 Broad + Interests ($20/day)', status: 'pending', who: 'Claude' },
+          { id: 'p4-b11', text: 'Create 3-5 ads linking creatives to ad set (all PAUSED)', status: 'pending', who: 'Claude' },
+          { id: 'p4-b12', text: 'Verify ALL destination URLs \u2192 www.selenko.com/negotiation-coach', status: 'pending', who: 'Claude' },
+          { id: 'p4-b13', text: 'Activate campaign', status: 'pending', who: 'Claude' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'phase-5', name: 'Phase 5: Go Live', status: 'pending', defaultExpanded: false,
+    subsections: [
+      {
+        id: 'p5-pre', name: 'Pre-Flight Checklist', items: [
+          { id: 'p5-1', text: 'Sales page rebuilt with all 15 sections', status: 'pending' },
+          { id: 'p5-2', text: 'Demo video embedded (or placeholder section)', status: 'pending' },
+          { id: 'p5-3', text: 'Order bump working on checkout page', status: 'pending' },
+          { id: 'p5-4', text: 'CAPI verified \u2014 browser AND server events firing', status: 'pending' },
+          { id: 'p5-5', text: 'All ad creatives linked to ad set', status: 'pending' },
+          { id: 'p5-6', text: 'ALL destination URLs verified', status: 'pending' },
+          { id: 'p5-7', text: 'Old campaign retired', status: 'complete' },
+          { id: 'p5-8', text: 'Payment method active in Meta', status: 'pending' },
+          { id: 'p5-9', text: 'Mobile sticky CTA bar working', status: 'pending' },
+          { id: 'p5-10', text: 'Microsoft Clarity installed and tracking', status: 'pending' },
+          { id: 'p5-11', text: 'Systeme.io homepage set to /negotiation-coach', status: 'pending' },
+          { id: 'p5-12', text: 'Naked domain redirect confirmed', status: 'pending' },
+          { id: 'p5-13', text: 'Facebook Business Page set up', status: 'pending' },
+          { id: 'p5-14', text: 'End-to-end buyer journey walk-through completed', status: 'pending' }
+        ]
+      },
+      {
+        id: 'p5-journey', name: 'Buyer Journey Walk-Through', items: [
+          { id: 'p5-j1', text: 'Click ad / visit sales page in incognito \u2014 fast load, clear hero?', status: 'pending' },
+          { id: 'p5-j2', text: 'Read full sales page as buyer \u2014 value prop clear? Demo plays?', status: 'pending' },
+          { id: 'p5-j3', text: 'Click CTA \u2192 Order form \u2014 bump visible, pricing correct?', status: 'pending' },
+          { id: 'p5-j4', text: 'Complete purchase \u2014 Thank You page, portal links, PINs?', status: 'pending' },
+          { id: 'p5-j5', text: 'Open core portal \u2014 PIN 4126 works, Setup tab first?', status: 'pending' },
+          { id: 'p5-j6', text: 'Follow Setup tab instructions \u2014 clear for non-technical buyer?', status: 'pending' },
+          { id: 'p5-j7', text: 'Run first coaching session \u2014 feels like $67 of value?', status: 'pending' },
+          { id: 'p5-j8', text: 'Check Expansion Pack portal \u2014 PIN 2641, all forms work?', status: 'pending' }
+        ]
+      },
+      {
+        id: 'p5-test', name: 'End-to-End Test Purchase', items: [
+          { id: 'p5-t1', text: 'Sales page loads in incognito under 3 seconds', status: 'pending' },
+          { id: 'p5-t2', text: 'Order form works \u2014 bump checkbox, correct prices', status: 'pending' },
+          { id: 'p5-t3', text: 'Purchase completes \u2014 redirect to upsell then thank you', status: 'pending' },
+          { id: 'p5-t4', text: 'Product delivery \u2014 portal links and PINs on Thank You', status: 'pending' },
+          { id: 'p5-t5', text: 'CAPI fires \u2014 ViewContent, Lead, Purchase in Events Manager', status: 'pending' },
+          { id: 'p5-t6', text: 'Order bump delivery \u2014 expansion portal access works', status: 'pending' },
+          { id: 'p5-t7', text: 'Email automation \u2014 first email arrives, correct sender', status: 'pending' },
+          { id: 'p5-t8', text: 'Mobile test \u2014 repeat steps 1-3 on phone', status: 'pending' }
+        ]
+      },
+      {
+        id: 'p5-fb', name: 'Facebook Page Setup', items: [
+          { id: 'p5-fb1', text: 'Profile photo \u2014 Selenko logo at correct resolution', status: 'pending' },
+          { id: 'p5-fb2', text: 'Cover image \u2014 branded, 820\u00d7312px', status: 'pending' },
+          { id: 'p5-fb3', text: 'About section \u2014 short description of Selenko + product', status: 'pending' },
+          { id: 'p5-fb4', text: 'Website URL \u2014 www.selenko.com', status: 'pending' },
+          { id: 'p5-fb5', text: 'Contact email \u2014 support@selenko.com', status: 'pending' },
+          { id: 'p5-fb6', text: 'CTA button \u2014 "Learn More" \u2192 sales page', status: 'pending' },
+          { id: 'p5-fb7', text: '1-2 posts \u2014 product launch or framework tip', status: 'pending' }
+        ]
+      },
+      {
+        id: 'p5-clarity', name: 'Microsoft Clarity Setup', items: [
+          { id: 'p5-c1', text: 'Sign in to clarity.microsoft.com \u2192 Create new project', status: 'pending' },
+          { id: 'p5-c2', text: 'Copy tracking code snippet', status: 'pending' },
+          { id: 'p5-c3', text: 'Paste in Systeme.io Settings \u2192 Sales Funnels \u2192 Tracking Code', status: 'pending' },
+          { id: 'p5-c4', text: 'Verify \u2014 visit sales page, check Clarity for live user', status: 'pending' }
+        ]
+      }
+    ]
+  }
+];
+
+/* ──────────────────────────────────────────────────────────
+   REVENUE MILESTONES
+   ────────────────────────────────────────────────────────── */
+var MILESTONES = [
+  { revenue: '$0 \u2013 $500', means: 'Validation \u2014 product converts but not yet profitable after ad spend', unlocks: 'Continue optimizing; don\u2019t scale spend', target: false },
+  { revenue: '$500 \u2013 $2,000', means: 'Early traction \u2014 profitable at small scale', unlocks: 'Scale ad spend gradually; start P2a build', target: false },
+  { revenue: '$2,000 \u2013 $5,000', means: 'Growing \u2014 multiple products or high volume on P1', unlocks: 'Lead magnet funnel; Google Ads; organic content', target: false },
+  { revenue: '$5,000 \u2013 $10,000', means: 'Real business \u2014 approaching half of $20K target', unlocks: 'N8N infrastructure; customer service SOP; P2b/P2c', target: false },
+  { revenue: '$10,000 \u2013 $20,000', means: 'Target range \u2014 Meg transition conversation becomes real', unlocks: 'Title Company planning unlocks; full product catalog', target: true },
+  { revenue: '$20,000+', means: 'Target achieved \u2014 household income gap covered', unlocks: 'Title Company formation; dedicated content strategy', target: false }
+];
+
+/* ──────────────────────────────────────────────────────────
+   KILL CRITERIA
+   ────────────────────────────────────────────────────────── */
+var KILL_CRITERIA = [
+  { threshold: '$165+ spend, zero purchases', action: 'Pause campaign. Full diagnosis. Likely sales page problem if traffic metrics are strong.' },
+  { threshold: 'CPC > $2.00 sustained (48+ hours)', action: 'Kill the specific ad.' },
+  { threshold: 'CTR < 1.0% after 5,000 impressions', action: 'Replace the ad.' },
+  { threshold: 'Cost/VC > $2.00', action: 'Traffic too expensive \u2014 review targeting.' },
+  { threshold: 'Frequency > 3.0 (prospecting)', action: 'Broaden audience or refresh creative.' },
+  { threshold: 'Frequency > 6.0 (retargeting)', action: 'Pause retargeting.' }
+];
+
+/* ──────────────────────────────────────────────────────────
+   DECISION TRIGGERS
+   ────────────────────────────────────────────────────────── */
+var DECISION_TRIGGERS = [
+  { spend: '$100', scenario: 'CTR > 1%, some VC events', decision: 'Healthy. Continue.' },
+  { spend: '$100', scenario: 'CTR < 0.5% across all ads', decision: 'Creative problem. Pause, produce new concepts.' },
+  { spend: '$200', scenario: '1+ purchases, CPA < $55', decision: 'Strong signal. Continue, monitor.' },
+  { spend: '$200', scenario: '0 purchases, CTR > 1%', decision: 'Sales page still not converting. Diagnose checkout, review demo video engagement.' },
+  { spend: '$350', scenario: '3+ purchases, CPA < $45', decision: 'Scale. Begin 20% budget increases.' },
+  { spend: '$350', scenario: '1-2 purchases, CPA > $100', decision: 'Marginal. Review creative, test new audiences, consider P1b.' },
+  { spend: '$500', scenario: 'CPA < $55 sustained', decision: 'Validated. Scale toward $50/day. Begin P2 planning.' },
+  { spend: '$500', scenario: '0 purchases', decision: 'Stop. Fundamental offer problem. Options: reposition, test different price, or advance P2a.' }
+];
+
+/* ──────────────────────────────────────────────────────────
+   REFERENCE IDS
+   ────────────────────────────────────────────────────────── */
+var REFERENCE_IDS = [
+  { group: 'URLs', items: [
+    { label: 'Sales page', value: 'www.selenko.com/negotiation-coach' },
+    { label: 'Order form', value: 'www.selenko.com/negotiation-coach-order' },
+    { label: 'Upsell page', value: 'www.selenko.com/negotiation-coach-upsell' },
+    { label: 'Thank you page', value: 'www.selenko.com/negotiation-coach-thank-you' },
+    { label: 'Core portal', value: 'sergeselenko.github.io/apps/negotiation-coach.html' },
+    { label: 'Expansion portal', value: 'sergeselenko.github.io/apps/negotiation-coach-expansion.html' }
+  ]},
+  { group: 'Meta Ads IDs', items: [
+    { label: 'Pixel ID', value: '940922441675710' },
+    { label: 'Ad account', value: 'act_2729333130771878' },
+    { label: 'FB Page ID', value: '1016441271558785' },
+    { label: 'Retired campaign', value: '120242501194750344' },
+    { label: 'Video Ad v1', value: '1340821288075504' }
+  ]},
+  { group: 'Audiences', items: [
+    { label: 'All Visitors 180d', value: '120242502145110344' },
+    { label: 'Page Viewers 30d', value: '120242612881960344' },
+    { label: 'Engaged Visitors 30d', value: '120242612835180344' },
+    { label: 'Purchasers 180d', value: '120242502178540344' },
+    { label: 'Page Engagers 365d', value: '120242502436280344' }
+  ]},
+  { group: 'Image Hashes', items: [
+    { label: 'FLEX hash 1', value: '247abbb491f3a76935e088612de103d3' },
+    { label: 'FLEX hash 2', value: '4b2d6457f5fe742359c9b1a602c84a09' },
+    { label: 'FLEX hash 3', value: 'bc6289f6f2388de7c93f5f986a3f56e3' }
+  ]},
+  { group: 'Other', items: [
+    { label: 'Email sender', value: 'support@selenko.com' },
+    { label: 'GitHub images', value: 'images/negotiation-coach/' },
+    { label: 'Core PIN', value: '4126' },
+    { label: 'Expansion PIN', value: '2641' }
+  ]}
+];
+
+/* ──────────────────────────────────────────────────────────
+   LOCKED DECISIONS
+   ────────────────────────────────────────────────────────── */
+var LOCKED_DECISIONS = [
+  { num: 1, title: '30-day unconditional money-back guarantee', detail: '"The Confident Negotiator Guarantee." Implement on sales page and FAQ.' },
+  { num: 2, title: 'No fake price increase + Fast-action bonus (Option A)', detail: 'Founding Member Bonus \u2014 3 Advanced Negotiation Tools from Expansion Pack. Retire when testimonials replace urgency.' },
+  { num: 3, title: 'Founding member framing', detail: '"Join our founding members." Do NOT fabricate specific numbers. Add real numbers when users exist.' },
+  { num: 4, title: 'Demo video scope', detail: 'Simple screen recording (~90s). HeyGen for ads only, NOT the sales page demo.' },
+  { num: 5, title: 'Order bump on checkout page', detail: 'Built via Systeme.io page builder on order form. Not on the sales page itself.' },
+  { num: 6, title: 'Mobile sticky CTA bar', detail: 'Implemented via Raw HTML block. Sticky bottom bar on mobile \u2014 +33-37% checkout starts.' },
+  { num: 7, title: 'Product naming', detail: '"AI Negotiation Coach" only. Never "kit," "prompts," or "Claude Project" in buyer-facing copy.' },
+  { num: 8, title: 'CTA button color', detail: 'Launch with orange (#f97316). Orange vs blue A/B test is future item, not Day 1.' },
+  { num: 9, title: 'Old Carousel creative retired', detail: 'Creative 2005086006708394 has Payhip URLs. DO NOT reuse. New carousel required.' },
+  { num: 10, title: 'Email sender', detail: 'support@selenko.com, sender name "Serge Osaulenko" \u2014 authenticated and ready.' },
+  { num: 11, title: 'Systeme.io homepage', detail: 'Set to /negotiation-coach. Build a product catalog page when P2 launches.' }
+];
+
+/* ──────────────────────────────────────────────────────────
+   UNIT ECONOMICS
+   ────────────────────────────────────────────────────────── */
+var UNIT_ECONOMICS = [
+  { label: 'Core sale', value: '$67' },
+  { label: 'Net after Stripe (~2.9% + $0.30)', value: '~$64.56' },
+  { label: 'With order bump ($27 @ ~30%)', value: 'AOV ~$75' },
+  { label: 'Net with bump', value: '~$72' },
+  { label: 'Break-even CPA (core)', value: '~$55-58' },
+  { label: 'Break-even CPA (with bump)', value: '~$63-65' },
+  { label: 'Target CPA (profitable)', value: '< $35' },
+  { label: 'Excellent CPA', value: '< $30' }
+];
+
+/* ──────────────────────────────────────────────────────────
+   RENDERING FUNCTIONS
+   ────────────────────────────────────────────────────────── */
+
+function badge(status) {
+  var map = {
+    'complete': '<span class="badge badge-complete">\u2705 Complete</span>',
+    'in-progress': '<span class="badge badge-progress">\ud83d\udfe1 In Progress</span>',
+    'pending': '<span class="badge badge-pending">\u23f3 Pending</span>',
+    'blocked': '<span class="badge badge-blocked">\ud83d\udd34 Blocked</span>',
+    'parallel': '<span class="badge badge-parallel">\ud83d\udfe2 Parallel</span>',
+    'next': '<span class="badge badge-next">\ud83d\udfe1 Next</span>'
+  };
+  return map[status] || '';
+}
+
+function whoBadge(who) {
+  if (!who) return '';
+  var cls = 'who-serge';
+  if (who === 'Claude') cls = 'who-claude';
+  if (who === 'Both') cls = 'who-both';
+  return '<span class="check-item-who ' + cls + '">' + who + '<\/span>';
+}
+
+function renderCheckItem(item) {
+  var saved = localStorage.getItem('fl-' + item.id) === 'true';
+  var checkedClass = saved ? ' checked' : '';
+  var checkedAttr = saved ? ' checked' : '';
+  var html = '<div class="check-item' + checkedClass + '" data-item-id="' + item.id + '">';
+  html += '<input type="checkbox" id="cb-' + item.id + '"' + checkedAttr + '>';
+  html += '<div class="check-item-text">' + item.text + '<\/div>';
+  html += '<div class="check-item-meta">';
+  if (item.time) html += '<span class="check-item-time">' + item.time + '<\/span>';
+  if (item.status) html += badge(item.status);
+  if (item.who) html += whoBadge(item.who);
+  html += '<\/div>';
+  html += '<\/div>';
+  if (item.detail) {
+    html += '<div class="check-detail" id="detail-' + item.id + '"><div class="check-detail-inner">' + item.detail + '<\/div><\/div>';
+  }
+  return html;
+}
+
+function getPhaseItems(phase) {
+  var items = [];
+  if (phase.items) items = items.concat(phase.items);
+  if (phase.subsections) {
+    phase.subsections.forEach(function(sub) {
+      items = items.concat(sub.items);
+    });
+  }
+  return items;
+}
+
+function calcProgress(phase) {
+  var items = getPhaseItems(phase);
+  var total = items.length;
+  var checked = 0;
+  items.forEach(function(item) {
+    if (localStorage.getItem('fl-' + item.id) === 'true') checked++;
+  });
+  return { checked: checked, total: total, pct: total > 0 ? Math.round((checked / total) * 100) : 0 };
+}
+
+function renderPhase(phase) {
+  var prog = calcProgress(phase);
+  var expanded = phase.defaultExpanded ? ' expanded' : '';
+  var html = '<div class="phase-section' + expanded + '" id="phase-' + phase.id + '">';
+  html += '<div class="phase-header" onclick="togglePhase(\'' + phase.id + '\')">';
+  html += '<span class="phase-chevron">\u25B6<\/span>';
+  html += '<span class="phase-name">' + phase.name + '<\/span>';
+  html += '<div class="phase-meta">';
+  html += badge(phase.status);
+  html += '<span class="phase-progress-text" id="prog-text-' + phase.id + '">' + prog.pct + '%<\/span>';
+  html += '<div class="phase-progress-bar"><div class="phase-progress-fill" id="prog-bar-' + phase.id + '" style="width:' + prog.pct + '%"><\/div><\/div>';
+  html += '<\/div>';
+  html += '<\/div>';
+  html += '<div class="phase-body"><div class="phase-body-inner">';
+
+  if (phase.items) {
+    phase.items.forEach(function(item) { html += renderCheckItem(item); });
+  }
+  if (phase.subsections) {
+    phase.subsections.forEach(function(sub) {
+      html += '<div class="subsection-title">' + sub.name + '<\/div>';
+      sub.items.forEach(function(item) { html += renderCheckItem(item); });
+    });
+  }
+
+  html += '<\/div><\/div><\/div>';
+  return html;
+}
+
+/* ──────────────────────────────────────────────────────────
+   TAB CONTENT BUILDERS
+   ────────────────────────────────────────────────────────── */
+
+function buildMissionControl() {
+  var html = '';
+
+  // Hero
+  html += '<div class="section section-dark"><div class="container">';
+  html += '<div class="eyebrow">Selenko \u2014 AI Digital Products<\/div>';
+  html += '<h1 class="h1">Operation First Light<\/h1>';
+  html += '<p style="font-size:18px;color:var(--text-muted-dark);margin-bottom:32px;">AI Negotiation Coach \u2014 From Launch to $1,000/Day<\/p>';
+  html += '<div class="card-grid card-grid-3">';
+  html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 1: Validate Clicks<\/div>' + '<span class="badge badge-complete">\u2705 Complete<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">$52.64 spent, 207 clicks<\/div><\/div>';
+  html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 2: Convert<\/div>' + '<span class="badge badge-progress">\ud83d\udfe1 In Progress<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">Sales page rebuild + relaunch<\/div><\/div>';
+  html += '<div class="card stat-card"><div class="stat-label" style="color:var(--text-muted-dark);margin-bottom:8px;">Phase 3: Scale<\/div>' + '<span class="badge badge-pending">\u23f3 Pending<\/span>' + '<div style="margin-top:8px;font-size:14px;color:var(--text-muted-dark);">Activates when CPA &lt; $55<\/div><\/div>';
+  html += '<\/div>';
+  html += '<\/div><\/div>';
+
+  // What's Next
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="eyebrow">Immediate<\/div>';
+  html += '<h2 class="h2">What\u2019s Next<\/h2>';
+  var actions = [
+    { title: 'Spin up HTML Build Chat', phase: 'Phase 1', who: 'Serge', time: '5 min' },
+    { title: 'Paste 16 HTML blocks into Systeme.io', phase: 'Phase 1', who: 'Serge', time: '30-45 min' },
+    { title: 'Generate mockup images in Gemini', phase: 'Phase 1', who: 'Serge', time: '15 min' },
+    { title: 'Configure order bump', phase: 'Phase 3', who: 'Serge', time: '10 min' },
+    { title: 'Set Systeme.io homepage', phase: 'Phase 5', who: 'Serge', time: '30 sec' }
+  ];
+  actions.forEach(function(a, i) {
+    html += '<div class="action-card">';
+    html += '<div class="action-card-num">' + (i + 1) + '<\/div>';
+    html += '<div class="action-card-content">';
+    html += '<div class="action-card-title">' + a.title + '<\/div>';
+    html += '<div class="action-card-info"><span>' + a.phase + '<\/span><span>' + a.who + '<\/span><span>' + a.time + '<\/span><\/div>';
+    html += '<\/div><\/div>';
+  });
+  html += '<\/div><\/div>';
+
+  // Key Metrics
+  html += '<div class="section section-gray"><div class="container">';
+  html += '<div class="eyebrow">Key Metrics<\/div>';
+  html += '<h2 class="h2">Campaign Parameters<\/h2>';
+  html += '<div class="card-grid card-grid-4">';
+  var metrics = [
+    { num: '$500-750', label: 'Validation Budget' },
+    { num: '< $35', label: 'Target CPA' },
+    { num: '~$55-58', label: 'Break-Even CPA' },
+    { num: '$22-23/day', label: 'Daily Spend' }
+  ];
+  metrics.forEach(function(m) {
+    html += '<div class="card stat-card"><div class="stat-number">' + m.num + '<\/div><div class="stat-label">' + m.label + '<\/div><\/div>';
+  });
+  html += '<\/div>';
+  html += '<\/div><\/div>';
+
+  // Revenue Milestones
+  html += '<div class="section section-dark"><div class="container">';
+  html += '<div class="eyebrow">Growth Path<\/div>';
+  html += '<h2 class="h2" style="color:var(--white);">Revenue Milestones<\/h2>';
+  MILESTONES.forEach(function(m) {
+    html += '<div class="milestone-card' + (m.target ? ' target' : '') + '">';
+    html += '<div class="milestone-revenue">' + m.revenue + '/mo<\/div>';
+    html += '<div class="milestone-means">' + m.means + '<\/div>';
+    html += '<div class="milestone-unlocks"><strong>Unlocks:<\/strong> ' + m.unlocks + '<\/div>';
+    html += '<\/div>';
+  });
+  html += '<\/div><\/div>';
+
+  return html;
+}
+
+function buildPhase2() {
+  var html = '<div class="section section-white"><div class="container">';
+  html += '<div class="eyebrow">Execution<\/div>';
+  html += '<h2 class="h2">Phase 2: Convert \u2014 Full Checklist<\/h2>';
+  html += '<p style="font-size:16px;color:var(--text-muted);margin-bottom:24px;">Every checklist item from the Execution Plan. Check items as you complete them \u2014 progress saves automatically.<\/p>';
+  PHASES.forEach(function(phase) {
+    html += renderPhase(phase);
+  });
+  html += '<\/div><\/div>';
+  return html;
+}
+
+function buildPhase3() {
+  var html = '';
+
+  // 3A
+  html += '<div class="section section-gray"><div class="container">';
+  html += '<div class="eyebrow">Post-Validation<\/div>';
+  html += '<h2 class="h2">Phase 3: Scale & Optimize<\/h2>';
+  html += '<p style="font-size:16px;color:var(--text-muted);margin-bottom:24px;">Activates after Phase 2 validates (CPA &lt; $55 sustained over $200+ spend). This is an outline, not a detailed plan.<\/p>';
+
+  html += '<h3 class="h3" style="margin-top:24px;">3A: Post-Purchase Operations<\/h3>';
+  var p3a = [
+    { title: 'Email Automation', body: '7-email welcome for core buyers (onboarding, tips, expansion pitch). 2-email welcome for expansion buyers. Priority: Email 1 (portal link + PIN + "start in 2 minutes") is highest-leverage \u2014 DR10: 40% of refunds from confusion.' },
+    { title: 'Support Workflow', body: '<ul><li>support@selenko.com \u2192 Gmail forwarding (configured)<\/li><li>5 response templates: setup help, refund requests, "is this just prompts?", specific negotiation types, ChatGPT difference<\/li><li>24-hour response commitment<\/li><li>Volume estimate: 0-2 emails/week at launch<\/li><\/ul>' },
+    { title: 'N8N AI Auto-Responder', body: 'Trigger: new email to support. Action: classify + draft + send to Serge for review. Build when support emails exceed 5/week consistently.<span class="outline-badge">When Volume Justifies<\/span>' }
+  ];
+  p3a.forEach(function(c) {
+    html += '<div class="outline-card"><div class="outline-card-title">' + c.title + '<\/div><div class="outline-card-body">' + c.body + '<\/div><\/div>';
+  });
+
+  html += '<h3 class="h3" style="margin-top:32px;">3B: Conversion Optimization<\/h3>';
+  var p3b = [
+    { title: 'Analytics-Driven Fixes', body: 'Microsoft Clarity: scroll depth, click heatmaps, session recordings. Identify single biggest drop-off point before anything else.' },
+    { title: 'Sales Page Improvements', body: 'Demo video embed (if not in Phase 2). Fresh portal screenshots. First 3 testimonials. A/B test: orange vs blue CTA.' },
+    { title: 'Portal Improvements', body: 'Portal Design System v4 Notion page. Artifact Design System deviation note. Usability fixes from Buyer Journey Walk-Through.' }
+  ];
+  p3b.forEach(function(c) {
+    html += '<div class="outline-card"><div class="outline-card-title">' + c.title + '<\/div><div class="outline-card-body">' + c.body + '<\/div><\/div>';
+  });
+
+  html += '<h3 class="h3" style="margin-top:32px;">3C: Channel Expansion<\/h3>';
+  var p3c = [
+    { title: 'Google Ads Test', body: 'Keyword research during no-touch window. Decision trigger: search volume > 1,000/month at CPC < $5. If launched: $10/day, 14-day comparison vs Meta.' },
+    { title: 'Lead Magnet Funnel', body: '"AI Negotiation Prep Checklist." Systeme.io landing page + 5-email nurture \u2192 pitch. Build after core funnel validates.' },
+    { title: 'Organic Content Pipeline', body: 'UGC footage from Phase 2 \u2192 CapCut AI clips \u2192 YouTube Shorts, Reels, LinkedIn. Not priority until paid is profitable.' }
+  ];
+  p3c.forEach(function(c) {
+    html += '<div class="outline-card"><div class="outline-card-title">' + c.title + '<\/div><div class="outline-card-body">' + c.body + '<\/div><\/div>';
+  });
+
+  html += '<h3 class="h3" style="margin-top:32px;">3D: Scaling Operations<\/h3>';
+  var p3d = [
+    { title: 'Ad Scaling', body: 'Budget Scaling Protocol (20% increases every 4-5 days). Lookalike audiences from 100+ buyers.' },
+    { title: 'Product Expansion', body: 'P1b: Decision Conversation Coach (same product, consumer angle). P2a: AI Secretary System (2-4 days). P2b: Claude Instruction Bible (1-2 weeks). P2c: AI Sales System (6-10 weeks).' }
+  ];
+  p3d.forEach(function(c) {
+    html += '<div class="outline-card"><div class="outline-card-title">' + c.title + '<\/div><div class="outline-card-body">' + c.body + '<\/div><\/div>';
+  });
+
+  html += '<h3 class="h3" style="margin-top:32px;">3E: Revenue Milestones<\/h3>';
+  MILESTONES.forEach(function(m) {
+    html += '<div class="outline-card' + (m.target ? '" style="border-color:var(--accent-blue);border-style:solid;"' : '"') + '>';
+    html += '<div class="outline-card-title">' + m.revenue + '/mo<\/div>';
+    html += '<div class="outline-card-body"><strong>' + m.means + '<\/strong><br>Unlocks: ' + m.unlocks + '<\/div>';
+    html += '<\/div>';
+  });
+
+  html += '<\/div><\/div>';
+  return html;
+}
+
+function buildCampaign() {
+  var html = '';
+
+  // Campaign Structure
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="eyebrow">Ads<\/div>';
+  html += '<h2 class="h2">Campaign Structure<\/h2>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Campaign<\/th><th>Objective<\/th><th>Budget<\/th><th>Launches<\/th><\/tr><\/thead><tbody>';
+  html += '<tr><td>AI Coach \u2014 Sales \u2014 V1<\/td><td>OUTCOME_SALES<\/td><td>$20/day (ABO)<\/td><td>Day 1<\/td><\/tr>';
+  html += '<tr><td>AI Coach \u2014 Retarget \u2014 V1<\/td><td>OUTCOME_AWARENESS<\/td><td>$2-3/day (ABO)<\/td><td>Day 1<\/td><\/tr>';
+  html += '<\/tbody><\/table><\/div>';
+
+  // Prospecting Ads
+  html += '<h3 class="h3" style="margin-top:32px;">Prospecting Ads<\/h3>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Ad<\/th><th>Status<\/th><th>Source<\/th><\/tr><\/thead><tbody>';
+  var ads = [
+    { ad: 'Static \u2014 FLEX Recycled', status: 'Ready', source: 'Pipeboard (stored hashes)' },
+    { ad: 'Static \u2014 Gemini New', status: 'Serge generates', source: 'Gemini \u2192 GitHub \u2192 Pipeboard' },
+    { ad: 'Video Ad v1 (existing)', status: '\u2705 Existing', source: 'Reuse (1340821288075504)' },
+    { ad: 'New Carousel \u2014 Framework V2', status: 'Must be built', source: 'Pipeboard' },
+    { ad: 'Video \u2014 Demo Cut V1', status: 'Blocked on Phase 2', source: 'Pipeboard upload' },
+    { ad: 'UGC \u2014 Founder Demo', status: 'Record before/alongside P2', source: 'iPhone \u2192 CapCut \u2192 Pipeboard' }
+  ];
+  ads.forEach(function(a) {
+    html += '<tr><td>' + a.ad + '<\/td><td>' + a.status + '<\/td><td>' + a.source + '<\/td><\/tr>';
+  });
+  html += '<\/tbody><\/table><\/div>';
+  html += '<\/div><\/div>';
+
+  // Retargeting
+  html += '<div class="section section-gray"><div class="container">';
+  html += '<div class="eyebrow">Retargeting<\/div>';
+  html += '<h2 class="h2">Two-Layer Strategy<\/h2>';
+  html += '<div class="card"><div class="card-title">Layer 1 \u2014 Engagement Retargeting (Day 1, $2-3/day)<\/div><div class="card-body">Audience: Video Viewers 50%+ (365d) + Page Engagers (365d) MINUS Purchasers. Optimization: REACH. Frequency cap: 1/7 days (immutable after creation). Creative: different from prospecting ads. 3.2\u00d7 higher CTR and 41% lower CPA vs generic web retargeting.<\/div><\/div>';
+  html += '<div class="card"><div class="card-title">Layer 2 \u2014 Website Retargeting (when demo ready)<\/div><div class="card-body">Audience: Product Page Viewers (30d) + Engaged Visitors (30d) MINUS Purchasers MINUS Layer 1. Budget: $2-3/day additional. Creative: Demo video cut (30-60s). Activates once demo video exists.<\/div><\/div>';
+
+  // Retargeting Creatives
+  html += '<h3 class="h3" style="margin-top:24px;">Retargeting Creatives<\/h3>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Creative<\/th><th>Format<\/th><th>Layer<\/th><\/tr><\/thead><tbody>';
+  html += '<tr><td>R1: Objection Buster<\/td><td>Static 1080\u00d71080<\/td><td>Layer 1<\/td><\/tr>';
+  html += '<tr><td>R2: Real Output Demo<\/td><td>Video 15-30s, 4:5<\/td><td>Layer 2<\/td><\/tr>';
+  html += '<tr><td>R3: How It Works<\/td><td>Video 30-60s, 4:5<\/td><td>Layer 2<\/td><\/tr>';
+  html += '<tr><td>R4: UGC Founder<\/td><td>Video 30-60s, 4:5<\/td><td>Either<\/td><\/tr>';
+  html += '<\/tbody><\/table><\/div>';
+  html += '<\/div><\/div>';
+
+  // Kill Criteria
+  html += '<div class="section section-dark"><div class="container">';
+  html += '<div class="eyebrow" style="color:var(--light-blue);">Risk Management<\/div>';
+  html += '<h2 class="h2" style="color:var(--white);">Kill Criteria<\/h2>';
+  KILL_CRITERIA.forEach(function(k) {
+    html += '<div class="warning-card"><div class="warning-card-threshold">' + k.threshold + '<\/div><div class="warning-card-action">' + k.action + '<\/div><\/div>';
+  });
+  html += '<\/div><\/div>';
+
+  // Decision Triggers
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="eyebrow">Milestones<\/div>';
+  html += '<h2 class="h2">Decision Triggers by Spend<\/h2>';
+  DECISION_TRIGGERS.forEach(function(d) {
+    html += '<div class="card"><div class="card-title" style="color:var(--accent-blue);">' + d.spend + ' Spent<\/div>';
+    html += '<div class="card-body"><strong>If:<\/strong> ' + d.scenario + '<br><strong>Then:<\/strong> ' + d.decision + '<\/div><\/div>';
+  });
+  html += '<\/div><\/div>';
+
+  // Budget Scaling
+  html += '<div class="section section-gray"><div class="container">';
+  html += '<div class="eyebrow">Scaling<\/div>';
+  html += '<h2 class="h2">Budget Scaling Protocol<\/h2>';
+  html += '<p style="font-size:16px;color:var(--text-muted);margin-bottom:16px;">Only if 3+ purchases at &lt; $55 CPA over 5 days. 20% max increases. Wait 4-5 days between.<\/p>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Step<\/th><th>Budget<\/th><th>Wait<\/th><\/tr><\/thead><tbody>';
+  var scaling = [
+    { step: 'Start', budget: '$20/day', wait: '7 days no-touch' },
+    { step: 'Scale 1', budget: '$24/day', wait: '4-5 days' },
+    { step: 'Scale 2', budget: '$29/day', wait: '4-5 days' },
+    { step: 'Scale 3', budget: '$35/day', wait: '4-5 days' },
+    { step: 'Scale 4', budget: '$42/day', wait: '4-5 days' },
+    { step: 'Scale 5', budget: '$50/day', wait: '4-5 days' }
+  ];
+  scaling.forEach(function(s) {
+    html += '<tr><td>' + s.step + '<\/td><td>' + s.budget + '<\/td><td>' + s.wait + '<\/td><\/tr>';
+  });
+  html += '<\/tbody><\/table><\/div>';
+
+  // $1K/Day Path
+  html += '<h3 class="h3" style="margin-top:32px;">The $1,000/Day Path<\/h3>';
+  html += '<p style="font-size:15px;color:var(--text-muted);margin-bottom:12px;">~12 sales/day at $83 effective AOV. 6-12 month trajectory across ~5 stages.<\/p>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Stage<\/th><th>Daily Revenue<\/th><th>Ad Spend<\/th><th>CPA<\/th><\/tr><\/thead><tbody>';
+  var path = [
+    { stage: 'Validation', rev: '$0-67', spend: '$20', cpa: 'Unknown' },
+    { stage: 'Early traction', rev: '$67-134', spend: '$20-30', cpa: '<$55' },
+    { stage: 'Profitable', rev: '$134-335', spend: '$30-50', cpa: '<$40' },
+    { stage: 'Scaling', rev: '$335-670', spend: '$50-150', cpa: '<$35' },
+    { stage: '$1K/day target', rev: '$804-1,000', spend: '$150-400', cpa: '<$33' }
+  ];
+  path.forEach(function(p) {
+    html += '<tr><td>' + p.stage + '<\/td><td>' + p.rev + '<\/td><td>' + p.spend + '<\/td><td>' + p.cpa + '<\/td><\/tr>';
+  });
+  html += '<\/tbody><\/table><\/div>';
+
+  // No-Touch Monitoring
+  html += '<h3 class="h3" style="margin-top:32px;">No-Touch Window Monitoring (Days 1-7)<\/h3>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Metric<\/th><th>Healthy<\/th><th>Warning<\/th><\/tr><\/thead><tbody>';
+  html += '<tr><td>CTR<\/td><td>&gt; 1.0%<\/td><td>&lt; 0.5%<\/td><\/tr>';
+  html += '<tr><td>CPC<\/td><td>&lt; $1.50<\/td><td>&gt; $3.00<\/td><\/tr>';
+  html += '<tr><td>CPM<\/td><td>$10-20<\/td><td>&gt; $30<\/td><\/tr>';
+  html += '<\/tbody><\/table><\/div>';
+
+  html += '<\/div><\/div>';
+
+  // Previous Campaign
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="collapsible" id="coll-prev-campaign">';
+  html += '<button class="collapsible-trigger" onclick="toggleCollapsible(\'coll-prev-campaign\')"><span class="collapsible-icon">\u25B6<\/span> Previous Campaign Results (Retired)<\/button>';
+  html += '<div class="collapsible-body"><div style="padding:8px 0;">';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Metric<\/th><th>Value<\/th><\/tr><\/thead><tbody>';
+  var prev = [
+    ['Total Spend', '$52.64'], ['Impressions', '4,649'], ['Reach', '4,112'],
+    ['Link Clicks', '207'], ['CTR', '4.22%'], ['CPC', '$0.25'],
+    ['Landing Page Views', '137'], ['View Content', '77'], ['Click\u2192VC%', '37.2%'],
+    ['Cost/VC', '$0.68'], ['Initiated Checkouts', '1 ($67)'], ['Purchases', '0']
+  ];
+  prev.forEach(function(p) {
+    html += '<tr><td>' + p[0] + '<\/td><td>' + p[1] + '<\/td><\/tr>';
+  });
+  html += '<\/tbody><\/table><\/div>';
+  html += '<\/div><\/div><\/div>';
+  html += '<\/div><\/div>';
+
+  return html;
+}
+
+function buildReference() {
+  var html = '';
+
+  // Key IDs & URLs
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="eyebrow">Quick Access<\/div>';
+  html += '<h2 class="h2">Key IDs & URLs<\/h2>';
+  REFERENCE_IDS.forEach(function(group) {
+    html += '<h3 class="h3" style="margin-top:20px;font-size:16px;color:var(--text-muted);">' + group.group + '<\/h3>';
+    group.items.forEach(function(item) {
+      html += '<div class="copy-row">';
+      html += '<span class="copy-label">' + item.label + '<\/span>';
+      html += '<span class="copy-value">' + item.value + '<\/span>';
+      html += '<button class="copy-btn" onclick="copyToClipboard(this, \'' + item.value.replace(/'/g, "\\'") + '\')">Copy<\/button>';
+      html += '<\/div>';
+    });
+  });
+  html += '<\/div><\/div>';
+
+  // Unit Economics
+  html += '<div class="section section-gray"><div class="container">';
+  html += '<div class="eyebrow">Economics<\/div>';
+  html += '<h2 class="h2">Unit Economics<\/h2>';
+  html += '<div class="card">';
+  UNIT_ECONOMICS.forEach(function(e) {
+    html += '<div class="info-row"><span class="info-label">' + e.label + '<\/span><span class="info-value">' + e.value + '<\/span><\/div>';
+  });
+  html += '<\/div>';
+
+  // Serge Time
+  html += '<h3 class="h3" style="margin-top:24px;">Serge Time Summary<\/h3>';
+  html += '<div class="card">';
+  var sergeTime = [
+    { phase: 'Phase 0: Research', time: '40 min' },
+    { phase: 'Phase 1: Sales Page', time: '80-95 min' },
+    { phase: 'Phase 2: Demo Video', time: '65-100 min' },
+    { phase: 'Phase 3: Order Bump', time: '40 min' },
+    { phase: 'Phase 4: Campaign', time: '16 min' },
+    { phase: 'Phase 5: Go Live', time: '20 min' },
+    { phase: 'Phase 5: FB Page', time: '20-30 min' },
+    { phase: 'Total', time: '~4.75-5.75 hours' }
+  ];
+  sergeTime.forEach(function(s) {
+    var bold = s.phase === 'Total' ? 'font-weight:700;' : '';
+    html += '<div class="info-row"><span class="info-label" style="' + bold + '">' + s.phase + '<\/span><span class="info-value" style="' + bold + '">' + s.time + '<\/span><\/div>';
+  });
+  html += '<\/div>';
+  html += '<\/div><\/div>';
+
+  // Artifact Registry
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="eyebrow">Registry<\/div>';
+  html += '<h2 class="h2">Artifact Registry<\/h2>';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Artifact<\/th><th>Filename<\/th><th>PIN<\/th><\/tr><\/thead><tbody>';
+  var artifacts = [
+    { name: 'Daily Dashboard', file: 'daily-dashboard.html', pin: '1930' },
+    { name: 'Portfolio Map', file: 'portfolio-map.html', pin: '1930' },
+    { name: 'System Architecture', file: 'system-architecture.html', pin: '1930' },
+    { name: 'Negotiation Coach Portal', file: 'negotiation-coach.html', pin: '4126' },
+    { name: 'Expansion Portal', file: 'negotiation-coach-expansion.html', pin: '2641' }
+  ];
+  artifacts.forEach(function(a) {
+    html += '<tr><td>' + a.name + '<\/td><td style="font-family:monospace;font-size:13px;">' + a.file + '<\/td><td>' + a.pin + '<\/td><\/tr>';
+  });
+  html += '<\/tbody><\/table><\/div>';
+  html += '<\/div><\/div>';
+
+  // Video Roadmap
+  html += '<div class="section section-gray"><div class="container">';
+  html += '<div class="collapsible" id="coll-video-roadmap">';
+  html += '<button class="collapsible-trigger" onclick="toggleCollapsible(\'coll-video-roadmap\')"><span class="collapsible-icon">\u25B6<\/span> Video Content Roadmap<\/button>';
+  html += '<div class="collapsible-body"><div style="padding:8px 0;">';
+  html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Tier<\/th><th>Timeline<\/th><th>Content<\/th><\/tr><\/thead><tbody>';
+  html += '<tr><td>Tier 1<\/td><td>Relaunch<\/td><td>90s sales page demo<\/td><\/tr>';
+  html += '<tr><td>Tier 2<\/td><td>Week 2<\/td><td>Retargeting ad cuts from Tier 1 footage<\/td><\/tr>';
+  html += '<tr><td>Tier 3<\/td><td>Week 3-4<\/td><td>Prospecting Ad v2 (HeyGen + Kling AI + product footage)<\/td><\/tr>';
+  html += '<tr><td>Tier 4<\/td><td>Month 2+<\/td><td>Full walkthrough (3-5 min), scenario-specific shorts<\/td><\/tr>';
+  html += '<\/tbody><\/table><\/div>';
+  html += '<\/div><\/div><\/div>';
+  html += '<\/div><\/div>';
+
+  // Locked Decisions
+  html += '<div class="section section-white"><div class="container">';
+  html += '<div class="collapsible" id="coll-locked">';
+  html += '<button class="collapsible-trigger" onclick="toggleCollapsible(\'coll-locked\')"><span class="collapsible-icon">\u25B6<\/span> Locked Decisions (11)<\/button>';
+  html += '<div class="collapsible-body"><div style="padding:8px 0;">';
+  LOCKED_DECISIONS.forEach(function(d) {
+    html += '<div class="card" style="padding:16px 20px;">';
+    html += '<div class="card-title" style="font-size:16px;"><span style="display:inline-block;width:28px;height:28px;background:var(--accent-blue);color:var(--white);border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;margin-right:10px;">' + d.num + '<\/span>' + d.title + '<\/div>';
+    html += '<div class="card-body" style="padding-left:38px;">' + d.detail + '<\/div>';
+    html += '<\/div>';
+  });
+  html += '<\/div><\/div><\/div>';
+  html += '<\/div><\/div>';
+
+  return html;
+}
+
+/* ──────────────────────────────────────────────────────────
+   INIT & ROUTING
+   ────────────────────────────────────────────────────────── */
+
+function initTabs() {
+  var nav = document.getElementById('tab-nav');
+  var panels = document.getElementById('tab-panels');
+  var navHtml = '';
+  var panelsHtml = '';
+
+  TABS.forEach(function(tab) {
+    navHtml += '<button class="tab-btn" data-tab="' + tab.id + '">' + tab.label + '<\/button>';
+    panelsHtml += '<div class="tab-panel" id="panel-' + tab.id + '"><\/div>';
+  });
+
+  nav.innerHTML = navHtml;
+  panels.innerHTML = panelsHtml;
+
+  // Build tab content
+  document.getElementById('panel-mission-control').innerHTML = buildMissionControl();
+  document.getElementById('panel-phase-2-convert').innerHTML = buildPhase2();
+  document.getElementById('panel-phase-3-scale').innerHTML = buildPhase3();
+  document.getElementById('panel-campaign').innerHTML = buildCampaign();
+  document.getElementById('panel-reference').innerHTML = buildReference();
+
+  // Tab click handlers
+  nav.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      switchTab(btn.getAttribute('data-tab'));
+    });
+  });
+
+  // Hash routing
+  window.addEventListener('hashchange', function() {
+    var hash = window.location.hash.replace('#', '') || 'mission-control';
+    switchTab(hash);
+  });
+
+  // Init with hash or default
+  var initialTab = window.location.hash.replace('#', '') || 'mission-control';
+  switchTab(initialTab);
+
+  // Checkbox handlers
+  initCheckboxes();
+}
+
+function switchTab(tabId) {
+  var valid = TABS.some(function(t) { return t.id === tabId; });
+  if (!valid) tabId = 'mission-control';
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+  });
+  document.querySelectorAll('.tab-panel').forEach(function(panel) {
+    panel.classList.toggle('active', panel.id === 'panel-' + tabId);
+  });
+
+  if (window.location.hash !== '#' + tabId) {
+    history.pushState(null, '', '#' + tabId);
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function initCheckboxes() {
+  document.querySelectorAll('.check-item input[type="checkbox"]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var itemDiv = cb.closest('.check-item');
+      var itemId = itemDiv.getAttribute('data-item-id');
+      localStorage.setItem('fl-' + itemId, cb.checked);
+      itemDiv.classList.toggle('checked', cb.checked);
+      updateAllProgress();
+    });
+  });
+}
+
+function updateAllProgress() {
+  PHASES.forEach(function(phase) {
+    var prog = calcProgress(phase);
+    var textEl = document.getElementById('prog-text-' + phase.id);
+    var barEl = document.getElementById('prog-bar-' + phase.id);
+    if (textEl) textEl.textContent = prog.pct + '%';
+    if (barEl) barEl.style.width = prog.pct + '%';
+  });
+}
+
+/* ──────────────────────────────────────────────────────────
+   GLOBAL INTERACTION HANDLERS
+   ────────────────────────────────────────────────────────── */
+
+window.togglePhase = function(phaseId) {
+  var el = document.getElementById('phase-' + phaseId);
+  if (el) el.classList.toggle('expanded');
+};
+
+window.toggleCollapsible = function(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('expanded');
+};
+
+window.copyToClipboard = function(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+};
+
+// Reset
+document.addEventListener('DOMContentLoaded', function() {
+  initPinGate();
+  initTabs();
+
+  document.getElementById('reset-btn').addEventListener('click', function() {
+    if (confirm('Reset all progress? This will uncheck every item across all phases.')) {
+      var keys = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.indexOf('fl-') === 0 && key !== 'fl-authenticated') {
+          keys.push(key);
+        }
+      }
+      keys.forEach(function(k) { localStorage.removeItem(k); });
+      document.querySelectorAll('.check-item input[type="checkbox"]').forEach(function(cb) {
+        cb.checked = false;
+        cb.closest('.check-item').classList.remove('checked');
+      });
+      updateAllProgress();
+    }
+  });
+});
+
+})();
+</script>
+</body>
+</html>
