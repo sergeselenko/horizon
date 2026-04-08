@@ -918,7 +918,7 @@ var PHASES = [
     id: 'phase-2', name: 'Phase 2: Demo Video Production', status: 'parallel', defaultExpanded: false,
     items: [
       { id: 'p2-1', text: 'Write voiceover script (~240-300 words)', status: 'pending', time: '0 min Serge', who: 'Claude', detail: 'DR6 structure: Hook (0-3s) \u2192 Problem (3-7s) \u2192 Solution (7-15s) \u2192 Proof+CTA (15-20s).' },
-      { id: 'p2-2', text: 'Record screen session (salary negotiation scenario)', status: 'pending', time: '15-20 min', who: 'Serge', detail: 'Loom with webcam overlay (recommended) or QuickTime. Also record 2-3 min raw founder walkthrough.' },
+      { id: 'p2-2', text: 'Record screen session (salary negotiation scenario)', status: 'pending', time: '15-20 min', who: 'Serge', detail: 'Open your AI tool with the Negotiation Coach project loaded. Run the salary negotiation scenario. Loom with webcam overlay (recommended) or QuickTime. Also record 2-3 min raw founder walkthrough.' },
       { id: 'p2-3', text: 'Record voiceover', status: 'pending', time: '15-30 min', who: 'Serge', detail: 'Option A: HeyGen stock voice. Option B: Own voice. Option C: ElevenLabs TTS.' },
       { id: 'p2-4', text: 'Assemble in CapCut Pro', status: 'pending', time: '20-35 min', who: 'Serge', detail: 'AI Auto-Edit \u2192 voice-first editing \u2192 AI Auto-Captions \u2192 export 16:9 1920\u00d71080 or 4K.' },
       { id: 'p2-5', text: 'Upload to Bunny Stream', status: 'pending', time: '5 min', who: 'Serge', detail: 'Create account (~$1/mo). Upload video. Get video ID and embed URL.' },
@@ -1126,11 +1126,12 @@ var LOCKED_DECISIONS = [
   { num: 4, title: 'Demo video scope', detail: 'Simple screen recording (~90s). HeyGen for ads only, NOT the sales page demo.' },
   { num: 5, title: 'Order bump on checkout page', detail: 'Built via Systeme.io page builder on order form. Not on the sales page itself.' },
   { num: 6, title: 'Mobile sticky CTA bar', detail: 'Implemented via Raw HTML block. Sticky bottom bar on mobile \u2014 +33-37% checkout starts.' },
-  { num: 7, title: 'Product naming', detail: '"AI Negotiation Coach" only. Never "kit," "prompts," or "Claude Project" in buyer-facing copy.' },
+  { num: 7, title: 'Product naming', detail: '"AI Negotiation Coach" only. Never "kit," "prompts," or "Claude Project" in buyer-facing copy. Never "built on Claude" or "powered by Claude" \u2014 the product is platform-agnostic. Use "works with ChatGPT, Claude, or Gemini" when referencing the AI platform.' },
   { num: 8, title: 'CTA button color', detail: 'Launch with orange (#f97316). Orange vs blue A/B test is future item, not Day 1.' },
   { num: 9, title: 'Old Carousel creative retired', detail: 'Creative 2005086006708394 has Payhip URLs. DO NOT reuse. New carousel required.' },
   { num: 10, title: 'Email sender', detail: 'support@selenko.com, sender name "Serge Osaulenko" \u2014 authenticated and ready.' },
-  { num: 11, title: 'Systeme.io homepage', detail: 'Set to /negotiation-coach. Build a product catalog page when P2 launches.' }
+  { num: 11, title: 'Systeme.io homepage', detail: 'Set to /negotiation-coach. Build a product catalog page when P2 launches.' },
+  { num: 12, title: 'Multi-platform support', detail: 'Product works on ChatGPT (free tier with Projects), Claude (Pro $20/mo), and Gemini Advanced ($20/mo with Gems). Buyer-facing copy says "works with ChatGPT, Claude, or Gemini." ChatGPT is the lead recommendation (free tier). Confirmed April 8, 2026 \u2014 tested on all three, setup under 2 minutes each.' }
 ];
 
 /* ──────────────────────────────────────────────────────────
@@ -1264,11 +1265,11 @@ function buildMissionControl() {
   html += '<div class="eyebrow">Immediate<\/div>';
   html += '<h2 class="h2">What\u2019s Next<\/h2>';
   var actions = [
-    { title: 'Spin up HTML Build Chat', phase: 'Phase 1', who: 'Serge', time: '5 min' },
-    { title: 'Paste 16 HTML blocks into Systeme.io', phase: 'Phase 1', who: 'Serge', time: '30-45 min' },
-    { title: 'Generate mockup images in Gemini', phase: 'Phase 1', who: 'Serge', time: '15 min' },
-    { title: 'Configure order bump', phase: 'Phase 3', who: 'Serge', time: '10 min' },
-    { title: 'Set Systeme.io homepage', phase: 'Phase 5', who: 'Serge', time: '30 sec' }
+    { title: 'Execute Multi-Platform DDV Prompts', phase: 'Phase 1', who: 'Serge', time: '20 min (7 Notion AI prompts)' },
+    { title: 'Take 12 Platform Screenshots', phase: 'Phase 1', who: 'Serge', time: '20 min (ChatGPT, Claude, Gemini, 4 each)' },
+    { title: 'Spin up Portal Rebuild Chat', phase: 'Phase 1', who: 'Serge', time: '5 min (paste delegation prompt)' },
+    { title: 'Paste HTML blocks into Systeme.io', phase: 'Phase 1', who: 'Serge', time: '30-45 min' },
+    { title: 'Configure order bump', phase: 'Phase 3', who: 'Serge', time: '10 min' }
   ];
   actions.forEach(function(a, i) {
     html += '<div class="action-card">';
@@ -1601,7 +1602,7 @@ function buildReference() {
   // Locked Decisions
   html += '<div class="section section-white"><div class="container">';
   html += '<div class="collapsible" id="coll-locked">';
-  html += '<button class="collapsible-trigger" onclick="toggleCollapsible(\'coll-locked\')"><span class="collapsible-icon">\u25B6<\/span> Locked Decisions (11)<\/button>';
+  html += '<button class="collapsible-trigger" onclick="toggleCollapsible(\'coll-locked\')"><span class="collapsible-icon">\u25B6<\/span> Locked Decisions (12)<\/button>';
   html += '<div class="collapsible-body"><div style="padding:8px 0;">';
   LOCKED_DECISIONS.forEach(function(d) {
     html += '<div class="card" style="padding:16px 20px;">';
