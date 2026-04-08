@@ -901,7 +901,7 @@ var PHASES = [
       { id: 'p0-1', text: 'Competitive Intelligence', status: 'complete', time: '~15 min', who: 'Serge', detail: 'CoWork Sales \u2192 /competitive-intelligence. Output: Interactive battlecard. Save to Notion.' },
       { id: 'p0-2', text: 'Brand Voice Discovery & Guidelines', status: 'complete', time: '~15 min', who: 'Serge', detail: 'CoWork Brand Voice \u2192 /discover-brand + /generate-guidelines. Output: Brand voice guide.' },
       { id: 'p0-3', text: 'Design System Validation', status: 'complete', time: '~10 min', who: 'Serge', detail: 'CoWork Design \u2192 /design-system. Output: HTML/CSS component patterns.' },
-      { id: 'p0-4', text: 'Post-Publish Design Critique', status: 'pending', time: '~10 min', who: 'Serge', detail: 'AFTER sales page is published. CoWork Design \u2192 /design-critique on live URL. Quality gate, not launch gate.' }
+      { id: 'p0-4', text: 'Post-Publish Design Critique', status: 'complete', time: '~10 min', who: 'Serge', detail: '6 DDV prompts applied to live page. All fixes re-pasted.' }
     ]
   },
   {
@@ -930,46 +930,49 @@ var PHASES = [
     ]
   },
   {
-    id: 'phase-3-ob', name: 'Phase 3: Order Bump + Checkout Flow', status: 'in-progress', defaultExpanded: true,
+    id: 'phase-3-ob', name: 'Phase 3: Order Bump + Checkout Flow', status: 'complete', defaultExpanded: false,
     items: [
-      { id: 'p3-1', text: 'Configure order bump in Systeme.io', status: 'pending', time: '10 min', who: 'Serge', detail: 'Order form page \u2192 Settings \u2192 Add order bump. Tag: expansion-pack-buyer. $27 price plan.' },
-      { id: 'p3-2', text: 'Place bump element on page with copy', status: 'pending', time: '5 min', who: 'Serge', detail: 'Drag Order bump element above purchase button. Copy: "\u2705 Add the Expansion Pack \u2014 15 additional scenarios + 3 advanced tools \u2014 $27."' },
-      { id: 'p3-3', text: 'Test the bump (test checkout)', status: 'pending', time: '5 min', who: 'Serge', detail: 'Verify: bump checkbox appears, $27 added to total, purchase event fires with full value ($67 or $94).' },
-      { id: 'p3-4', text: 'Configure post-purchase delivery', status: 'pending', time: '10 min', who: 'Serge', detail: 'Both portal links on Thank You page + email with Expansion Pack link when tag added.' },
-      { id: 'p3-5', text: 'Review Thank You page design', status: 'pending', time: 'Incl. in P1', who: 'Both', detail: 'Must match v4 design system. Portal link + PIN + "start in 2 minutes" instruction. Critical per DR10: 40% refund rate from confusion.' },
-      { id: 'p3-6', text: 'Audit order form page branding', status: 'pending', time: '5 min', who: 'Both', detail: 'Selenko logo, consistent colors, guarantee reminder above payment fields.' },
-      { id: 'p3-7', text: 'Audit upsell page', status: 'pending', time: '5 min', who: 'Serge', detail: 'Either present Expansion Pack to non-bump buyers OR redirect to Thank You. No dead pages in flow.' }
+      { id: 'p3-1', text: 'Configure order bump ($27 Expansion Pack, tag: expansion-pack-buyer)', status: 'complete', time: '10 min', who: 'Serge' },
+      { id: 'p3-2', text: 'Upsell Accept/Decline buttons configured', status: 'complete', who: 'Serge' },
+      { id: 'p3-3', text: 'Order form page pasted and LIVE (branded header, guarantee, trust footer)', status: 'complete', who: 'Both' },
+      { id: 'p3-4', text: 'Upsell page pasted and LIVE (full Expansion Pack pitch, Accept/Decline)', status: 'complete', who: 'Both' },
+      { id: 'p3-5', text: 'Thank You page pasted and LIVE (3C framework, email-only delivery)', status: 'complete', who: 'Both' },
+      { id: 'p3-6', text: 'Welcome Email updated: "5 minutes" \u2192 "2 minutes"', status: 'complete', who: 'Both' },
+      { id: 'p3-7', text: 'Section 11 changed to dark background (DDV applied, re-pasted)', status: 'complete', who: 'Both' },
+      { id: 'p3-8', text: 'Systeme.io global fonts changed to Inter', status: 'complete', who: 'Serge' }
     ]
   },
   {
-    id: 'phase-4', name: 'Phase 4: Campaign Build', status: 'pending', defaultExpanded: false,
+    id: 'phase-4', name: 'Phase 4: Campaign Build', status: 'in-progress', defaultExpanded: true,
     subsections: [
       {
         id: 'p4-pre', name: 'Pre-Build Checklist', items: [
-          { id: 'p4-pre-1', text: 'Sales page rebuild is live (Phase 1 complete)', status: 'complete' },
-          { id: 'p4-pre-2', text: 'Order bump working on checkout (Phase 3 complete)', status: 'pending' },
-          { id: 'p4-pre-3', text: 'CAPI verified \u2014 browser + server events both firing', status: 'pending' },
-          { id: 'p4-pre-4', text: 'At least one new static ad image ready (Gemini)', status: 'pending' },
-          { id: 'p4-pre-5', text: 'Old campaign retired', status: 'complete' },
-          { id: 'p4-pre-6', text: 'Naked domain redirect confirmed working', status: 'complete' }
+          { id: 'p4-pre-1', text: 'Sales page live (Phase 1 complete)', status: 'complete' },
+          { id: 'p4-pre-2', text: 'Order bump + checkout flow (Phase 3 complete)', status: 'complete' },
+          { id: 'p4-pre-3', text: 'CAPI verified \u2014 browser + server events', status: 'pending', detail: 'Events Manager \u2192 Test Events. Browser fires but server not yet confirmed.' },
+          { id: 'p4-pre-4', text: '14 ad images on GitHub Pages', status: 'complete', detail: '6 carousel + 3 square + 3 portrait + 2 retargeting. All ready for upload.' },
+          { id: 'p4-pre-5', text: 'Video Ad v2 on GitHub Pages (MOV)', status: 'complete', detail: 'Corrected script + captions. nc-ad-video-v2.MOV' },
+          { id: 'p4-pre-6', text: 'Microsoft Clarity installed', status: 'complete', detail: 'Project w8nze0904p. Global tracking code.' },
+          { id: 'p4-pre-7', text: 'Old campaign retired', status: 'complete' },
+          { id: 'p4-pre-8', text: 'Naked domain redirect confirmed', status: 'complete' }
         ]
       },
       {
         id: 'p4-build', name: 'Build Sequence (Claude via Pipeboard)', items: [
-          { id: 'p4-b1', text: 'Create 3 new engagement audiences (Video 75%, Video 25%, Ad Engagers)', status: 'pending', who: 'Claude' },
-          { id: 'p4-b1b', text: 'Create Video Viewers 50% audience for Layer 1 retargeting', status: 'pending', who: 'Claude' },
-          { id: 'p4-b2', text: 'Upload new Gemini static image \u2192 get image_hash', status: 'pending', who: 'Claude' },
-          { id: 'p4-b3', text: 'Create new Gemini static ad creative', status: 'pending', who: 'Claude' },
-          { id: 'p4-b4', text: 'Create recycled FLEX static ad creative with Selenko URL', status: 'pending', who: 'Claude' },
-          { id: 'p4-b5', text: 'Create new carousel creative with Selenko URLs', status: 'pending', who: 'Claude' },
-          { id: 'p4-b6', text: 'Upload demo video (when ready) \u2192 get video_id', status: 'pending', who: 'Claude' },
-          { id: 'p4-b7', text: 'Create video ad creative', status: 'pending', who: 'Claude' },
-          { id: 'p4-b8', text: 'Create retargeting campaign + Layer 1 ad set ($2-3/day)', status: 'pending', who: 'Claude' },
-          { id: 'p4-b9', text: 'Create prospecting campaign "AI Coach \u2014 Sales \u2014 V1"', status: 'pending', who: 'Claude' },
-          { id: 'p4-b10', text: 'Create ad set: Prospecting \u2014 Broad + Interests ($20/day)', status: 'pending', who: 'Claude' },
-          { id: 'p4-b11', text: 'Create 3-5 ads linking creatives to ad set (all PAUSED)', status: 'pending', who: 'Claude' },
-          { id: 'p4-b12', text: 'Verify ALL destination URLs \u2192 www.selenko.com/negotiation-coach', status: 'pending', who: 'Claude' },
-          { id: 'p4-b13', text: 'Activate campaign', status: 'pending', who: 'Claude' }
+          { id: 'p4-b1', text: 'Upload 14 images to Meta via bulk_upload_ad_images', status: 'pending', who: 'Claude', detail: '6 carousel + 3 square + 3 portrait + 2 retargeting. Record all image hashes to Notion.' },
+          { id: 'p4-b2', text: 'Upload Video Ad v2 to Meta via upload_ad_video', status: 'pending', who: 'Claude', detail: 'nc-ad-video-v2.MOV from GitHub Pages. Record video ID.' },
+          { id: 'p4-b3', text: 'Create 4 custom audiences (Video 75%, 50%, 25%, Ad Engagers 365d)', status: 'pending', who: 'Claude', detail: 'Video Viewers 50% ID needed for Layer 1 retargeting + Layer 2 exclusion.' },
+          { id: 'p4-b4', text: 'Create Creative 1: FLEX Static v2 (DEGREES_OF_FREEDOM, 6 images)', status: 'pending', who: 'Claude', detail: '3 square + 3 portrait hashes, 2 body variants, 2 headlines.' },
+          { id: 'p4-b5', text: 'Create Creative 2: Carousel v2 (6-card, story sequence)', status: 'pending', who: 'Claude', detail: 'multi_share_optimized: false. All 6 cards link to sales page.' },
+          { id: 'p4-b6', text: 'Create Creative 3: Video v2', status: 'pending', who: 'Claude', detail: 'Video ID from Step 2. Body variant 2, headline "Stop Winging It".' },
+          { id: 'p4-b7', text: 'Create Creative 4: Retargeting Layer 1 Objection Buster', status: 'pending', who: 'Claude', detail: 'DEGREES_OF_FREEDOM. Retargeting square + portrait. Layer 1 copy. Headline: "$67. Every Negotiation."' },
+          { id: 'p4-b8', text: 'Create Creative 5: Retargeting Layer 2 Website Visitor', status: 'pending', who: 'Claude', detail: 'DEGREES_OF_FREEDOM. Same retargeting images. Layer 2 copy. Headline: "You Were Close."' },
+          { id: 'p4-b9', text: 'Build prospecting campaign "AI Coach \u2014 Sales \u2014 V1" ($20/day, PAUSED)', status: 'pending', who: 'Claude', detail: 'OUTCOME_SALES, ABO. Ad set: Broad + Interests, Purchase optimization, 7-day click.' },
+          { id: 'p4-b10', text: 'Create 3 prospecting ads (FLEX Static + Carousel + Video, all PAUSED)', status: 'pending', who: 'Claude' },
+          { id: 'p4-b11', text: 'Build retargeting campaign "AI Coach \u2014 Retarget \u2014 V1" ($5/day, PAUSED)', status: 'pending', who: 'Claude', detail: 'OUTCOME_AWARENESS. Layer 1: $3/day, REACH, freq cap 1/7d. Layer 2: $2/day, REACH, freq cap 1/7d.' },
+          { id: 'p4-b12', text: 'Create 2 retargeting ads (Objection + Website, all PAUSED)', status: 'pending', who: 'Claude' },
+          { id: 'p4-b13', text: 'Verify ALL destination URLs \u2192 www.selenko.com/negotiation-coach', status: 'pending', who: 'Claude', detail: 'FLEX link, all 6 carousel cards, video link, both retargeting links.' },
+          { id: 'p4-b14', text: 'Activate both campaigns', status: 'pending', who: 'Claude' }
         ]
       }
     ]
@@ -987,16 +990,16 @@ var PHASES = [
           { id: 'p5-6', text: 'ALL destination URLs verified', status: 'pending' },
           { id: 'p5-7', text: 'Old campaign retired', status: 'complete' },
           { id: 'p5-8', text: 'Payment method active in Meta', status: 'pending' },
-          { id: 'p5-9', text: 'Mobile sticky CTA bar working', status: 'pending' },
-          { id: 'p5-10', text: 'Microsoft Clarity installed and tracking', status: 'pending' },
+          { id: 'p5-9', text: 'Mobile sticky CTA bar working', status: 'complete', detail: 'Section 14+15 live with sticky bar.' },
+          { id: 'p5-10', text: 'Microsoft Clarity installed and tracking', status: 'complete', detail: 'Global tracking code. Project w8nze0904p.' },
           { id: 'p5-11', text: 'Systeme.io homepage set to sales page', status: 'complete', detail: 'URL path cleared. www.selenko.com now loads the sales page directly.' },
           { id: 'p5-12', text: 'Naked domain redirect confirmed', status: 'complete', detail: 'GoDaddy A records deleted. selenko.com now 301 forwards to www.selenko.com.' },
           { id: 'p5-13', text: 'Facebook Business Page set up', status: 'pending' },
           { id: 'p5-14', text: 'End-to-end buyer journey walk-through completed', status: 'pending' },
-          { id: 'p5-15', text: 'CoWork /design-critique on live page', status: 'pending', detail: 'Phase 0 Step 4. Run on www.selenko.com AFTER all HTML is pasted. Produces specific CSS/HTML fixes. Quality gate, NOT a launch gate.' },
-          { id: 'p5-16', text: 'Audit upsell page', status: 'pending', detail: 'www.selenko.com/negotiation-coach-upsell must either present Expansion Pack to non-bump buyers or redirect to Thank You. No dead pages in flow.' },
-          { id: 'p5-17', text: 'Audit order form page', status: 'pending', detail: 'Ensure Selenko logo, consistent colors, guarantee reminder above payment fields.' },
-          { id: 'p5-18', text: 'Review Thank You page', status: 'pending', detail: 'Must include portal links, PINs, and "start your first coaching session in 2 minutes" instruction. Match design system. DR10: 40% of refunds from buyer confusion.' }
+          { id: 'p5-15', text: 'CoWork /design-critique on live page', status: 'complete', detail: '6 DDV prompts applied. All sections re-pasted.' },
+          { id: 'p5-16', text: 'Audit upsell page', status: 'complete', detail: 'Full Expansion Pack pitch with Accept/Decline buttons. Live.' },
+          { id: 'p5-17', text: 'Audit order form page', status: 'complete', detail: 'Branded header, guarantee reminder, trust footer. Live.' },
+          { id: 'p5-18', text: 'Review Thank You page', status: 'complete', detail: '3C framework. No PINs on page \u2014 email-only delivery. Live.' }
         ]
       },
       {
@@ -1286,11 +1289,8 @@ function buildMissionControl() {
 
   html += '<h3 class="h3" style="margin-top:4px;font-size:16px;color:var(--status-complete);">Ready Now \u2014 No Dependencies<\/h3>';
   var actionsReady = [
-    { title: 'Generate hero laptop mockup in Gemini', phase: 'Step 2', who: 'Serge', time: '~15 min' },
-    { title: 'Configure order bump \u2014 $27 Expansion Pack', phase: 'Step 4', who: 'Serge', time: '~10 min' },
-    { title: 'Install Microsoft Clarity', phase: 'Step 6', who: 'Serge', time: '~2 min, free' },
-    { title: 'Facebook Page setup \u2014 cover, about, CTA, 1-2 posts', phase: 'Step 7', who: 'Serge', time: '~20-30 min' },
-    { title: 'Generate static ad image in Gemini', phase: 'Step 9', who: 'Serge', time: '~15 min' }
+    { title: 'Facebook Page setup \u2014 cover, about, CTA, 1-2 posts', phase: 'Pre-launch', who: 'Serge', time: '~20-30 min' },
+    { title: 'CAPI verification (Events Manager Test Events)', phase: 'Pre-launch', who: 'Serge', time: '~15 min' }
   ];
   actionsReady.forEach(function(a, i) {
     html += '<div class="action-card">';
@@ -1303,14 +1303,14 @@ function buildMissionControl() {
 
   html += '<h3 class="h3" style="margin-top:24px;font-size:16px;color:var(--status-progress);">Requires Earlier Steps<\/h3>';
   var actionsBlocked = [
-    { title: 'Buyer journey walk-through', phase: 'Step 8', who: 'Serge', time: '~15 min (after order bump)' },
-    { title: 'Campaign build via Pipeboard', phase: 'Step 10', who: 'Claude', time: 'After Steps 4, 6, 7, 9' },
-    { title: 'End-to-end test purchase', phase: 'Step 11', who: 'Serge', time: '~15 min (before go-live)' },
-    { title: 'Go live \u2014 Claude activates campaign', phase: 'Step 12', who: 'Claude', time: 'Then 7 days zero changes' }
+    { title: 'Buyer journey walk-through', phase: 'Pre-launch', who: 'Serge', time: '~15 min' },
+    { title: 'End-to-end test purchase', phase: 'Pre-launch', who: 'Serge', time: '~10 min' },
+    { title: 'Campaign build via Pipeboard (~20 min)', phase: 'Phase 4', who: 'Claude', time: '14 images + 1 video + 5 creatives + 2 campaigns' },
+    { title: 'Go live \u2014 Claude activates, 7 days no-touch', phase: 'Launch', who: 'Claude', time: '' }
   ];
   actionsBlocked.forEach(function(a, i) {
     html += '<div class="action-card" style="border-left-color:var(--status-progress);">';
-    html += '<div class="action-card-num" style="background:var(--status-progress);">' + (6 + i) + '<\/div>';
+    html += '<div class="action-card-num" style="background:var(--status-progress);">' + (3 + i) + '<\/div>';
     html += '<div class="action-card-content">';
     html += '<div class="action-card-title">' + a.title + '<\/div>';
     html += '<div class="action-card-info"><span>' + a.phase + '<\/span><span>' + a.who + '<\/span><span>' + a.time + '<\/span><\/div>';
@@ -1319,14 +1319,14 @@ function buildMissionControl() {
 
   html += '<h3 class="h3" style="margin-top:24px;font-size:16px;color:var(--status-parallel);">Parallel \u2014 Not Blocking Launch<\/h3>';
   var actionsParallel = [
-    { title: 'Record demo video (page has placeholder)', phase: 'Step 3', who: 'Serge', time: '~65-100 min' },
-    { title: 'SPF record reconciliation (Microsoft 365 + Systeme.io)', phase: 'Infra', who: 'Serge', time: 'Not urgent' },
+    { title: 'Record demo video (page has placeholder)', phase: 'Phase 2', who: 'Serge', time: '~65-100 min' },
     { title: 'Welcome email sequence (Emails 2-7)', phase: 'Post-launch', who: 'Both', time: 'During no-touch window' },
-    { title: 'Expansion Pack buyer workflow', phase: 'Post-launch', who: 'Both', time: 'During no-touch window' }
+    { title: 'Expansion Pack buyer workflow', phase: 'Post-launch', who: 'Both', time: 'During no-touch window' },
+    { title: 'SPF record reconciliation', phase: 'Infra', who: 'Serge', time: 'Not urgent' }
   ];
   actionsParallel.forEach(function(a, i) {
     html += '<div class="action-card" style="border-left-color:var(--status-parallel);">';
-    html += '<div class="action-card-num" style="background:var(--status-parallel);">' + (10 + i) + '<\/div>';
+    html += '<div class="action-card-num" style="background:var(--status-parallel);">' + (7 + i) + '<\/div>';
     html += '<div class="action-card-content">';
     html += '<div class="action-card-title">' + a.title + '<\/div>';
     html += '<div class="action-card-info"><span>' + a.phase + '<\/span><span>' + a.who + '<\/span><span>' + a.time + '<\/span><\/div>';
@@ -1343,7 +1343,7 @@ function buildMissionControl() {
     { num: '$500-750', label: 'Validation Budget' },
     { num: '< $35', label: 'Target CPA' },
     { num: '~$55-58', label: 'Break-Even CPA' },
-    { num: '$22-23/day', label: 'Daily Spend' }
+    { num: '$25/day', label: 'Daily Spend' }
   ];
   metrics.forEach(function(m) {
     html += '<div class="card stat-card"><div class="stat-number">' + m.num + '<\/div><div class="stat-label">' + m.label + '<\/div><\/div>';
@@ -1448,19 +1448,16 @@ function buildCampaign() {
   html += '<h2 class="h2">Campaign Structure<\/h2>';
   html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Campaign<\/th><th>Objective<\/th><th>Budget<\/th><th>Launches<\/th><\/tr><\/thead><tbody>';
   html += '<tr><td>AI Coach \u2014 Sales \u2014 V1<\/td><td>OUTCOME_SALES<\/td><td>$20/day (ABO)<\/td><td>Day 1<\/td><\/tr>';
-  html += '<tr><td>AI Coach \u2014 Retarget \u2014 V1<\/td><td>OUTCOME_AWARENESS<\/td><td>$2-3/day (ABO)<\/td><td>Day 1<\/td><\/tr>';
+  html += '<tr><td>AI Coach \u2014 Retarget \u2014 V1<\/td><td>OUTCOME_AWARENESS<\/td><td>$5/day ABO ($3 L1 + $2 L2)<\/td><td>Day 1<\/td><\/tr>';
   html += '<\/tbody><\/table><\/div>';
 
   // Prospecting Ads
   html += '<h3 class="h3" style="margin-top:32px;">Prospecting Ads<\/h3>';
   html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Ad<\/th><th>Status<\/th><th>Source<\/th><\/tr><\/thead><tbody>';
   var ads = [
-    { ad: 'Static \u2014 FLEX Recycled', status: 'Ready', source: 'Pipeboard (stored hashes)' },
-    { ad: 'Static \u2014 Gemini New', status: 'Serge generates', source: 'Gemini \u2192 GitHub \u2192 Pipeboard' },
-    { ad: 'Video Ad v1 (existing)', status: '\u2705 Existing', source: 'Reuse (1340821288075504)' },
-    { ad: 'New Carousel \u2014 Framework V2', status: 'Must be built', source: 'Pipeboard' },
-    { ad: 'Video \u2014 Demo Cut V1', status: 'Blocked on Phase 2', source: 'Pipeboard upload' },
-    { ad: 'UGC \u2014 Founder Demo', status: 'Record before/alongside P2', source: 'iPhone \u2192 CapCut \u2192 Pipeboard' }
+    { ad: 'FLEX Static v2 (DEGREES_OF_FREEDOM)', status: '\u2705 Images ready', source: '3 square + 3 portrait on GitHub' },
+    { ad: 'Carousel v2 (6-card story arc)', status: '\u2705 Images ready', source: '6 carousel cards on GitHub' },
+    { ad: 'Video Ad v2 (corrected script + captions)', status: '\u2705 Video ready', source: 'nc-ad-video-v2.MOV on GitHub' }
   ];
   ads.forEach(function(a) {
     html += '<tr><td>' + a.ad + '<\/td><td>' + a.status + '<\/td><td>' + a.source + '<\/td><\/tr>';
@@ -1472,8 +1469,8 @@ function buildCampaign() {
   html += '<div class="section section-gray"><div class="container">';
   html += '<div class="eyebrow">Retargeting<\/div>';
   html += '<h2 class="h2">Two-Layer Strategy<\/h2>';
-  html += '<div class="card"><div class="card-title">Layer 1 \u2014 Engagement Retargeting (Day 1, $2-3/day)<\/div><div class="card-body">Audience: Video Viewers 50%+ (365d) + Page Engagers (365d) MINUS Purchasers. Optimization: REACH. Frequency cap: 1/7 days (immutable after creation). Creative: different from prospecting ads. 3.2\u00d7 higher CTR and 41% lower CPA vs generic web retargeting.<\/div><\/div>';
-  html += '<div class="card"><div class="card-title">Layer 2 \u2014 Website Retargeting (when demo ready)<\/div><div class="card-body">Audience: Product Page Viewers (30d) + Engaged Visitors (30d) MINUS Purchasers MINUS Layer 1. Budget: $2-3/day additional. Creative: Demo video cut (30-60s). Activates once demo video exists.<\/div><\/div>';
+  html += '<div class="card"><div class="card-title">Layer 1 \u2014 Engagement Retargeting (Day 1, $3/day)<\/div><div class="card-body">Audience: Video Viewers 50%+ (365d) + Page Engagers (365d) MINUS Purchasers. Optimization: REACH. Frequency cap: 1/7 days (immutable after creation). Creative: Objection Buster (retargeting square + portrait). 3.2\u00d7 higher CTR and 41% lower CPA vs generic web retargeting.<\/div><\/div>';
+  html += '<div class="card"><div class="card-title">Layer 2 \u2014 Website Retargeting (Day 1, $2/day)<\/div><div class="card-body">Audience: Product Page Viewers (30d) + Engaged Visitors (30d) MINUS Purchasers MINUS Video Viewers 50% MINUS Page Engagers. Budget: $2/day. Creative: Website Visitor copy ("You Were Close."). Frequency cap: 1/7 days.<\/div><\/div>';
 
   // Retargeting Creatives
   html += '<h3 class="h3" style="margin-top:24px;">Retargeting Creatives<\/h3>';
